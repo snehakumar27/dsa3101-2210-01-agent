@@ -1,5 +1,10 @@
 # DSA3101 Project - Transport Modeling with Agents
-### Group 01, this repo is under the ownership of: Sneha Kumar, Matthias Koh Yong An, Raphael Teng Yao Wei, Kwan Yu Him, Zhang Aijia, You Bohan, Andrew Chunhan Chou and Hu Tingxuan
+### Group 01
+This repo is under the ownership of project members
+
+Backend Team: Sneha Kumar, Matthias Koh Yong An, Raphael Teng Yao Wei and Kwan Yu Him
+
+Frontend Team: Zhang Aijia, You Bohan, Andrew Chunhan Chou and Hu Tingxuan
 
 ## Problem Statement
 Inspired by the new Tengah town as well as the up and coming Jurong Innovation District (JID), we aim to simulate traffic flow in the new towns to aid urban planners such as URA in their planning process. Through the usage of Netlogo we aim to simulate potential traffic flow and predict and prevent potential traffic build up when the new town becomes fully functional. Understanding that town planners would like to experiment and develop their most optimal plan, we have identified key parameters that will be added to the end user dashboard that urban planners would be able to adjust, this is such as the number of lanes, traffic lights and types of junctions. 
