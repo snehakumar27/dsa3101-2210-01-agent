@@ -6,6 +6,8 @@ Backend Team: Sneha Kumar, Matthias Koh Yong An, Raphael Teng Yao Wei and Kwan Y
 
 Frontend Team: Zhang Aijia, You Bohan, Andrew Chunhan Chou and Hu Tingxuan
 
+Advisers: Prof Vik Gopal, Li Keyou, Pan Yuting and Urban Redevelopment Authority (URA)
+
 ## Problem Statement
 Inspired by the new Tengah town as well as the up and coming Jurong Innovation District (JID), we aim to simulate traffic flow in the new towns to aid urban planners such as URA in their planning process. Through the usage of Netlogo we aim to simulate potential traffic flow and predict and prevent potential traffic build up when the new town becomes fully functional. Understanding that town planners would like to experiment and develop their most optimal plan, we have identified key parameters that will be added to the end user dashboard that urban planners would be able to adjust, this is such as the number of lanes, traffic lights and types of junctions. 
 
