@@ -94,8 +94,8 @@ to setup-globals
   set current-intersection nobody ;; just for now, since there are no intersections yet
   set phase 0
   set num-cars-stopped 0
-  set grid-x-inc world-width / grid-size-x
-  set grid-y-inc world-height / grid-size-y
+  set grid-x-inc world-width / 3
+  set grid-y-inc world-height / 4
 
   ;; don't make acceleration 0.1 since we could get a rounding error and end up on a patch boundary
   set acceleration 0.099
@@ -118,11 +118,11 @@ to setup-patches
   ;; initialize the global variables that hold patch agentsets
   set roads patches with [
     (floor ((pxcor + max-pxcor - floor (grid-x-inc - 1)) mod grid-x-inc) = 0) or
-    (floor ((pycor + max-pycor) mod grid-y-inc) = 0)
+    (floor ((pycor + max-pycor) mod grid-y-inc - 1) = 0)
   ]
   set intersections roads with [
     (floor ((pxcor + max-pxcor - floor (grid-x-inc - 1)) mod grid-x-inc) = 0) and
-    (floor ((pycor + max-pycor) mod grid-y-inc) = 0)
+    (floor ((pycor + max-pycor) mod grid-y-inc - 1) = 0)
   ]
 
   ask roads [ set pcolor white ]
@@ -471,36 +471,6 @@ false
 "set-plot-y-range 0 speed-limit" ""
 PENS
 "default" 1.0 0 -16777216 true "" "plot mean [speed] of turtles"
-
-SLIDER
-110
-10
-205
-43
-grid-size-y
-grid-size-y
-1
-9
-5.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-10
-10
-104
-43
-grid-size-x
-grid-size-x
-1
-9
-5.0
-1
-1
-NIL
-HORIZONTAL
 
 SWITCH
 10
