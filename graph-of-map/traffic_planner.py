@@ -80,7 +80,21 @@ app.layout = html.Div(
             children = [
                  dcc.Graph(id = "map_graph", figure = create_graph(light_density, roads_density, 0))
             ]
-        )
+        ),
+        html.Div(
+            [
+                html.P("The duration of the red light(s)")]),
+        html.Div([ dcc.Dropdown(options=[{'label': time, 'value':time}
+                          for time in ['30', '40','50','60']]),
+                   html.Div()
+                ]),
+        html.Div(
+            [
+                html.P("The duration of the green light(s)")]),
+        html.Div([ dcc.Dropdown(options=[{'label': time, 'value':time}
+                          for time in ['30', '40','50','60']]),
+                   html.Div()
+                ]),
     ]
 
 )
