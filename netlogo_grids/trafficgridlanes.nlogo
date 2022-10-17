@@ -525,13 +525,13 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-465
-15
-983
-534
+330
+10
+703
+384
 -1
 -1
-6.99
+10.0
 1
 15
 1
@@ -552,10 +552,10 @@ ticks
 30.0
 
 PLOT
-635
-555
-853
-730
+455
+390
+673
+565
 Average Wait Time of Cars
 Time
 Average Wait
@@ -570,10 +570,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot mean [wait-time] of turtles"
 
 PLOT
-370
-555
-586
-730
+228
+392
+444
+567
 Average Speed of Cars
 Time
 Average Speed
@@ -614,10 +614,10 @@ NIL
 HORIZONTAL
 
 PLOT
-90
-555
-304
-730
+5
+390
+219
+565
 Stopped Cars
 Time
 Stopped Cars
