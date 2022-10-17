@@ -211,8 +211,8 @@ to setup-cars  ;; turtle procedure
       [ set up-car? false ]
   ]
   ifelse up-car?
-    [ set heading 180 ]
     [ set heading 90 ]
+    [ set heading 180 ]
 end
 
 ;; Find a road patch without any turtles on it and place the turtle there.
