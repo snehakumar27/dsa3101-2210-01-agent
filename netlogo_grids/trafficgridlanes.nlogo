@@ -146,7 +146,7 @@ to draw-road
   ;  ; the road is surrounded by green grass of varying shades
   ;  set pcolor green - random-float 0.5
   ;]
-  set lanes n-values number-of-lanes [ n -> number-of-lanes ] ;- (n * 2) - 1
+  set lanes n-values number-of-lanes [ n -> number-of-lanes - (n * 2) - 1 ] ;
   ask patches with [ abs pxcor <= number-of-lanes ] [
     ; the road itself is varying shades of grey
     set pcolor grey ;;- 2.5 + random-float 0.25
