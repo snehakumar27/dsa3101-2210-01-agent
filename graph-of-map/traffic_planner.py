@@ -76,6 +76,12 @@ app.layout = html.Div(
                 )
             ]
         ),
+        
+        html.Div(children = [
+            html.P('Number of Lanes:'),
+            dcc.Input(id='lanes', type='number', min=1, max=10),
+        ], style = {}),
+        
         html.Div(
             children = [
                  dcc.Graph(id = "map_graph", figure = create_graph(light_density, roads_density, 0))
