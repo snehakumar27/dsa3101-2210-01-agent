@@ -1,3 +1,4 @@
+breed[cars car]
 globals
 [
   grid-x-inc               ;; the amount of patches in between two roads in the x direction
@@ -11,9 +12,10 @@ globals
   ;; patch agentsets
   intersections ;; agentset containing the patches that are intersections
   roads         ;; agentset containing the patches that are roads
+  lanes          ; a list of the x coordinates of different lanes
 ]
 
-turtles-own
+cars-own
 [
   speed     ;; the speed of the turtle
   up-car?   ;; true if the turtle moves downwards and false if it moves to the right
@@ -54,11 +56,12 @@ to setup
   ;; Make an agentset of all patches where there can be a house or road
   ;; those patches with the background color shade of brown and next to a road
   let goal-candidates patches with [
-    pcolor = 38 and any? neighbors with [ pcolor = white ]
+    pcolor = 38 and any? neighbors with [ pcolor = brown ]
   ]
   ask one-of intersections [ become-current ]
 
-  set-default-shape turtles "car"
+  set-default-shape turtles "car top"
+  draw-road
 
   if (num-cars > count roads) [
     user-message (word
@@ -72,7 +75,7 @@ to setup
   ]
 
   ;; Now create the cars and have each created car call the functions setup-cars and set-car-color
-  create-turtles num-cars [
+  create-cars num-cars [
     setup-cars
     set-car-color ;; slower turtles are blue, faster ones are colored cyan
     record-data
@@ -94,8 +97,8 @@ to setup-globals
   set current-intersection nobody ;; just for now, since there are no intersections yet
   set phase 0
   set num-cars-stopped 0
-  set grid-x-inc world-width / 3
-  set grid-y-inc world-height / 4
+  set grid-x-inc world-width / 1  ; changes the number of patches along x axis
+  set grid-y-inc world-height / 1 ; changes the number of patches along y axis
 
   ;; don't make acceleration 0.1 since we could get a rounding error and end up on a patch boundary
   set acceleration 0.099
@@ -112,22 +115,69 @@ to setup-patches
     set my-row -1
     set my-column -1
     set my-phase -1
-    set pcolor brown + 3
+    set pcolor (brown - random-float 0.5) ; change color of grass
   ]
 
   ;; initialize the global variables that hold patch agentsets
   set roads patches with [
-    (floor ((pxcor + max-pxcor - floor (grid-x-inc - 1)) mod grid-x-inc) = 0) or
-    (floor ((pycor + max-pycor) mod grid-y-inc - 1) = 0)
+    (floor ((pxcor + max-pxcor - floor (grid-x-inc - 19)) mod grid-x-inc) = 0) ;or ;changes the road positioning
+    ;(floor ((pycor + max-pycor) mod grid-y-inc - 18) = 0)
   ]
   set intersections roads with [
-    (floor ((pxcor + max-pxcor - floor (grid-x-inc - 1)) mod grid-x-inc) = 0) and
-    (floor ((pycor + max-pycor) mod grid-y-inc - 1) = 0)
+    (floor ((pxcor + max-pxcor - floor (grid-x-inc - 19)) mod grid-x-inc) = 0) and ;changes the traffic lights positioning
+    (floor ((pycor + max-pycor) mod grid-y-inc - 18) = 0)
   ]
 
-  ask roads [ set pcolor white ]
+  ask roads [ set pcolor grey ]
   setup-intersections
 end
+
+to draw-road
+  ; create crossroads
+  ask patches [
+    ; the road is surrounded by green grass of varying shades
+    set pcolor brown ;;- random-float 0.5
+  ]
+  set lanes n-values number-of-lanes [ n -> number-of-lanes - (n * 2) - 1 ]
+  ask patches with [ abs pxcor <= number-of-lanes ] [
+    ; the road itself is varying shades of grey
+    set pcolor grey ;;- 2.5 + random-float 0.25
+  ]
+  draw-road-lines
+end
+
+to draw-road-lines
+  let x (last lanes) - 1 ; start below the "lowest" lane
+  while [ x <= first lanes + 1 ] [
+    if not member? x lanes [
+      ; draw lines on road patches that are not part of a lane
+      ifelse abs x = number-of-lanes
+        [ draw-line x yellow 0 ]  ; yellow for the sides of the road
+        [ draw-line x white 0.5 ] ; dashed white between lanes
+    ]
+    set x x + 2 ; move up one patch
+  ]
+end
+
+to draw-line [ x line-color gap ]
+  ; We use a temporary turtle to draw the line:
+  ; - with a gap of zero, we get a continuous line;
+  ; - with a gap greater than zero, we get a dasshed line.
+  create-turtles 1 [
+    setxy (min-pycor - 19) x
+    hide-turtle
+    set color line-color
+    set heading 180
+    repeat world-height [
+      pen-up
+      forward gap
+      pen-down
+      forward (1 - gap)
+    ]
+    die
+  ]
+end
+
 
 ;; Give the intersections appropriate values for the intersection?, my-row, and my-column
 ;; patch variables.  Make all the traffic lights start off so that the lights are red
@@ -147,6 +197,7 @@ end
 ;; Initialize the turtle variables to appropriate values and place the turtle on an empty road patch.
 to setup-cars  ;; turtle procedure
   set speed 0
+  set size 2
   set wait-time 0
   put-on-empty-road
   ifelse intersection? [
@@ -253,8 +304,8 @@ to set-signal-colors  ;; intersection (patch) procedure
     ]
   ]
   [
-    ask patch-at -1 0 [ set pcolor white ]
-    ask patch-at 0 1 [ set pcolor white ]
+    ask patch-at -1 0 [ set pcolor grey ]
+    ask patch-at 0 1 [ set pcolor grey ]
   ]
 end
 
@@ -350,7 +401,7 @@ to-report next-patch
   ]
   ;; CHOICES is an agentset of the candidate patches that the car can
   ;; move to (white patches are roads, green and red patches are lights)
-  let choices neighbors with [ pcolor = white or pcolor = red or pcolor = green ]
+  let choices neighbors with [ pcolor = grey or pcolor = red or pcolor = green ]
   ;; choose the patch closest to the goal, this is the patch the car will move to
   let choice min-one-of choices [ distance [ goal ] of myself ]
   ;; report the chosen patch
@@ -410,9 +461,9 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-327
+320
 10
-668
+661
 352
 -1
 -1
@@ -437,10 +488,10 @@ ticks
 30.0
 
 PLOT
-453
-377
-671
-552
+455
+390
+673
+565
 Average Wait Time of Cars
 Time
 Average Wait
@@ -456,9 +507,9 @@ PENS
 
 PLOT
 228
-377
+392
 444
-552
+567
 Average Speed of Cars
 Time
 Average Speed
@@ -492,7 +543,7 @@ num-cars
 num-cars
 1
 400
-200.0
+21.0
 1
 1
 NIL
@@ -500,9 +551,9 @@ HORIZONTAL
 
 PLOT
 5
-376
+390
 219
-551
+565
 Stopped Cars
 Time
 Stopped Cars
@@ -517,9 +568,9 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot num-cars-stopped"
 
 BUTTON
-220
+230
 45
-305
+315
 78
 Go
 go
@@ -534,9 +585,9 @@ NIL
 0
 
 BUTTON
-220
+230
 10
-304
+314
 43
 Setup
 setup
@@ -566,10 +617,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-185
-125
-290
-170
+175
+130
+280
+175
 Current Phase
 phase
 3
@@ -684,6 +735,21 @@ NIL
 NIL
 NIL
 0
+
+SLIDER
+10
+10
+182
+43
+number-of-lanes
+number-of-lanes
+0
+4
+4.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## ACKNOWLEDGMENT
@@ -889,6 +955,21 @@ Circle -16777216 true false 180 180 90
 Polygon -16777216 true false 80 138 78 168 135 166 135 91 105 106 96 111 89 120
 Circle -7500403 true true 195 195 58
 Circle -7500403 true true 195 47 58
+
+car top
+true
+0
+Polygon -7500403 true true 151 8 119 10 98 25 86 48 82 225 90 270 105 289 150 294 195 291 210 270 219 225 214 47 201 24 181 11
+Polygon -16777216 true false 210 195 195 210 195 135 210 105
+Polygon -16777216 true false 105 255 120 270 180 270 195 255 195 225 105 225
+Polygon -16777216 true false 90 195 105 210 105 135 90 105
+Polygon -1 true false 205 29 180 30 181 11
+Line -7500403 true 210 165 195 165
+Line -7500403 true 90 165 105 165
+Polygon -16777216 true false 121 135 180 134 204 97 182 89 153 85 120 89 98 97
+Line -16777216 false 210 90 195 30
+Line -16777216 false 90 90 105 30
+Polygon -1 true false 95 29 120 30 119 11
 
 circle
 false
