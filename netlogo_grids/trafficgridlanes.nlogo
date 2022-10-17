@@ -525,13 +525,13 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-330
+325
 10
-703
-384
+683
+369
 -1
 -1
-10.0
+4.8
 1
 15
 1
