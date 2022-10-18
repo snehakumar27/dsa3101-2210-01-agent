@@ -1,20 +1,21 @@
+;;;;;;; Declare/Define variables and breeds ;;;;;;;
 breed[cars car]
-breed[traffic_lights traffic_light]
-breed[crossings crossing]
 breed[persons person]
+breed[crossings crossing]
+;breed[traffic_lights traffic_light]  ;for traffic signals
 
 globals [
-  redLight
-  greenLight
   speedLimit
-  ;selected-car
-  ;selected-pedestrian
+  ;  redLight    ;for traffic signal
+  ;  greenLight  ;for traffic signal
+  ;selected-car  ;select car
+  ;selected-pedestrian    ;select pedestrian
   lanes
 ]
 
 patches-own [
   meaning
-  will-cross?
+  will-cross?   ;may not be needed
   used
   traffic
   limit
@@ -35,6 +36,7 @@ cars-own [
   targetLane
 ]
 
+
 to setup
   clear-all
   set speedLimit speed-limit
@@ -52,22 +54,25 @@ end
 
 to draw-roads
   ask patches [
-    ; the road is surrounded by green grass of varying shades
+    ;the road is surrounded by green grass of varying shades
     set pcolor 63 + random-float 0.5
   ]
+  ;roads based on number of lanes
   set lanes n-values number-of-lanes [ n -> number-of-lanes - (n * 2) - 1 ]
+
+  ; lanes on right side of the middle/divider
   ask patches with [ (0 <= pxcor) and  (pxcor <= number-of-lanes) ] [
-    ; lanes on right side of the middle/divider
     set pcolor grey - 2.5 + random-float 0.25
     set meaning "road-down"
   ]
 
+  ; lanes on left side of the middle/divider
   ask patches with [ (0 >= pxcor) and  (abs pxcor <= number-of-lanes) ] [
-    ; lanes on left side of the middle/divider
     set pcolor grey - 2.5 + random-float 0.25
     set meaning "road-up"
   ]
 
+  ; middle "lane" is the divider for 2-ways
   ask patches with [ abs pxcor = 0] [
     set pcolor yellow
     set meaning "divider"
@@ -77,11 +82,9 @@ end
 
 to draw-sidewalk
   ask patches with [pycor = 15 or pycor = 14 and (meaning !="road-up" and meaning !="road-down" and meaning != "divider")]
-  ;mod 40 = 1 or pxcor mod 40 = 2 or pxcor mod 40 = 3
-    ;or pxcor mod 40 = 35 or pxcor mod 40 = 34 or pxcor mod 40 = 33 or pycor mod 22 = 1
-    ;or pycor mod 22 = 2 or pycor mod 22 = 3 or pycor mod 22 = 15 or pycor mod 22 = 16 or pycor mod 22 = 17] [
   [set pcolor 36 + random-float 0.3
   set meaning "sidewalk"]
+  ; may add sidewalk next to the road here, but will have to change meaning perhaps to distinguish when creating persons
 end
 
 to draw-crossing
@@ -96,22 +99,21 @@ to draw-crossing
 
 end
 
-
 to make-cars
-  ;create cars
+  ;create cars on left lane
   ask n-of (number-of-cars) patches with [meaning = "road-up"] [
-    ;check if it's a pedestrian crossing
-
+    ;check if it's a pedestrian crossing: cars 2 patches away from the crossing
     if not any? cars-on patch (pxcor + 1) pycor and
     not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
     not any? patches with [meaning = "crossing"] in-radius 2 [
      sprout-cars 1 [
         set shape "car top"
         set color car-color
-        ;move-to one-of free road-patches (the above check should already take into account for this?)
-        set targetLane pxcor
-        set patience random max-patience
+        ;move-to one-of free road-patches ; no need the above check should already take into account for this?
+        set targetLane pxcor                 ;starting lane is the targetLane
+        set patience random max-patience     ;max-patience in beginning
         set heading 0
+        ;randomly set car speed
         let s random 10
         if s < 7 [set maxSpeed speed-limit - 15 + random 16]
         if s = 7 [set maxSpeed speed-limit - 20 + random 6]
@@ -121,19 +123,20 @@ to make-cars
     ]
   ]
 
+  ;create cars on right lane
   ask n-of (number-of-cars) patches with [meaning = "road-down"] [
-    ;check if it's a pedestrian crossing
-    ;if not any? cars-on patch pycor (pxcor + 1) and not
+    ;check if it's a pedestrian crossing: cars 2 patches away from the crossing
     if not any? cars-on patch (pxcor + 1) pycor and
     not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
     not any? patches with [meaning = "crossing"] in-radius 2 [
      sprout-cars 1 [
         set shape "car top"
         set color car-color
-        ;move-to one-of free road-patches (the above check should already take into account for this?)
-        set targetLane pxcor
-        set patience random max-patience
+        ;move-to one-of free road-patches ; no need the above check should already take into account for this?
+        set targetLane pxcor                  ;starting lane is the targetLane
+        set patience random max-patience      ;max-patience in beginning
         set heading 180
+        ;randomly set car speed
         let s random 10
         if s < 7 [set maxSpeed speed-limit - 15 + random 16]
         if s = 7 [set maxSpeed speed-limit - 20 + random 6]
@@ -178,7 +181,7 @@ to-report pedestrian-color
   report one-of [ 132 133 ] + 1.5 + random-float 1.0
 end
 
-; need to check again
+; for traffic signals, but pls edit the following code has issues
 ;to make-lights
 ;  ask patches with [(pxcor mod 40 = 39 or pxcor mod 40 = 0) and pycor mod 22 = 17] [
 ;    sprout-traffic_lights 1 [
@@ -194,32 +197,34 @@ end
 
 to go
   move-cars
-  control-traffic-signals
+  ;control-traffic-signals
   move-pedestrians
 end
 
 to move-cars
 end
 
-to control-traffic-signals
-  if ticks mod (50 * lights-interval * greenLight + 65 * lights-interval * redLight ) = 0 [change-color traffic_lights]
-end
-
-to change-color [lights]
-  ask one-of lights [
-    ifelse color = red [
-      set greenLight greenLight + 1
-    ][set redLight redLight + 1
-    ]
-  ]
-
-  ask lights [
-    ifelse color = red [set color green][set color red]
-  ]
-end
-
 to move-pedestrians
 end
+
+;to control-traffic-signals
+;  if ticks mod (50 * lights-interval * greenLight + 65 * lights-interval * redLight ) = 0 [change-color traffic_lights]
+;end
+;
+;to change-color [lights]
+;  ask one-of lights [
+;    ifelse color = red [
+;      set greenLight greenLight + 1
+;    ][set redLight redLight + 1
+;    ]
+;  ]
+;
+;  ask lights [
+;    ifelse color = red [set color green][set color red]
+;  ]
+;end
+
+
 
 
 
@@ -230,11 +235,11 @@ end
 GRAPHICS-WINDOW
 210
 10
-651
-452
+786
+587
 -1
 -1
-13.121212121212123
+17.21212121212121
 1
 10
 1
@@ -355,7 +360,7 @@ time-to-cross
 time-to-cross
 0
 40
-20.0
+31.0
 1
 1
 seconds
@@ -375,6 +380,23 @@ number-of-lanes
 1
 NIL
 HORIZONTAL
+
+BUTTON
+97
+22
+160
+55
+Go
+go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
