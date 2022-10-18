@@ -88,8 +88,6 @@ to draw-roads
   ]
 end
 
-;; hello
-
 to draw-sidewalk
   ask patches with [(pycor = 11 or pycor = 10) and (abs pxcor > number-of-lanes) and
   (meaning !="road-up" and meaning != "road-down" and meaning != "divider")]
@@ -310,7 +308,7 @@ end
 
 to move-cars
   speed-up-car ;
-  let blocking-cars other cars in-cone (3 + speed) 180 with [ x-distance <= 1 ]
+  let blocking-cars other cars in-cone (1 + speed) 180 with [ y-distance <= 3 ]
   let blocking-car min-one-of blocking-cars [ distance myself ]
   if blocking-car != nobody [
     ; match the speed of the car ahead of you and then slow
@@ -334,12 +332,12 @@ to choose-new-lane ; car procedure
 end
 
 to move-to-targetLane ; car procedure
-  ;set heading ifelse-value targetLane < xcor [ 180 ] [ 0 ]
+  set heading ifelse-value targetLane < xcor [ 180 ] [ 0 ]
   let blocking-cars other cars in-cone (1 + abs (xcor - targetLane)) 180 with [ y-distance <= 3 ]
   let blocking-car min-one-of blocking-cars [ distance myself ]
   ifelse blocking-car = nobody [
     forward 0.2
-    set xcor precision xcor 0.1 ; to avoid floating point errors
+    set xcor precision xcor 1 ; to avoid floating point errors
   ] [
     ; slow down if the car blocking us is behind, otherwise speed up
     ifelse towards blocking-car <= 180 [ slow-down-car ] [ speed-up-car ]
@@ -350,7 +348,7 @@ to slow-down-car ; turtle procedure
   set speed (speed - decelaration) ; deceleration
   if speed < 0 [ set speed decelaration ]
   ; every time you hit the brakes, you loose a little patience
-  set patience patience - 1
+  set patience patience - 20
 end
 
 to-report x-distance
@@ -371,6 +369,28 @@ to move-pedestrians
 ;    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
 ;    not any? patches with [meaning = "crossing"] in-radius 2 [
   forward walk-time
+  ;face min-one-of patches with [meaning = "sidewalk"] [distance myself]
+  walk
+
+end
+
+to walk
+  ifelse [meaning] of patch-ahead 1 = "sidewalk" [
+    ifelse any? other persons-on patch-ahead 1 [
+      rt random-float 0.02
+      lt  random-float 0.005
+      set walk-time walk-time + 0.001
+    ]
+    [fd speed / 0.002 set walk-time walk-time + 0.001]
+  ]
+  [
+    ;rt random 2
+    ;lt random 2
+    if [meaning] of patch-ahead 1 = "sidewalk" [
+      fd speed / 0.002
+    ]
+    set walk-time walk-time + 0.001
+  ]
 end
 
 ;to control-traffic-signals
@@ -389,7 +409,6 @@ end
 ;    ifelse color = red [set color green][set color red]
 ;  ]
 ;end
-
 
 
 
@@ -462,7 +481,7 @@ lights-interval
 lights-interval
 0
 60
-29.0
+30.0
 1
 1
 seconds
@@ -477,7 +496,7 @@ number-of-cars
 number-of-cars
 0
 100
-30.0
+38.0
 1
 1
 NIL
@@ -492,7 +511,7 @@ number-of-pedestrians
 number-of-pedestrians
 0
 26
-24.0
+16.0
 1
 1
 NIL
@@ -507,7 +526,7 @@ max-patience
 max-patience
 0
 50
-30.0
+50.0
 1
 1
 NIL
@@ -522,7 +541,7 @@ time-to-cross
 time-to-cross
 0
 40
-12.0
+14.0
 1
 1
 seconds
@@ -537,7 +556,7 @@ number-of-lanes
 number-of-lanes
 0
 4
-3.0
+4.0
 1
 1
 NIL
@@ -569,7 +588,7 @@ acceleration
 acceleration
 0
 0.015
-0.005
+0.01
 0.005
 1
 NIL
@@ -584,7 +603,7 @@ decelaration
 decelaration
 0
 0.5
-0.2
+0.5
 0.1
 1
 NIL
