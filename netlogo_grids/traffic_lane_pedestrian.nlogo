@@ -2,12 +2,12 @@
 breed[cars car]
 breed[persons person]
 breed[crossings crossing]
-;breed[traffic_lights traffic_light]  ;for traffic signals
+breed[traffic_lights traffic_light]  ;for traffic signals
 
 globals [
   speedLimit
-  ;  redLight    ;for traffic signal
-  ;  greenLight  ;for traffic signal
+  ;redLight    ;for traffic signal
+  ;greenLight  ;for traffic signal
   ;selected-car  ;select car
   ;selected-pedestrian    ;select pedestrian
   lanes
@@ -36,6 +36,10 @@ cars-own [
   targetLane
 ]
 
+traffic_lights-own [
+  redLight?
+  greenLight?
+]
 
 ;;;;;;; Setup the Simulation ;;;;;;;
 to setup
@@ -46,7 +50,7 @@ to setup
   draw-crossing
   make-cars
   make-people
-  ;make-lights
+  make-lights
   reset-ticks
   tick
 end
@@ -96,14 +100,19 @@ to draw-sidewalk
 end
 
 to draw-crossing
-   ask patches with [(meaning != "sidewalk-left") and (meaning != "sidewalk-right") and (pycor = 10 or pycor = 11)][
-    sprout-crossings 1 [
-      set shape "crossing"
-      set color white
-      set heading 0
-      set meaning "crossing"
-    ]
+  let cross-left patches with [(pycor = 10 or pycor = 11) and (pxcor = 0)]
+  ask patches with [(meaning != "sidewalk-left") and (meaning != "sidewalk-right") and (pycor = 10 or pycor = 11)][
+    set pcolor white
+    set meaning "crossing"
   ]
+;  [
+;    sprout-crossings 1 [
+;      set shape "crossing"
+;      set color white
+;      set heading 0
+;      set meaning "crossing"
+;    ]
+;  ]
 
 end
 
@@ -175,40 +184,19 @@ to-report car-color
 end
 
 to make-people
-;  while [count persons < number-of-pedestrians] [
-;    ask one-of patches with [meaning = "sidewalk-left"] [
-;     sprout-persons 1 [
-;       set speed 0.05
-;       set heading 90
-;       set size 0.8
-;       set waiting? false
-;       set walk-time 0.05 + random (0.08 - 0.05)
-;       set shape "person"
-;       set color pedestrian-color
-;      ]
-;    ]
-;  ]
-; while [count persons < number-of-pedestrians] [
-;    ask one-of patches with [meaning = "sidewalk-right"] [
-;     sprout-persons 1 [
-;       set speed 0.05
-;       set heading 270
-;       set size 0.8
-;       set waiting? false
-;       set walk-time 0.05 + random (0.08 - 0.05)
-;       set shape "person"
-;       set color pedestrian-color
-;      ]
-;    ]
-;  ]
+  let sidewalk-patches patches with [ meaning = "sidewalk-left" or meaning = "sidewalk-right"]
+  if number-of-pedestrians > count sidewalk-patches [
+    set number-of-pedestrians count sidewalk-patches
+  ]
 
-ask n-of (number-of-pedestrians) patches with [meaning = "sidewalk-left"] [
+ask n-of (number-of-pedestrians) patches with [meaning = "sidewalk-left" ] [
     ;check if it's a pedestrian crossing: cars 2 patches away from the crossing
 ;    if not any? cars-on patch (pxcor + 1) pycor and
 ;    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
 ;    not any? patches with [meaning = "crossing"] in-radius 2 [
      sprout-persons 1 [
-        set shape "person"
+      set shape one-of ["person business" "person construction" "person student" "person farmer"
+        "person lumberjack" "person police" "person service" "person soldier"]
         set color pedestrian-color
         set size 0.8
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
@@ -231,7 +219,8 @@ ask n-of (number-of-pedestrians) patches with [meaning = "sidewalk-right"] [
 ;    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
 ;    not any? patches with [meaning = "crossing"] in-radius 2 [
      sprout-persons 1 [
-        set shape "person"
+        set shape one-of ["person business" "person construction" "person student" "person farmer"
+        "person lumberjack" "person police" "person service" "person soldier"]
         set color pedestrian-color
         set size 0.8
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
@@ -256,17 +245,29 @@ to-report pedestrian-color
 end
 
 ; for traffic signals, but pls edit the following code has issues
-;to make-lights
-;  ask patches with [(pxcor mod 40 = 39 or pxcor mod 40 = 0) and pycor mod 22 = 17] [
-;    sprout-traffic_lights 1 [
-;      set color green
-;      set shape "cylinder"
-;    ]
-;  ]
-;
-;  set greenLight 1
-;  set redLight 0
-;end
+to make-lights
+
+  ask patches with [(pycor = 9) and pxcor = 1] [
+    sprout-traffic_lights 1 [
+      set color green
+      set shape "cylinder"
+      set size 0.9
+      set greenLight? true
+      set redLight? false
+    ]
+  ]
+
+  ask patches with [(pycor = 12) and pxcor = -1] [
+    sprout-traffic_lights 1 [
+      set color green
+      set shape "cylinder"
+      set size 0.9
+      set greenLight? true
+      set redLight? false
+    ]
+  ]
+
+end
 
 
 
@@ -304,7 +305,6 @@ end
 ;    ifelse color = red [set color green][set color red]
 ;  ]
 ;end
-
 
 
 
@@ -380,7 +380,7 @@ lights-interval
 lights-interval
 0
 60
-29.0
+28.0
 1
 1
 seconds
@@ -395,7 +395,7 @@ number-of-cars
 number-of-cars
 0
 100
-43.0
+32.0
 1
 1
 NIL
@@ -409,7 +409,7 @@ SLIDER
 number-of-pedestrians
 number-of-pedestrians
 0
-100
+28
 14.0
 1
 1
@@ -440,7 +440,7 @@ time-to-cross
 time-to-cross
 0
 40
-12.0
+8.0
 1
 1
 seconds
@@ -455,7 +455,7 @@ number-of-lanes
 number-of-lanes
 0
 4
-2.0
+3.0
 1
 1
 NIL
@@ -502,7 +502,7 @@ decelaration
 decelaration
 0
 5
-5.0
+3.0
 0.5
 1
 NIL
@@ -627,11 +627,6 @@ Line -16777216 false 210 90 195 30
 Line -16777216 false 90 90 105 30
 Polygon -1 true false 95 29 120 30 119 11
 
-circle
-false
-0
-Circle -7500403 true true 0 0 300
-
 circle 2
 false
 0
@@ -736,6 +731,15 @@ Circle -16777216 true false 113 68 74
 Polygon -10899396 true false 189 233 219 188 249 173 279 188 234 218
 Polygon -10899396 true false 180 255 150 210 105 210 75 240 135 240
 
+ghost
+false
+0
+Polygon -7500403 true true 30 165 13 164 -2 149 0 135 -2 119 0 105 15 75 30 75 58 104 43 119 43 134 58 134 73 134 88 104 73 44 78 14 103 -1 193 -1 223 29 208 89 208 119 238 134 253 119 240 105 238 89 240 75 255 60 270 60 283 74 300 90 298 104 298 119 300 135 285 135 285 150 268 164 238 179 208 164 208 194 238 209 253 224 268 239 268 269 238 299 178 299 148 284 103 269 58 284 43 299 58 269 103 254 148 254 193 254 163 239 118 209 88 179 73 179 58 164
+Line -16777216 false 189 253 215 253
+Circle -16777216 true false 102 30 30
+Polygon -16777216 true false 165 105 135 105 120 120 105 105 135 75 165 75 195 105 180 120
+Circle -16777216 true false 160 30 30
+
 house
 false
 0
@@ -749,6 +753,12 @@ false
 0
 Polygon -7500403 true true 150 210 135 195 120 210 60 210 30 195 60 180 60 165 15 135 30 120 15 105 40 104 45 90 60 90 90 105 105 120 120 120 105 60 120 60 135 30 150 15 165 30 180 60 195 60 180 120 195 120 210 105 240 90 255 90 263 104 285 105 270 120 285 135 240 165 240 180 270 195 240 210 180 210 165 195
 Polygon -7500403 true true 135 195 135 240 120 255 105 255 105 285 135 285 165 240 165 195
+
+lights
+false
+0
+Rectangle -16777216 true false 15 15 285 285
+Rectangle -7500403 true true 30 30 270 270
 
 line
 true
@@ -790,6 +800,184 @@ Polygon -14835848 true false 180 226 195 226 270 196 255 196
 Polygon -13345367 true false 209 202 209 216 244 202 243 188
 Line -16777216 false 180 90 150 165
 Line -16777216 false 120 90 150 165
+
+person construction
+false
+0
+Rectangle -7500403 true true 123 76 176 95
+Polygon -1 true false 105 90 60 195 90 210 115 162 184 163 210 210 240 195 195 90
+Polygon -13345367 true false 180 195 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285
+Circle -7500403 true true 110 5 80
+Line -16777216 false 148 143 150 196
+Rectangle -16777216 true false 116 186 182 198
+Circle -1 true false 152 143 9
+Circle -1 true false 152 166 9
+Rectangle -16777216 true false 179 164 183 186
+Polygon -955883 true false 180 90 195 90 195 165 195 195 150 195 150 120 180 90
+Polygon -955883 true false 120 90 105 90 105 165 105 195 150 195 150 120 120 90
+Rectangle -16777216 true false 135 114 150 120
+Rectangle -16777216 true false 135 144 150 150
+Rectangle -16777216 true false 135 174 150 180
+Polygon -955883 true false 105 42 111 16 128 2 149 0 178 6 190 18 192 28 220 29 216 34 201 39 167 35
+Polygon -6459832 true false 54 253 54 238 219 73 227 78
+Polygon -16777216 true false 15 285 15 255 30 225 45 225 75 255 75 270 45 285
+
+person doctor
+false
+0
+Polygon -7500403 true true 105 90 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285 180 195 195 90
+Polygon -13345367 true false 135 90 150 105 135 135 150 150 165 135 150 105 165 90
+Polygon -7500403 true true 105 90 60 195 90 210 135 105
+Polygon -7500403 true true 195 90 240 195 210 210 165 105
+Circle -7500403 true true 110 5 80
+Rectangle -7500403 true true 127 79 172 94
+Polygon -1 true false 105 90 60 195 90 210 114 156 120 195 90 270 210 270 180 195 186 155 210 210 240 195 195 90 165 90 150 150 135 90
+Line -16777216 false 150 148 150 270
+Line -16777216 false 196 90 151 149
+Line -16777216 false 104 90 149 149
+Circle -1 true false 180 0 30
+Line -16777216 false 180 15 120 15
+Line -16777216 false 150 195 165 195
+Line -16777216 false 150 240 165 240
+Line -16777216 false 150 150 165 150
+
+person farmer
+false
+0
+Polygon -7500403 true true 105 90 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285 180 195 195 90
+Polygon -1 true false 60 195 90 210 114 154 120 195 180 195 187 157 210 210 240 195 195 90 165 90 150 105 150 150 135 90 105 90
+Circle -7500403 true true 110 5 80
+Rectangle -7500403 true true 127 79 172 94
+Polygon -13345367 true false 120 90 120 180 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285 180 195 180 90 172 89 165 135 135 135 127 90
+Polygon -6459832 true false 116 4 113 21 71 33 71 40 109 48 117 34 144 27 180 26 188 36 224 23 222 14 178 16 167 0
+Line -16777216 false 225 90 270 90
+Line -16777216 false 225 15 225 90
+Line -16777216 false 270 15 270 90
+Line -16777216 false 247 15 247 90
+Rectangle -6459832 true false 240 90 255 300
+
+person graduate
+false
+0
+Circle -16777216 false false 39 183 20
+Polygon -1 true false 50 203 85 213 118 227 119 207 89 204 52 185
+Circle -7500403 true true 110 5 80
+Rectangle -7500403 true true 127 79 172 94
+Polygon -8630108 true false 90 19 150 37 210 19 195 4 105 4
+Polygon -8630108 true false 120 90 105 90 60 195 90 210 120 165 90 285 105 300 195 300 210 285 180 165 210 210 240 195 195 90
+Polygon -1184463 true false 135 90 120 90 150 135 180 90 165 90 150 105
+Line -2674135 false 195 90 150 135
+Line -2674135 false 105 90 150 135
+Polygon -1 true false 135 90 150 105 165 90
+Circle -1 true false 104 205 20
+Circle -1 true false 41 184 20
+Circle -16777216 false false 106 206 18
+Line -2674135 false 208 22 208 57
+
+person lumberjack
+false
+0
+Polygon -7500403 true true 105 90 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285 180 195 195 90
+Polygon -2674135 true false 60 196 90 211 114 155 120 196 180 196 187 158 210 211 240 196 195 91 165 91 150 106 150 135 135 91 105 91
+Circle -7500403 true true 110 5 80
+Rectangle -7500403 true true 127 79 172 94
+Polygon -6459832 true false 174 90 181 90 180 195 165 195
+Polygon -13345367 true false 180 195 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285
+Polygon -6459832 true false 126 90 119 90 120 195 135 195
+Rectangle -6459832 true false 45 180 255 195
+Polygon -16777216 true false 255 165 255 195 240 225 255 240 285 240 300 225 285 195 285 165
+Line -16777216 false 135 165 165 165
+Line -16777216 false 135 135 165 135
+Line -16777216 false 90 135 120 135
+Line -16777216 false 105 120 120 120
+Line -16777216 false 180 120 195 120
+Line -16777216 false 180 135 210 135
+Line -16777216 false 90 150 105 165
+Line -16777216 false 225 165 210 180
+Line -16777216 false 75 165 90 180
+Line -16777216 false 210 150 195 165
+Line -16777216 false 180 105 210 180
+Line -16777216 false 120 105 90 180
+Line -16777216 false 150 135 150 165
+Polygon -2674135 true false 100 30 104 44 189 24 185 10 173 10 166 1 138 -1 111 3 109 28
+
+person police
+false
+0
+Polygon -1 true false 124 91 150 165 178 91
+Polygon -13345367 true false 134 91 149 106 134 181 149 196 164 181 149 106 164 91
+Polygon -13345367 true false 180 195 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285
+Polygon -13345367 true false 120 90 105 90 60 195 90 210 116 158 120 195 180 195 184 158 210 210 240 195 195 90 180 90 165 105 150 165 135 105 120 90
+Rectangle -7500403 true true 123 76 176 92
+Circle -7500403 true true 110 5 80
+Polygon -13345367 true false 150 26 110 41 97 29 137 -1 158 6 185 0 201 6 196 23 204 34 180 33
+Line -13345367 false 121 90 194 90
+Line -16777216 false 148 143 150 196
+Rectangle -16777216 true false 116 186 182 198
+Rectangle -16777216 true false 109 183 124 227
+Rectangle -16777216 true false 176 183 195 205
+Circle -1 true false 152 143 9
+Circle -1 true false 152 166 9
+Polygon -1184463 true false 172 112 191 112 185 133 179 133
+Polygon -1184463 true false 175 6 194 6 189 21 180 21
+Line -1184463 false 149 24 197 24
+Rectangle -16777216 true false 101 177 122 187
+Rectangle -16777216 true false 179 164 183 186
+
+person service
+false
+0
+Polygon -7500403 true true 180 195 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285
+Polygon -1 true false 120 90 105 90 60 195 90 210 120 150 120 195 180 195 180 150 210 210 240 195 195 90 180 90 165 105 150 165 135 105 120 90
+Polygon -1 true false 123 90 149 141 177 90
+Rectangle -7500403 true true 123 76 176 92
+Circle -7500403 true true 110 5 80
+Line -13345367 false 121 90 194 90
+Line -16777216 false 148 143 150 196
+Rectangle -16777216 true false 116 186 182 198
+Circle -1 true false 152 143 9
+Circle -1 true false 152 166 9
+Rectangle -16777216 true false 179 164 183 186
+Polygon -2674135 true false 180 90 195 90 183 160 180 195 150 195 150 135 180 90
+Polygon -2674135 true false 120 90 105 90 114 161 120 195 150 195 150 135 120 90
+Polygon -2674135 true false 155 91 128 77 128 101
+Rectangle -16777216 true false 118 129 141 140
+Polygon -2674135 true false 145 91 172 77 172 101
+
+person soldier
+false
+0
+Rectangle -7500403 true true 127 79 172 94
+Polygon -10899396 true false 105 90 60 195 90 210 135 105
+Polygon -10899396 true false 195 90 240 195 210 210 165 105
+Circle -7500403 true true 110 5 80
+Polygon -10899396 true false 105 90 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285 180 195 195 90
+Polygon -6459832 true false 120 90 105 90 180 195 180 165
+Line -6459832 false 109 105 139 105
+Line -6459832 false 122 125 151 117
+Line -6459832 false 137 143 159 134
+Line -6459832 false 158 179 181 158
+Line -6459832 false 146 160 169 146
+Rectangle -6459832 true false 120 193 180 201
+Polygon -6459832 true false 122 4 107 16 102 39 105 53 148 34 192 27 189 17 172 2 145 0
+Polygon -16777216 true false 183 90 240 15 247 22 193 90
+Rectangle -6459832 true false 114 187 128 208
+Rectangle -6459832 true false 177 187 191 208
+
+person student
+false
+0
+Polygon -13791810 true false 135 90 150 105 135 165 150 180 165 165 150 105 165 90
+Polygon -7500403 true true 195 90 240 195 210 210 165 105
+Circle -7500403 true true 110 5 80
+Rectangle -7500403 true true 127 79 172 94
+Polygon -7500403 true true 105 90 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285 180 195 195 90
+Polygon -1 true false 100 210 130 225 145 165 85 135 63 189
+Polygon -13791810 true false 90 210 120 225 135 165 67 130 53 189
+Polygon -1 true false 120 224 131 225 124 210
+Line -16777216 false 139 168 126 225
+Line -16777216 false 140 167 76 136
+Polygon -7500403 true true 105 90 60 195 90 210 135 105
 
 plant
 false
