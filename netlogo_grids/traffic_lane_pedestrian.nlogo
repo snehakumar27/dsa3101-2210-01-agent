@@ -43,11 +43,10 @@ to setup
   set speedLimit speed-limit
   draw-roads
   draw-sidewalk
-  draw-crossing
   make-cars
+  draw-crossing
   ;make-lights
   make-people
-
   reset-ticks
   tick
 end
@@ -115,11 +114,12 @@ to make-cars
         set patience random max-patience     ;max-patience in beginning
         set heading 0
         ;randomly set car speed
-        let s random 10
-        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
-        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
-        if s > 7 [set maxSpeed speed-limit + random 16]
-        set speed maxSpeed - random 20
+        set speed 0.1
+;        let s random 10
+;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
+;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
+;        if s > 7 [set maxSpeed speed-limit + random 16]
+;        set speed maxSpeed - random 20
       ]
     ]
   ]
@@ -138,11 +138,12 @@ to make-cars
         set patience random max-patience      ;max-patience in beginning
         set heading 180
         ;randomly set car speed
-        let s random 10
-        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
-        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
-        if s > 7 [set maxSpeed speed-limit + random 16]
-        set speed maxSpeed - random 20
+        set speed 0.1
+;        let s random 10
+;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
+;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
+;        if s > 7 [set maxSpeed speed-limit + random 16]
+;        set speed maxSpeed - random 20
       ]
     ]
   ]
@@ -200,12 +201,21 @@ end
 ;;;;;;; Run the Simulation ;;;;;;;
 
 to go
-  move-cars
-  move-pedestrians
-  ;control-traffic-signals
+  ask cars [forward speed]
 end
 
-to move-cars
+to move-forward ; turtle procedure
+  ;set heading 90
+  ;speed-up-car ; we tentatively speed up, but might have to slow down
+;  let blocking-cars other turtles in-cone (1 + speed) 180 with [ y-distance <= 1 ]
+;  let blocking-car min-one-of blocking-cars [ distance myself ]
+;  if blocking-car != nobody [
+;    ; match the speed of the car ahead of you and then slow
+;    ; down so you are driving a bit slower than that car.
+;    set speed [ speed ] of blocking-car
+;    slow-down-car
+;  ]
+  forward speed
 end
 
 to move-pedestrians
@@ -288,9 +298,9 @@ SLIDER
 speed-limit
 speed-limit
 0
-100
+80
 40.0
-5
+1
 1
 km/h
 HORIZONTAL
@@ -319,7 +329,7 @@ number-of-cars
 number-of-cars
 0
 100
-31.0
+43.0
 1
 1
 NIL
@@ -401,6 +411,36 @@ NIL
 NIL
 NIL
 0
+
+SLIDER
+25
+451
+197
+484
+acceleration
+acceleration
+0
+5
+1.0
+0.5
+1
+km/h
+HORIZONTAL
+
+SLIDER
+30
+526
+202
+559
+decelaration
+decelaration
+0
+5
+0.5
+0.5
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?

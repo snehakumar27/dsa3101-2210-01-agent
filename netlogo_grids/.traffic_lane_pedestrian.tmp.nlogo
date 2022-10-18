@@ -37,16 +37,16 @@ cars-own [
 ]
 
 
+;;;;;;; Setup the Simulation ;;;;;;;
 to setup
   clear-all
   set speedLimit speed-limit
   draw-roads
   draw-sidewalk
-  draw-crossing
   make-cars
+  draw-crossing
   ;make-lights
   make-people
-
   reset-ticks
   tick
 end
@@ -109,16 +109,18 @@ to make-cars
      sprout-cars 1 [
         set shape "car top"
         set color car-color
+        set size 1.2
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
         set targetLane pxcor                 ;starting lane is the targetLane
         set patience random max-patience     ;max-patience in beginning
         set heading 0
         ;randomly set car speed
-        let s random 10
-        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
-        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
-        if s > 7 [set maxSpeed speed-limit + random 16]
-        set speed maxSpeed - random 20
+        set speed 0.1
+;        let s random 10
+;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
+;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
+;        if s > 7 [set maxSpeed speed-limit + random 16]
+;        set speed maxSpeed - random 20
       ]
     ]
   ]
@@ -132,16 +134,18 @@ to make-cars
      sprout-cars 1 [
         set shape "car top"
         set color car-color
+        set size 1.2
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
         set targetLane pxcor                  ;starting lane is the targetLane
         set patience random max-patience      ;max-patience in beginning
         set heading 180
         ;randomly set car speed
-        let s random 10
-        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
-        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
-        if s > 7 [set maxSpeed speed-limit + random 16]
-        set speed maxSpeed - random 20
+        set speed 0.1
+;        let s random 10
+;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
+;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
+;        if s > 7 [set maxSpeed speed-limit + random 16]
+;        set speed maxSpeed - random 20
       ]
     ]
   ]
@@ -166,7 +170,8 @@ to make-people
   while [count persons < number-of-pedestrians] [
     ask one-of patches with [meaning = "sidewalk"] [
      sprout-persons 1 [
-       set speed random 7 + 5
+       set speed 0.
+       set size 0.8
        set waiting? false
        set walk-time random time-to-cross
        set shape "person"
@@ -178,7 +183,7 @@ end
 
 to-report pedestrian-color
   ; give all cars a blueish color, but still make them distinguishable
-  report one-of [ 132 133 ] + 1.5 + random-float 1.0
+  report one-of [ 131 132 133 ] + 1.5 + random-float 1.0
 end
 
 ; for traffic signals, but pls edit the following code has issues
@@ -195,16 +200,20 @@ end
 ;end
 
 
+
+;;;;;;; Run the Simulation ;;;;;;;
+
 to go
-  move-cars
-  ;control-traffic-signals
-  move-pedestrians
+  ask cars [move-cars]
+  ask persons [move-pedestrians]
 end
 
 to move-cars
+  forward speed
 end
 
 to move-pedestrians
+  forward speed
 end
 
 ;to control-traffic-signals
@@ -284,11 +293,11 @@ SLIDER
 speed-limit
 speed-limit
 0
-100
-40.0
-5
+2
+1.0
+0.1
 1
-km/h
+NIL
 HORIZONTAL
 
 SLIDER
@@ -315,7 +324,7 @@ number-of-cars
 number-of-cars
 0
 100
-31.0
+43.0
 1
 1
 NIL
@@ -397,6 +406,36 @@ NIL
 NIL
 NIL
 0
+
+SLIDER
+25
+451
+197
+484
+acceleration
+acceleration
+0
+5
+1.0
+0.5
+1
+km/h
+HORIZONTAL
+
+SLIDER
+30
+526
+202
+559
+decelaration
+decelaration
+0
+5
+0.5
+0.5
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
