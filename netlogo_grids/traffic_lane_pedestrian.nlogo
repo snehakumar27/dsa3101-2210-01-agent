@@ -82,12 +82,12 @@ end
 ;; hello
 
 to draw-sidewalk
-  ask patches with [(pycor = 15 or pycor = 14) and (abs pxcor > number-of-lanes) and
+  ask patches with [(pycor = 10 or pycor = 11) and (abs pxcor > number-of-lanes) and
   (meaning !="road-up" and meaning != "road-down" and meaning != "divider")]
   [set pcolor 36 + random-float 0.3
   set meaning "sidewalk-right"]
 
-  ask patches with [(pycor = 15 or pycor = 14) and (pxcor < number-of-lanes) and
+  ask patches with [(pycor = 10 or pycor = 11) and (pxcor < number-of-lanes) and
   (meaning !="road-up" and meaning != "road-down" and meaning != "divider")]
   [set pcolor 36 + random-float 0.3
   set meaning "sidewalk-left"]
@@ -96,7 +96,7 @@ to draw-sidewalk
 end
 
 to draw-crossing
-   ask patches with [(meaning != "sidewalk-left") and (meaning != "sidewalk-right") and (pycor = 15 or pycor = 14)][
+   ask patches with [(meaning != "sidewalk-left") and (meaning != "sidewalk-right") and (pycor = 10 or pycor = 11)][
     sprout-crossings 1 [
       set shape "crossing"
       set color white
@@ -304,7 +304,6 @@ end
 ;    ifelse color = red [set color green][set color red]
 ;  ]
 ;end
-
 
 
 
