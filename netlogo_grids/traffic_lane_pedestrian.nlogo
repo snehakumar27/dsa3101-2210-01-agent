@@ -99,15 +99,19 @@ to draw-sidewalk
   [set pcolor 36 + random-float 0.3
   set meaning "sidewalk-left"]
 
+  ask patches with [(abs pxcor = number-of-lanes + 1) or (abs pxcor = number-of-lanes + 2)]  [
+    set pcolor 36 + random-float 0.3
+    set meaning "sidewalk-roadside"]
+
   ; may add sidewalk next to the road here, with different meanings to distinguish when creating personss
 end
 
 to draw-crossing
-   ask patches with [(meaning != "sidewalk-left") and (meaning != "sidewalk-right") and (pycor = 10 or pycor = 11)][
+   ask patches with [(meaning != "sidewalk-left") and (meaning != "sidewalk-right") and (meaning != "sidewalk-roadside")
+    and (pycor = 10 or pycor = 11)][
       set pcolor white
       set meaning "crossing"
   ]
-
 end
 
 to make-cars
@@ -188,34 +192,20 @@ to-report car-color
 end
 
 to make-people
-;  while [count persons < number-of-pedestrians] [
-;    ask one-of patches with [meaning = "sidewalk-left"] [
-;     sprout-persons 1 [
-;       set speed 0.05
-;       set heading 90
-;       set size 0.8
-;       set waiting? false
-;       set walk-time 0.05 + random (0.08 - 0.05)
-;       set shape "person"
-;       set color pedestrian-color
-;      ]
-;    ]
-;  ]
-; while [count persons < number-of-pedestrians] [
-;    ask one-of patches with [meaning = "sidewalk-right"] [
-;     sprout-persons 1 [
-;       set speed 0.05
-;       set heading 270
-;       set size 0.8
-;       set waiting? false
-;       set walk-time 0.05 + random (0.08 - 0.05)
-;       set shape "person"
-;       set color pedestrian-color
-;      ]
-;    ]
-;  ]
+  let sidewalk-patches patches with [meaning = "sidewalk-left" or meaning = "sidewalk-right"]
+  if number-of-pedestrians > count sidewalk-patches [
+    set number-of-pedestrians count sidewalk-patches
+  ]
 
-ask n-of (number-of-pedestrians) patches with [meaning = "sidewalk-left"] [
+  let max-lr-cap (2 * (max-pycor - (number-of-lanes + 2)))
+  let max-side-cap 34
+
+  let sidewalk-left-people min (list (random number-of-pedestrians) max-lr-cap)
+  let rem-people-one (number-of-pedestrians - sidewalk-left-people)
+  let sidewalk-right-people min (list (random rem-people-one) max-lr-cap)
+  let sidewalk-roadside-people (rem-people-one - sidewalk-right-people)
+
+ask n-of (sidewalk-left-people) patches with [meaning = "sidewalk-left"] [
     ;check if it's a pedestrian crossing: cars 2 patches away from the crossing
 ;    if not any? cars-on patch (pxcor + 1) pycor and
 ;    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
@@ -239,7 +229,7 @@ ask n-of (number-of-pedestrians) patches with [meaning = "sidewalk-left"] [
       ]
     ]
 
-ask n-of (number-of-pedestrians) patches with [meaning = "sidewalk-right"] [
+ask n-of (sidewalk-right-people) patches with [meaning = "sidewalk-right"] [
     ;check if it's a pedestrian crossing: cars 2 patches away from the crossing
 ;    if not any? cars-on patch (pxcor + 1) pycor and
 ;    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
@@ -253,6 +243,30 @@ ask n-of (number-of-pedestrians) patches with [meaning = "sidewalk-right"] [
         ;set targetLane pxcor                  ;starting lane is the targetLane
         ;set patience random max-patience      ;max-patience in beginning
         set heading 270
+        ;randomly set car speed
+        set walk-time 0.01 + random (0.04 - 0.01)
+;        let s random 10
+;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
+;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
+;        if s > 7 [set maxSpeed speed-limit + random 16]
+;        set speed maxSpeed - random 20
+      ]
+    ]
+
+  ask n-of (sidewalk-roadside-people) patches with [meaning = "sidewalk-roadside"] [
+    ;check if it's a pedestrian crossing: cars 2 patches away from the crossing
+;    if not any? cars-on patch (pxcor + 1) pycor and
+;    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
+;    not any? patches with [meaning = "crossing"] in-radius 2 [
+     sprout-persons 1 [
+        set shape one-of ["person business" "person construction" "person student" "person farmer"
+        "person lumberjack" "person police" "person service" "person soldier"]
+        set color pedestrian-color
+        set size 0.8
+        ;move-to one-of free road-patches ; no need the above check should already take into account for this?
+        ;set targetLane pxcor                  ;starting lane is the targetLane
+        ;set patience random max-patience      ;max-patience in beginning
+      set heading one-of [0 180]
         ;randomly set car speed
         set walk-time 0.01 + random (0.04 - 0.01)
 ;        let s random 10
@@ -496,7 +510,7 @@ number-of-cars
 number-of-cars
 0
 100
-38.0
+24.0
 1
 1
 NIL
@@ -510,8 +524,8 @@ SLIDER
 number-of-pedestrians
 number-of-pedestrians
 0
-26
-16.0
+60
+40.0
 1
 1
 NIL
