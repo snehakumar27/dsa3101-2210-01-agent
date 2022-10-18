@@ -80,6 +80,7 @@ to draw-roads
 end
 
 
+
 to draw-sidewalk
   ask patches with [(pycor = 15 or pycor = 14) and (abs pxcor > number-of-lanes) and
   (meaning !="road-up" and meaning != "road-down" and meaning != "divider")]
@@ -177,7 +178,7 @@ end
 
 to make-people
   while [count persons < number-of-pedestrians] [
-    ask one-of patches with [meaning = "sidewalk-r"] [
+    ask one-of patches with [meaning = "sidewalk-left"] [
      sprout-persons 1 [
        set speed 0.05
        set heading 90
@@ -190,7 +191,7 @@ to make-people
     ]
   ]
  while [count persons < number-of-pedestrians] [
-    ask one-of patches with [meaning = "sidewalk-left"] [
+    ask one-of patches with [meaning = "sidewalk-right"] [
      sprout-persons 1 [
        set speed 0.05
        set heading 270
