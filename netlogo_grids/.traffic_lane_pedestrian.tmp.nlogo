@@ -43,10 +43,10 @@ to setup
   set speedLimit speed-limit
   draw-roads
   draw-sidewalk
+  ;draw-crossing
   make-cars
-  draw-crossing
-  ;make-lights
   make-people
+  ;make-lights
   reset-ticks
   tick
 end
@@ -81,14 +81,23 @@ end
 
 
 to draw-sidewalk
-  ask patches with [pycor = 15 or pycor = 14 and (meaning !="road-up" and meaning !="road-down" and meaning != "divider")]
+  ask patches with [(pycor = 15 or pycor = 14) and (abs pxcor > number-of-lanes) and
+  (meaning !="road-up" and meaning != "road-down" and meaning != "divider")]
   [set pcolor 36 + random-float 0.3
-  set meaning "sidewalk"]
-  ; may add sidewalk next to the road here, but will have to change meaning perhaps to distinguish when creating persons
+  set meaning "sidewalk-left"]
+
+  ask patches with [(pycor = 15 or pycor = 14) and (pxcor > number-of-lanes) and
+  (meaning !="road-up" and meaning != "road-down" and meaning != "divider")]
+  [set pcolor 36 + random-float 0.3
+  set meaning "sidewalk-right"]
+
+
+
+  ; may add sidewalk next to the road here, with different meanings to distinguish when creating personss
 end
 
 to draw-crossing
-   ask patches with [meaning != "sidewalk" and (pycor = 15 or pycor = 14)][
+   ask patches with [(meaning != "sidewalk-left") and (meaning != "sidewalk-right") and (pycor = 15 or pycor = 14)][
     sprout-crossings 1 [
       set shape "crossing"
       set color white
@@ -115,7 +124,7 @@ to make-cars
         set patience random max-patience     ;max-patience in beginning
         set heading 0
         ;randomly set car speed
-        set speed 0.1
+        set speed 0.5
 ;        let s random 10
 ;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
 ;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
@@ -140,7 +149,7 @@ to make-cars
         set patience random max-patience      ;max-patience in beginning
         set heading 180
         ;randomly set car speed
-        set speed 0.1
+        set speed 0.5
 ;        let s random 10
 ;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
 ;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
@@ -168,12 +177,26 @@ end
 
 to make-people
   while [count persons < number-of-pedestrians] [
-    ask one-of patches with [meaning = "sidewalk"] [
+    ask one-of patches with [meaning = "sidewalk-r"] [
      sprout-persons 1 [
-       set speed 0.
+       set speed 0.05
+       set heading 90
        set size 0.8
        set waiting? false
-       set walk-time random time-to-cross
+       set walk-time 0.05 + random (0.08 - 0.05)
+       set shape "person"
+       set color pedestrian-color
+      ]
+    ]
+  ]
+ while [count persons < number-of-pedestrians] [
+    ask one-of patches with [meaning = "sidewalk-left"] [
+     sprout-persons 1 [
+       set speed 0.05
+       set heading 270
+       set size 0.8
+       set waiting? false
+       set walk-time 0.05 + random (0.08 - 0.05)
        set shape "person"
        set color pedestrian-color
       ]
@@ -182,7 +205,7 @@ to make-people
 end
 
 to-report pedestrian-color
-  ; give all cars a blueish color, but still make them distinguishable
+  ; give all cars a magentaish color, but still make them distinguishable
   report one-of [ 131 132 133 ] + 1.5 + random-float 1.0
 end
 
@@ -213,7 +236,10 @@ to move-cars
 end
 
 to move-pedestrians
-  forward speed
+;  if not any? cars-on patch (pxcor + 1) pycor and
+;    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
+;    not any? patches with [meaning = "crossing"] in-radius 2 [
+  forward walk-time
 end
 
 ;to control-traffic-signals
@@ -369,7 +395,7 @@ time-to-cross
 time-to-cross
 0
 40
-31.0
+12.0
 1
 1
 seconds
@@ -431,7 +457,7 @@ decelaration
 decelaration
 0
 5
-0.5
+5.0
 0.5
 1
 NIL
