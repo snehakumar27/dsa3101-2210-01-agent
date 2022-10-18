@@ -33,7 +33,10 @@ cars-own [
   speed
   maxSpeed
   patience
-  targetLane
+  targetLane     ;:the desired lane of the car
+  politeness     ;;how politeness cars are, that means how often they will stop and let people cross the road
+  will-stop?     ;;whether the car will stop and let pedestrian(s) to cross the road
+
 ]
 
 
@@ -109,7 +112,12 @@ end
 
 to make-cars
   ;create cars on left lane
-  ask n-of (number-of-cars) patches with [meaning = "road-up"] [
+  let road-patches patches with [ meaning = "road-up" or meaning = "road-down"]
+  if number-of-cars > count road-patches [
+    set number-of-cars count road-patches
+  ]
+
+  ask n-of (number-of-cars ) patches with [meaning = "road-up"] [
     ;check if it's a pedestrian crossing: cars 2 patches away from the crossing
     if not any? cars-on patch (pxcor + 1) pycor and
     not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
@@ -118,23 +126,26 @@ to make-cars
         set shape "car top"
         set color car-color
         set size 1.2
+        set will-stop? "maybe"
+        set politeness basic-politeness + random (101 - basic-politeness)
+        if random 100 > basic-politeness [set politeness random 21]
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
-        set targetLane pxcor                 ;starting lane is the targetLane
+        set targetLane pxcor + random 2                ;starting lane is the targetLane
         set patience random max-patience     ;max-patience in beginning
         set heading 0
         ;randomly set car speed
         set speed 0.5
-;        let s random 10
-;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
-;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
-;        if s > 7 [set maxSpeed speed-limit + random 16]
-;        set speed maxSpeed - random 20
+        let s random-float 0.2
+        if s < 7 [set maxSpeed speed-limit - 0.02 + random-float 0.05]
+        if s = 7 [set maxSpeed speed-limit - 0.05 + random-float 0.03]
+        if s > 7 [set maxSpeed speed-limit + random-float 0.02]
+        set speed maxSpeed - random-float 0.02
       ]
     ]
   ]
 
   ;create cars on right lane
-  ask n-of (number-of-cars) patches with [meaning = "road-down"] [
+  ask n-of (number-of-cars ) patches with [meaning = "road-down"] [
     ;check if it's a pedestrian crossing: cars 2 patches away from the crossing
     if not any? cars-on patch (pxcor + 1) pycor and
     not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
@@ -143,17 +154,19 @@ to make-cars
         set shape "car top"
         set color car-color
         set size 1.2
+        set politeness basic-politeness + random (101 - basic-politeness)
+        if random 100 > basic-politeness [set politeness random 21]
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
         set targetLane pxcor                  ;starting lane is the targetLane
         set patience random max-patience      ;max-patience in beginning
         set heading 180
         ;randomly set car speed
         set speed 0.5
-;        let s random 10
-;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
-;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
-;        if s > 7 [set maxSpeed speed-limit + random 16]
-;        set speed maxSpeed - random 20
+        let s random-float 0.2
+        if s < 7 [set maxSpeed speed-limit - 0.02 + random-float 0.05]
+        if s = 7 [set maxSpeed speed-limit - 0.05 + random-float 0.03]
+        if s > 7 [set maxSpeed speed-limit + random-float 0.02]
+        set speed maxSpeed - random-float 0.02
       ]
     ]
   ]
@@ -274,11 +287,68 @@ end
 
 to go
   ask cars [move-cars]
+  ask cars with [ patience <= 0 ] [ choose-new-lane ]
+  ask cars with [ xcor != targetLane ] [ move-to-targetLane ]
   ask persons [move-pedestrians]
+  tick
 end
 
 to move-cars
+  speed-up-car ;
+  let blocking-cars other cars in-cone (3 + speed) 180 with [ x-distance <= 1 ]
+  let blocking-car min-one-of blocking-cars [ distance myself ]
+  if blocking-car != nobody [
+    ; match the speed of the car ahead of you and then slow
+    ; down so you are driving a bit slower than that car
+    set speed [ speed ] of blocking-car
+    slow-down-car
+  ]
   forward speed
+end
+
+to choose-new-lane ; car procedure
+  ; Choose a new lane among those with the minimum
+  ; distance to your current lane (i.e., your ycor).
+  let other-lanes remove xcor lanes
+  if not empty? other-lanes [
+    let min-dist min map [ x -> abs (x - xcor) ] other-lanes
+    let closest-lanes filter [ x -> abs (x - xcor) = min-dist ] other-lanes
+    set targetLane one-of closest-lanes
+    set patience max-patience
+  ]
+end
+
+to move-to-targetLane ; car procedure
+  ;set heading ifelse-value targetLane < xcor [ 180 ] [ 0 ]
+  let blocking-cars other cars in-cone (1 + abs (xcor - targetLane)) 180 with [ y-distance <= 3 ]
+  let blocking-car min-one-of blocking-cars [ distance myself ]
+  ifelse blocking-car = nobody [
+    forward 0.2
+    set xcor precision xcor 0.1 ; to avoid floating point errors
+  ] [
+    ; slow down if the car blocking us is behind, otherwise speed up
+    ifelse towards blocking-car <= 180 [ slow-down-car ] [ speed-up-car ]
+  ]
+end
+
+to slow-down-car ; turtle procedure
+  set speed (speed - decelaration) ; deceleration
+  if speed < 0 [ set speed decelaration ]
+  ; every time you hit the brakes, you loose a little patience
+  set patience patience - 1
+end
+
+to-report x-distance
+  report distancexy [ xcor ] of myself ycor
+end
+
+to-report y-distance
+  report distancexy xcor [ ycor ] of myself
+end
+
+to speed-up-car ; car procedure
+  set speed (speed + acceleration)
+  if speed > maxSpeed [ set speed maxSpeed ]
 end
 
 to move-pedestrians
@@ -304,8 +374,6 @@ end
 ;    ifelse color = red [set color green][set color red]
 ;  ]
 ;end
-
-
 
 
 
@@ -366,7 +434,7 @@ speed-limit
 speed-limit
 0
 2
-1.0
+1.3
 0.1
 1
 NIL
@@ -396,7 +464,7 @@ number-of-cars
 number-of-cars
 0
 100
-43.0
+30.0
 1
 1
 NIL
@@ -426,7 +494,7 @@ max-patience
 max-patience
 0
 50
-20.0
+31.0
 1
 1
 NIL
@@ -456,7 +524,7 @@ number-of-lanes
 number-of-lanes
 0
 4
-2.0
+3.0
 1
 1
 NIL
@@ -487,11 +555,11 @@ SLIDER
 acceleration
 acceleration
 0
-5
-1.0
-0.5
+0.015
+0.005
+0.005
 1
-km/h
+NIL
 HORIZONTAL
 
 SLIDER
@@ -502,9 +570,24 @@ SLIDER
 decelaration
 decelaration
 0
-5
-5.0
 0.5
+0.2
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+26
+488
+198
+521
+basic-politeness
+basic-politeness
+0
+100
+70.0
+1
 1
 NIL
 HORIZONTAL
