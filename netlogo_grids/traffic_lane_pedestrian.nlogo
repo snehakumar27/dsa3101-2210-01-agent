@@ -393,7 +393,6 @@ end
 
 
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 222
@@ -492,8 +491,8 @@ SLIDER
 number-of-pedestrians
 number-of-pedestrians
 0
-100
-14.0
+26
+24.0
 1
 1
 NIL
