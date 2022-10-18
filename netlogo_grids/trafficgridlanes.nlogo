@@ -1,4 +1,5 @@
 breed[cars car]
+breed[crossings crossing]
 globals
 [
   grid-x-inc               ;; the amount of patches in between two roads in the x direction
@@ -13,7 +14,6 @@ globals
   ;intersections ;; agentset containing the patches that are intersections
   ;roads         ;; agentset containing the patches that are roads
   lanes          ; a list of the x coordinates of different lanes
-  bicyclelanes          ; a list of the x coordinates of different lanes
 ]
 
 cars-own
@@ -30,6 +30,7 @@ patches-own
 [
   ;intersection?   ;; true if the patch is at the intersection of two roads
   meaning         ;;the role of the patch
+  will-cross?    ;;is anybody going to cross this crossing?
   green-light-up? ;; true if the green light is above the intersection.  otherwise, false.
                   ;; false for a non-intersection patches.
   my-row          ;; the row of the intersection counting from the upper left corner of the
@@ -64,8 +65,8 @@ to setup
 
   set-default-shape turtles "car top"
   draw-road
-  draw-bicyclelane
   draw-sidewalk
+  draw-crossings
 
   ;if (num-cars > count roads) [
    ; user-message (word
@@ -91,7 +92,7 @@ to setup
   ]
 
   ;; give the turtles an initial speed
-  ask turtles [ set-car-speed ]
+  ask cars [ set-car-speed ]
 
   reset-ticks
 end
@@ -150,7 +151,7 @@ to draw-road
   ask patches with [ abs pxcor <= number-of-lanes ] [
     ; the road itself is varying shades of grey
     set pcolor grey ;;- 2.5 + random-float 0.25
-
+    set meaning "road-up"
   ]
 
   ;roads-up
@@ -177,27 +178,10 @@ to draw-road
 
 end
 
-to draw-bicyclelane
-
-  ;bicyclelane
-  set bicyclelanes 5 - number-of-lanes
-  ask patches with [(abs pxcor > number-of-lanes and abs pxcor < number-of-lanes + 5 )  ] [
-  set pcolor red + 2
-  ;sprout 1 [
-    ;set shape "tile stones"
-   ; set color 14
-    ;stamp
-    ;die
-  ;]
-  set meaning "bicyclelane"]
-
-end
-
-
 to draw-sidewalk
 
   ;sidewalks
-  ask patches with [(abs pxcor > 4 and abs pxcor < 8  ) ] [
+  ask patches with [(abs pxcor > number-of-lanes and abs pxcor < 8  ) ] [
   set pcolor brown + 2
   sprout 1 [
     set shape "tile brick"
@@ -206,6 +190,36 @@ to draw-sidewalk
     die
   ]
   set meaning "sidewalk"]
+
+end
+
+to draw-crossings
+
+  ;create pairs of crossings on roads-up
+  ask patches with [(meaning = "road-up")  and (pycor =  5 or pycor =  6 or pycor =  7)][
+    sprout-crossings 1 [
+      set shape "crossing"
+      set color white
+      set heading 0
+      set size 1
+    ]
+  ]
+
+  ;make a random position of crossings on roads-up
+  ask crossings with [abs pxcor mod 70 = 68] [
+    let newY one-of [1 -1]
+    ask crossings in-radius 3 with [shape = "crossing"] [
+      set ycor ycor + newY
+    ]
+  ]
+
+  ;create waitpoints for pedestrians
+  ask crossings with [pxcor mod 36 = 0] [
+    set shape "waitpoint"
+    set meaning "waitpoint2"
+    set color black + 1
+    stamp die
+  ]
 
 end
 
@@ -263,26 +277,26 @@ to setup-cars  ;; turtle procedure
   set speed 0
   set size 2
   set wait-time 0
- ; put-on-empty-road
+  put-on-empty-road
   ;ifelse intersection? [
-   ; ifelse random 2 = 0
-   ;   [ set up-car? true ]
-   ;   [ set up-car? false ]
+  ifelse random 2 = 0
+      [ set up-car? true ]
+      [ set up-car? false ]
  ; ]
   ;[ ; if the turtle is on a vertical road (rather than a horizontal one)
    ; ifelse (floor ((pxcor + max-pxcor - floor(grid-x-inc - 1)) mod grid-x-inc) = 0)
   ;    [ set up-car? true ]
   ;    [ set up-car? false ]
   ;]
- ; ifelse up-car?
-  ;  [ set heading 90 ]
-  ;  [ set heading 180 ]
+  ifelse up-car?
+    [ set heading 90 ]
+    [ set heading 180 ]
 end
 
 ;; Find a road patch without any turtles on it and place the turtle there.
-;to put-on-empty-road  ;; turtle procedure
-;  move-to one-of roads with [ not any? turtles-on self ]
-;end
+to put-on-empty-road  ;; turtle procedure
+  move-to one-of lanes with [ not any? cars-on self ]
+end
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -300,7 +314,7 @@ to go
 
   ;; set the cars’ speed, move them forward their speed, record data for plotting,
   ;; and set the color of the cars to an appropriate color based on their speed
-  ask turtles [
+  ask cars [
     face next-patch ;; car heads towards its goal
     set-car-speed
     fd speed
@@ -437,101 +451,101 @@ to record-data  ;; turtle procedure
   [ set wait-time 0 ]
 end
 
-to change-light-at-current-intersection
-  ask current-intersection [
-    set green-light-up? (not green-light-up?)
-    set-signal-colors
-  ]
-end
+;to change-light-at-current-intersection
+;  ask current-intersection [
+;    set green-light-up? (not green-light-up?)
+;    set-signal-colors
+;  ]
+;end
 
 ;; cycles phase to the next appropriate value
-to next-phase
+;to next-phase
   ;; The phase cycles from 0 to ticks-per-cycle, then starts over.
-  set phase phase + 1
-  if phase mod ticks-per-cycle = 0 [ set phase 0 ]
-end
+;  set phase phase + 1
+;  if phase mod ticks-per-cycle = 0 [ set phase 0 ]
+;end
 
 ;; establish goal of driver (house or work) and move to next patch along the way
-to-report next-patch
+;to-report next-patch
   ;; if I am going home and I am next to the patch that is my home
   ;; my goal gets set to the patch that is my work
-  if goal = house and (member? patch-here [ neighbors4 ] of house) [
-    set goal work
-  ]
+;  if goal = house and (member? patch-here [ neighbors4 ] of house) [
+;    set goal work
+;  ]
   ;; if I am going to work and I am next to the patch that is my work
   ;; my goal gets set to the patch that is my home
-  if goal = work and (member? patch-here [ neighbors4 ] of work) [
-    set goal house
-  ]
+;  if goal = work and (member? patch-here [ neighbors4 ] of work) [
+;    set goal house
+;  ]
   ;; CHOICES is an agentset of the candidate patches that the car can
   ;; move to (white patches are roads, green and red patches are lights)
-  let choices neighbors with [ pcolor = grey or pcolor = red or pcolor = green ]
+;  let choices neighbors with [ pcolor = grey or pcolor = red or pcolor = green ]
   ;; choose the patch closest to the goal, this is the patch the car will move to
-  let choice min-one-of choices [ distance [ goal ] of myself ]
+;  let choice min-one-of choices [ distance [ goal ] of myself ]
   ;; report the chosen patch
-  report choice
-end
+;  report choice
+;end
 
-to watch-a-car
-  stop-watching ;; in case we were previously watching another car
-  watch one-of turtles
-  ask subject [
+;to watch-a-car
+;  stop-watching ;; in case we were previously watching another car
+;  watch one-of turtles
+;  ask subject [
 
-    inspect self
-    set size 2 ;; make the watched car bigger to be able to see it
+;    inspect self
+;    set size 2 ;; make the watched car bigger to be able to see it
 
-    ask house [
-      set pcolor yellow          ;; color the house patch yellow
-      set plabel-color yellow    ;; label the house in yellow font
-      set plabel "house"
-      inspect self
-    ]
-    ask work [
-      set pcolor orange          ;; color the work patch orange
-      set plabel-color orange    ;; label the work in orange font
-      set plabel "work"
-      inspect self
-    ]
-    set label [ plabel ] of goal ;; car displays its goal
-  ]
-end
+;    ask house [
+;      set pcolor yellow          ;; color the house patch yellow
+;      set plabel-color yellow    ;; label the house in yellow font
+;      set plabel "house"
+;      inspect self
+;    ]
+;    ask work [
+;      set pcolor orange          ;; color the work patch orange
+;      set plabel-color orange    ;; label the work in orange font
+;      set plabel "work"
+;      inspect self
+;    ]
+;    set label [ plabel ] of goal ;; car displays its goal
+;  ]
+;end
 
-to stop-watching
+;to stop-watching
   ;; reset the house and work patches from previously watched car(s) to the background color
-  ask patches with [ pcolor = yellow or pcolor = orange ] [
-    stop-inspecting self
-    set pcolor 38
-    set plabel ""
-  ]
+;  ask patches with [ pcolor = yellow or pcolor = orange ] [
+;    stop-inspecting self
+;    set pcolor 38
+;    set plabel ""
+;  ]
   ;; make sure we close all turtle inspectors that may have been opened
-  ask turtles [
-    set label ""
-    stop-inspecting self
-  ]
-  reset-perspective
-end
+;  ask turtles [
+;    set label ""
+;    stop-inspecting self
+;  ]
+;  reset-perspective
+;end
 
-to label-subject
-  if subject != nobody [
-    ask subject [
-      if goal = house [ set label "house" ]
-      if goal = work [ set label "work" ]
-    ]
-  ]
-end
+;to label-subject
+;  if subject != nobody [
+;    ask subject [
+;      if goal = house [ set label "house" ]
+;      if goal = work [ set label "work" ]
+;    ]
+;  ]
+;end
 
 
 ; Copyright 2008 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-325
+720
 10
-683
-369
+1093
+744
 -1
 -1
-4.8
+5.0
 1
 15
 1
@@ -543,8 +557,8 @@ GRAPHICS-WINDOW
 1
 -36
 36
--36
-36
+-72
+72
 1
 1
 1
@@ -807,7 +821,7 @@ SLIDER
 43
 number-of-lanes
 number-of-lanes
-0
+1
 4
 3.0
 1
@@ -1586,6 +1600,12 @@ Polygon -10899396 true false 105 90 75 75 55 75 40 89 31 108 39 124 60 105 75 10
 Polygon -10899396 true false 132 85 134 64 107 51 108 17 150 2 192 18 192 52 169 65 172 87
 Polygon -10899396 true false 85 204 60 233 54 254 72 266 85 252 107 210
 Polygon -7500403 true true 119 75 179 75 209 101 224 135 220 225 175 261 128 261 81 224 74 135 88 99
+
+waitpoint
+false
+14
+Rectangle -16777216 true true 15 15 285 285
+Rectangle -7500403 true false 30 30 270 270
 
 wheel
 false
