@@ -89,12 +89,12 @@ to draw-roads
 end
 
 to draw-sidewalk
-  ask patches with [(pycor = 11 or pycor = 10) and (abs pxcor > number-of-lanes) and
+  ask patches with [(pycor = 11 or pycor = 10 or pycor = 9) and (abs pxcor > number-of-lanes) and
   (meaning !="road-up" and meaning != "road-down" and meaning != "divider")]
   [set pcolor 36 + random-float 0.3
   set meaning "sidewalk-right"]
 
-  ask patches with [(pycor = 11 or pycor = 10) and (pxcor < number-of-lanes) and
+  ask patches with [(pycor = 11 or pycor = 10 or pycor = 9) and (pxcor < number-of-lanes) and
   (meaning !="road-up" and meaning != "road-down" and meaning != "divider")]
   [set pcolor 36 + random-float 0.3
   set meaning "sidewalk-left"]
@@ -123,10 +123,12 @@ end
 
 to make-cars
   ;create cars on left lane
-  let road-patches patches with [ meaning = "road-up" or meaning = "road-down"]
-  if number-of-cars > count road-patches [
-    set number-of-cars count road-patches
-  ]
+  let max-road-cap (number-of-lanes * 11)
+  if number-of-cars > max-road-cap [
+    set number-of-cars max-road-cap]
+
+
+
 
   ask n-of (number-of-cars ) patches with [meaning = "road-up"] [
     ;check if it's a pedestrian crossing: cars 2 patches away from the crossing
@@ -219,7 +221,7 @@ ask n-of (sidewalk-left-people) patches with [meaning = "sidewalk-left"] [
 ;    not any? patches with [meaning = "crossing"] in-radius 2 [
      sprout-persons 1 [
         set shape one-of ["person business" "person construction" "person student" "person farmer"
-        "person lumberjack" "person police" "person service" "person soldier"]
+        "person lumberjack" "person police" "person service" "person soldier" "bike top"]
         set color pedestrian-color
         set size 0.8
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
@@ -243,7 +245,7 @@ ask n-of (sidewalk-right-people) patches with [meaning = "sidewalk-right"] [
 ;    not any? patches with [meaning = "crossing"] in-radius 2 [
      sprout-persons 1 [
         set shape one-of ["person business" "person construction" "person student" "person farmer"
-        "person lumberjack" "person police" "person service" "person soldier"]
+        "person lumberjack" "person police" "person service" "person soldier" "bike top"]
         set color pedestrian-color
         set size 0.8
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
@@ -267,7 +269,7 @@ ask n-of (sidewalk-right-people) patches with [meaning = "sidewalk-right"] [
 ;    not any? patches with [meaning = "crossing"] in-radius 2 [
      sprout-persons 1 [
         set shape one-of ["person business" "person construction" "person student" "person farmer"
-        "person lumberjack" "person police" "person service" "person soldier"]
+        "person lumberjack" "person police" "person service" "person soldier" "bike top"]
         set color pedestrian-color
         set size 0.8
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
@@ -329,12 +331,8 @@ end
 
 to move-cars
   speed-up-car ;
-  ;let car-ahead one-of cars-on patch-ahead 1.5
-  ;if car-ahead = nobody[
-  ;  ifelse speed < maxSpeed [set speed speed + acceleration] [set speed speed - decelaration]
-  ;]
 
-  let blocking-cars other cars in-cone (1 + speed) 180 with [ y-distance <= 2]
+  let blocking-cars other cars in-cone (1 + speed) 180 with [ y-distance <= 2  ]
   let blocking-car min-one-of blocking-cars [ distance myself ]
   if blocking-car != nobody [
     ; match the speed of the car ahead of you and then slow
@@ -410,10 +408,11 @@ end
 to move-pedestrians
 ;  if not any? cars-on patch (pxcor + 1) pycor and
 ;    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
-;    not any? patches with [meaning = "crossing"] in-radius 2 [
-  forward walk-time
+   ;if not any? patches with [meaning = "crossing"] in-radius 2 [
+  forward walk-time;]
   ;face min-one-of patches with [meaning = "sidewalk"] [distance myself]
   ;walk
+  ;forward walk-time
 
 end
 
@@ -537,7 +536,7 @@ number-of-cars
 number-of-cars
 0
 70
-41.0
+11.0
 1
 1
 NIL
@@ -552,7 +551,7 @@ number-of-pedestrians
 number-of-pedestrians
 0
 60
-40.0
+48.0
 1
 1
 NIL
@@ -597,7 +596,7 @@ number-of-lanes
 number-of-lanes
 0
 4
-3.0
+2.0
 1
 1
 NIL
@@ -629,7 +628,7 @@ acceleration
 acceleration
 0
 0.01
-0.005
+0.006
 0.001
 1
 NIL
@@ -644,7 +643,7 @@ decelaration
 decelaration
 0
 0.1
-0.02
+0.07
 0.01
 1
 NIL
@@ -718,7 +717,7 @@ true
 Polygon -7500403 true true 150 0 0 150 105 150 105 293 195 293 195 150 300 150
 
 bike
-false
+true
 1
 Line -7500403 false 163 183 228 184
 Circle -7500403 false false 213 184 22
@@ -734,7 +733,7 @@ Line -7500403 false 159 173 170 219
 Line -7500403 false 155 172 166 172
 Line -7500403 false 166 219 177 219
 Polygon -16777216 true false 187 92 198 92 208 97 217 100 231 93 231 84 216 82 201 83 184 85
-Polygon -7500403 true true 71 86 98 93 101 85 74 81
+Polygon -7500403 true false 71 86 98 93 101 85 74 81
 Rectangle -16777216 true false 75 75 75 90
 Polygon -16777216 true false 70 87 70 72 78 71 78 89
 Circle -7500403 false false 153 184 22
@@ -743,8 +742,6 @@ Line -7500403 false 159 206 228 205
 bike top
 true
 1
-Circle -16777216 false false 28 148 95
-Circle -16777216 false false 24 144 102
 Polygon -2674135 true true 210 45 92 45 92 60 210 60
 Polygon -13345367 true false 158 164 158 59 142 59 143 164
 Polygon -2674135 true true 128 210 143 225 158 225 173 210 158 180 158 150 143 150 143 165 143 180
