@@ -227,7 +227,7 @@ ask n-of (sidewalk-left-people) patches with [meaning = "sidewalk-left"] [
         ;set patience random max-patience      ;max-patience in beginning
         set heading 90
         ;randomly set car speed
-        set walk-time 0.01 + random (0.04 - 0.01)
+        set walk-time 0.01 + random-float (0.06 - 0.01)
 ;        let s random 10
 ;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
 ;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
@@ -251,7 +251,7 @@ ask n-of (sidewalk-right-people) patches with [meaning = "sidewalk-right"] [
         ;set patience random max-patience      ;max-patience in beginning
         set heading 270
         ;randomly set car speed
-        set walk-time 0.01 + random (0.04 - 0.01)
+        set walk-time 0.01 + random-float (0.06 - 0.01)
 ;        let s random 10
 ;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
 ;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
@@ -275,7 +275,7 @@ ask n-of (sidewalk-right-people) patches with [meaning = "sidewalk-right"] [
         ;set patience random max-patience      ;max-patience in beginning
       set heading one-of [0 180]
         ;randomly set car speed
-        set walk-time 0.01 + random (0.04 - 0.01)
+        set walk-time 0.01 + random-float (0.06 - 0.01)
 ;        let s random 10
 ;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
 ;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
@@ -321,20 +321,20 @@ end
 
 to go
   ask cars [move-cars]
-  ask cars with [ patience <= 0 ] [ choose-new-lane ]
-  ask cars with [ xcor != targetLane ] [ move-to-targetLane ]
+  ;ask cars with [ patience <= 0 ] [ choose-new-lane ]
+  ;ask cars with [ xcor != targetLane ] [ move-to-targetLane ]
   ask persons [move-pedestrians]
   tick
 end
 
 to move-cars
   speed-up-car ;
-  let car-ahead one-of cars-on patch-ahead 1.5
-  if car-ahead = nobody[
-    ifelse speed < maxSpeed [set speed speed + acceleration] [set speed speed - decelaration]
-  ]
+  ;let car-ahead one-of cars-on patch-ahead 1.5
+  ;if car-ahead = nobody[
+  ;  ifelse speed < maxSpeed [set speed speed + acceleration] [set speed speed - decelaration]
+  ;]
 
-  let blocking-cars other cars in-cone (1 + speed) 180 with [ y-distance <= 2 and y-distance > 1.5]
+  let blocking-cars other cars in-cone (1 + speed) 180 with [ y-distance <= 2]
   let blocking-car min-one-of blocking-cars [ distance myself ]
   if blocking-car != nobody [
     ; match the speed of the car ahead of you and then slow
@@ -345,34 +345,47 @@ to move-cars
   forward speed
 end
 
-to choose-new-lane ; car procedure
+;to choose-new-lane ; car procedure
   ; Choose a new lane among those with the minimum
-  ; distance to your current lane (i.e., your ycor).
-  let other-lanes remove xcor lanes
-  if not empty? other-lanes [
-    let min-dist min map [ x -> abs (x - xcor) ] other-lanes
-    let closest-lanes filter [ x -> abs (x - xcor) = min-dist ] other-lanes
-    set targetLane one-of closest-lanes
-    set patience max-patience
-  ]
-end
+  ; distance to your current lane (i.e., your xcor).
+;  let other-lanes remove xcor lanes
+;  if not empty? other-lanes [
+;    let min-dist min map [ x -> abs (x - xcor) ] other-lanes
+;    let closest-lanes filter [ x -> abs (x - xcor) = min-dist ] other-lanes
+;    set targetLane one-of closest-lanes
+;    set patience max-patience
+;  ]
+;end
 
-to move-to-targetLane ; car procedure
+;to move-to-targetLane ; car procedure
   ; NEED TO look how to restrict overtake in road up and road down only
 
-  if meaning = "road-up"[
-    ;set heading ifelse-value targetLane < xcor [ 180 ] [ 0 ]
-    let blocking-cars other cars in-cone (  abs(xcor - targetLane)) 180 with [ y-distance <= 1 ]
-    let blocking-car min-one-of blocking-cars [ distance myself ]
-    ifelse blocking-car = nobody [
-      forward 0.2
-      set xcor precision xcor 1 ; to avoid floating point errors
-    ] [
+  ;if meaning = "road-up"[
+    ;set heading ifelse-value targetLane < xcor [ 90 ] [ 0 ]
+    ;let blocking-cars other cars in-cone (  abs(xcor - targetLane)) 90 with [ y-distance <= 1 ]
+    ;let blocking-car min-one-of blocking-cars [ distance myself ]
+    ;ifelse blocking-car = nobody [
+    ;  forward 0.2
+    ;  set xcor precision xcor 1 ; to avoid floating point errors
+    ;] [
     ; slow down if the car blocking us is behind, otherwise speed up
-      ifelse towards blocking-car <= 180 [ slow-down-car ] [ speed-up-car ]
-    ]
-  ]
-end
+    ;  ifelse towards blocking-car <= 90 [ slow-down-car ] [ speed-up-car ]
+    ;]
+ ; ]
+
+  ;if meaning = "road-down"[
+    ;set heading ifelse-value targetLane < xcor [ 90 ] [ 0 ]
+    ;let blocking-cars other cars in-cone (  abs(xcor - targetLane)) 90 with [ y-distance <= 1 ]
+    ;let blocking-car min-one-of blocking-cars [ distance myself ]
+    ;ifelse blocking-car = nobody [
+    ;  forward 0.2
+    ;  set xcor precision xcor 1 ; to avoid floating point errors
+    ;] [
+    ; slow down if the car blocking us is behind, otherwise speed up
+    ;  ifelse towards blocking-car <= 90 [ slow-down-car ] [ speed-up-car ]
+    ;]
+  ;]
+;end
 
 to slow-down-car ; turtle procedure
   set speed (speed - decelaration) ; deceleration
@@ -400,28 +413,28 @@ to move-pedestrians
 ;    not any? patches with [meaning = "crossing"] in-radius 2 [
   forward walk-time
   ;face min-one-of patches with [meaning = "sidewalk"] [distance myself]
-  walk
+  ;walk
 
 end
 
-to walk
-  ifelse [meaning] of patch-ahead 1 = "sidewalk" [
-    ifelse any? other persons-on patch-ahead 1 [
-      rt random-float 0.02
-      lt  random-float 0.005
-      set walk-time walk-time + 0.001
-    ]
-    [fd speed / 2 set walk-time walk-time + 0.001]
-  ]
-  [
+;to walk
+;  ifelse [meaning] of patch-ahead 1 = "sidewalk" [
+;    ifelse any? other persons-on patch-ahead 1 [
+;      rt random-float 0.02
+;      lt  random-float 0.005
+;      set walk-time walk-time + 0.001
+;    ]
+;    [fd speed / 20 set walk-time walk-time - 0.001]
+;  ]
+;  [
     ;rt random 2
     ;lt random 2
-    if [meaning] of patch-ahead 1 = "sidewalk" [
-      fd speed / 2
-    ]
-    set walk-time walk-time + 0.001
-  ]
-end
+;    if [meaning] of patch-ahead 1 = "sidewalk" [
+;      fd speed / 20
+;    ]
+;    set walk-time walk-time + 0.001
+;  ]
+;end
 
 ;to control-traffic-signals
 ;  if ticks mod (50 * lights-interval * greenLight + 65 * lights-interval * redLight ) = 0 [change-color traffic_lights]
@@ -524,7 +537,7 @@ number-of-cars
 number-of-cars
 0
 70
-70.0
+41.0
 1
 1
 NIL
@@ -616,7 +629,7 @@ acceleration
 acceleration
 0
 0.01
-0.01
+0.005
 0.001
 1
 NIL
@@ -704,6 +717,50 @@ true
 0
 Polygon -7500403 true true 150 0 0 150 105 150 105 293 195 293 195 150 300 150
 
+bike
+false
+1
+Line -7500403 false 163 183 228 184
+Circle -7500403 false false 213 184 22
+Circle -7500403 false false 156 187 16
+Circle -16777216 false false 28 148 95
+Circle -16777216 false false 24 144 102
+Circle -16777216 false false 174 144 102
+Circle -16777216 false false 177 148 95
+Polygon -2674135 true true 75 195 90 90 98 92 97 107 192 122 207 83 215 85 202 123 211 133 225 195 165 195 164 188 214 188 202 133 94 116 82 195
+Polygon -2674135 true true 208 83 164 193 171 196 217 85
+Polygon -2674135 true true 165 188 91 120 90 131 164 196
+Line -7500403 false 159 173 170 219
+Line -7500403 false 155 172 166 172
+Line -7500403 false 166 219 177 219
+Polygon -16777216 true false 187 92 198 92 208 97 217 100 231 93 231 84 216 82 201 83 184 85
+Polygon -7500403 true true 71 86 98 93 101 85 74 81
+Rectangle -16777216 true false 75 75 75 90
+Polygon -16777216 true false 70 87 70 72 78 71 78 89
+Circle -7500403 false false 153 184 22
+Line -7500403 false 159 206 228 205
+
+bike top
+true
+1
+Circle -16777216 false false 28 148 95
+Circle -16777216 false false 24 144 102
+Polygon -2674135 true true 210 45 92 45 92 60 210 60
+Polygon -13345367 true false 158 164 158 59 142 59 143 164
+Polygon -2674135 true true 128 210 143 225 158 225 173 210 158 180 158 150 143 150 143 165 143 180
+Rectangle -16777216 true false 75 75 75 90
+Polygon -16777216 true false 70 87 70 72 78 71 78 89
+Polygon -16777216 true false 173 226 128 226 128 241 173 241
+Polygon -13345367 true false 144 239 144 284 159 284 159 239
+Polygon -2674135 true true 207 45 207 75 222 90 222 45
+Circle -955883 true false 115 103 66
+Polygon -16777216 true false 119 166 119 196 179 196 179 166
+Polygon -2674135 true true 93 45 93 75 78 90 78 45
+Polygon -16777216 true false 232 58 233 75 202 75 172 58
+Polygon -16777216 true false 68 58 67 75 98 75 128 58
+Polygon -955883 true false 203 71 182 175 171 169 188 71
+Polygon -955883 true false 97 71 118 175 129 169 112 71
+
 box
 false
 0
@@ -764,8 +821,8 @@ Polygon -16777216 true false 210 195 195 210 195 135 210 105
 Polygon -16777216 true false 105 255 120 270 180 270 195 255 195 225 105 225
 Polygon -16777216 true false 90 195 105 210 105 135 90 105
 Polygon -1 true false 205 29 180 30 181 11
-Line -7500403 false 210 165 195 165
-Line -7500403 false 90 165 105 165
+Line -7500403 true 210 165 195 165
+Line -7500403 true 90 165 105 165
 Polygon -16777216 true false 121 135 180 134 204 97 182 89 153 85 120 89 98 97
 Line -16777216 false 210 90 195 30
 Line -16777216 false 90 90 105 30
