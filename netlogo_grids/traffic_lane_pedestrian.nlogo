@@ -141,7 +141,7 @@ to make-cars
         set politeness basic-politeness + random (101 - basic-politeness)
         if random 100 > basic-politeness [set politeness random 21]
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
-        set targetLane pxcor + random 2                ;starting lane is the targetLane
+        set targetLane pxcor               ;starting lane is the targetLane
         set patience random max-patience     ;max-patience in beginning
         set heading 0
         ;randomly set car speed
@@ -329,7 +329,12 @@ end
 
 to move-cars
   speed-up-car ;
-  let blocking-cars other cars in-cone (1 + speed) 180 with [ y-distance = 2 ]
+  let car-ahead one-of cars-on patch-ahead 1.5
+  if car-ahead = nobody[
+    ifelse speed < maxSpeed [set speed speed + acceleration] [set speed speed - decelaration]
+  ]
+
+  let blocking-cars other cars in-cone (1 + speed) 180 with [ y-distance <= 2 and y-distance > 1.5]
   let blocking-car min-one-of blocking-cars [ distance myself ]
   if blocking-car != nobody [
     ; match the speed of the car ahead of you and then slow
@@ -356,11 +361,11 @@ to move-to-targetLane ; car procedure
   ; NEED TO look how to restrict overtake in road up and road down only
 
   if meaning = "road-up"[
-    set heading ifelse-value targetLane < xcor [ 180 ] [ 0 ]
+    ;set heading ifelse-value targetLane < xcor [ 180 ] [ 0 ]
     let blocking-cars other cars in-cone (  abs(xcor - targetLane)) 180 with [ y-distance <= 1 ]
     let blocking-car min-one-of blocking-cars [ distance myself ]
     ifelse blocking-car = nobody [
-      forward 1
+      forward 0.2
       set xcor precision xcor 1 ; to avoid floating point errors
     ] [
     ; slow down if the car blocking us is behind, otherwise speed up
@@ -435,7 +440,6 @@ end
 ;  ]
 ;end
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 222
@@ -490,7 +494,7 @@ speed-limit
 speed-limit
 0
 2
-1.3
+2.0
 0.1
 1
 NIL
@@ -505,7 +509,7 @@ lights-interval
 lights-interval
 0
 60
-30.0
+31.0
 1
 1
 seconds
@@ -519,8 +523,8 @@ SLIDER
 number-of-cars
 number-of-cars
 0
-100
-0.0
+70
+70.0
 1
 1
 NIL
@@ -611,9 +615,9 @@ SLIDER
 acceleration
 acceleration
 0
-0.015
-0.015
-0.005
+0.01
+0.01
+0.001
 1
 NIL
 HORIZONTAL
@@ -626,9 +630,9 @@ SLIDER
 decelaration
 decelaration
 0
-0.5
-0.5
 0.1
+0.02
+0.01
 1
 NIL
 HORIZONTAL
