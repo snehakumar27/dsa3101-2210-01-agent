@@ -322,7 +322,7 @@ end
 
 to move-cars
   speed-up-car ;
-  let blocking-cars other cars in-cone (1 + speed) 180 with [ y-distance <= 3 ]
+  let blocking-cars other cars in-cone (1 + speed) 180 with [ y-distance = 2 ]
   let blocking-car min-one-of blocking-cars [ distance myself ]
   if blocking-car != nobody [
     ; match the speed of the car ahead of you and then slow
@@ -346,15 +346,19 @@ to choose-new-lane ; car procedure
 end
 
 to move-to-targetLane ; car procedure
-  set heading ifelse-value targetLane < xcor [ 180 ] [ 0 ]
-  let blocking-cars other cars in-cone (1 + abs (xcor - targetLane)) 180 with [ y-distance <= 3 ]
-  let blocking-car min-one-of blocking-cars [ distance myself ]
-  ifelse blocking-car = nobody [
-    forward 0.2
-    set xcor precision xcor 1 ; to avoid floating point errors
-  ] [
+  ; NEED TO look how to restrict overtake in road up and road down only
+
+  if meaning = "road-up"[
+    set heading ifelse-value targetLane < xcor [ 180 ] [ 0 ]
+    let blocking-cars other cars in-cone (  abs(xcor - targetLane)) 180 with [ y-distance <= 1 ]
+    let blocking-car min-one-of blocking-cars [ distance myself ]
+    ifelse blocking-car = nobody [
+      forward 1
+      set xcor precision xcor 1 ; to avoid floating point errors
+    ] [
     ; slow down if the car blocking us is behind, otherwise speed up
-    ifelse towards blocking-car <= 180 [ slow-down-car ] [ speed-up-car ]
+      ifelse towards blocking-car <= 180 [ slow-down-car ] [ speed-up-car ]
+    ]
   ]
 end
 
@@ -395,13 +399,13 @@ to walk
       lt  random-float 0.005
       set walk-time walk-time + 0.001
     ]
-    [fd speed / 0.002 set walk-time walk-time + 0.001]
+    [fd speed / 2 set walk-time walk-time + 0.001]
   ]
   [
     ;rt random 2
     ;lt random 2
     if [meaning] of patch-ahead 1 = "sidewalk" [
-      fd speed / 0.002
+      fd speed / 2
     ]
     set walk-time walk-time + 0.001
   ]
@@ -423,7 +427,6 @@ end
 ;    ifelse color = red [set color green][set color red]
 ;  ]
 ;end
-
 
 
 @#$#@#$#@
