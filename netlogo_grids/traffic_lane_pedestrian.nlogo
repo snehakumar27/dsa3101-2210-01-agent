@@ -107,11 +107,18 @@ to draw-sidewalk
 end
 
 to draw-crossing
-   ask patches with [(meaning != "sidewalk-left") and (meaning != "sidewalk-right") and (meaning != "sidewalk-roadside")
-    and (pycor = 10 or pycor = 11)][
-      set pcolor white
-      set meaning "crossing"
+  ask patches with [meaning != "sidewalk-left" and meaning != "sidewalk-right" and meaning != "sidewalk-roadside"
+    and (pycor = 10 or pycor = 11) and (abs pxcor = number-of-lanes or abs pxcor = number-of-lanes - 2 or abs pxcor = number-of-lanes - 4)] [
+    set pcolor white
+    set meaning "crossing"
   ]
+
+  ask patches with [meaning != "sidewalk-left" and meaning != "sidewalk-right" and meaning != "sidewalk-roadside"
+    and (pycor = 10 or pycor = 11) and (abs pxcor = number-of-lanes - 1 or abs pxcor = number-of-lanes - 3)] [
+    set pcolor black
+    set meaning "crossing"
+  ]
+
 end
 
 to make-cars
@@ -513,7 +520,7 @@ number-of-cars
 number-of-cars
 0
 100
-24.0
+0.0
 1
 1
 NIL
@@ -573,7 +580,7 @@ number-of-lanes
 number-of-lanes
 0
 4
-4.0
+3.0
 1
 1
 NIL
@@ -605,7 +612,7 @@ acceleration
 acceleration
 0
 0.015
-0.01
+0.015
 0.005
 1
 NIL
