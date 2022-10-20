@@ -154,7 +154,7 @@ to make-cars
      sprout-cars 1 [
         set shape "car top"
         set color car-color
-        set size 1.2
+        set size 1.05
         set will-stop? "maybe"
         set politeness basic-politeness + random (101 - basic-politeness)
         if random 100 > basic-politeness [set politeness random 21]
@@ -182,7 +182,7 @@ to make-cars
      sprout-cars 1 [
         set shape "car top"
         set color car-color
-        set size 1.2
+        set size 1.05
         set politeness basic-politeness + random (101 - basic-politeness)
         if random 100 > basic-politeness [set politeness random 21]
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
