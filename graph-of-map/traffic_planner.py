@@ -9,6 +9,7 @@ from PIL import Image
 map = Image.open("map.jpg")
 light_density = pd.read_csv("light_density.csv")
 roads_density = pd.read_csv("road_density.csv")
+test_data = pd.read_csv("test_data.csv")
 
 traffic_lights_x = [0.65, 0.9, 0.6, 1.45, 1.1, 1.76]
 traffic_lights_y = [1.5, 1.95, 2.3, 1.8, 2.85, 2.2]
@@ -20,8 +21,9 @@ roads_x0 = [0.15, 0.6, 0.65, 0.92, 1.15, 0.65, 1.39, 1.55, 1.45, 0.65]
 roads_x1 = [1.6, 1.4, 1.5, 1.45, 1.8, 1.1, 1.45, 1.8, 1.6, 0.65]
 roads_y0 = [2.0, 2.3, 1.55, 2.54, 2.85, 2.25, 1.3, 1.7, 1.79, 1]
 roads_y1 = [0.6, 1.3, 2.7, 1.85, 2.2, 2.85, 1.86, 2.2, 1.79, 1.5]
-#density = ["dash", "dash", "dot", "dot", "solid", "dot", "dash", "dot", "dash", "dash"]
+density = ["dash", "dash", "dot", "dot", "solid", "dot", "dash", "dot", "dash", "dash"]
 roads_df = pd.DataFrame(list(zip(roads_x0, roads_x1, roads_y0, roads_y1)), columns=["x0", "x1", "y0", "y1"])
+
 
 #function to convert road density to line type
 def density_converter(x):
@@ -79,28 +81,37 @@ app.layout = html.Div(
         
         html.Div(children = [
             html.P('Number of Lanes:'),
-            dcc.Input(id='lanes', type='number', min=1, max=10),
+            dcc.Input(id='lanes', type='number', min=1, max=4),
         ], style = {}),
+        
+        html.Div(
+            className='selection',
+            children=[
+                html.Div(
+                    children=[
+                    html.Label("Ratio between the duration of green and red lights:",
+                        style={'Align': 'center'}),
+                    dcc.Dropdown(id="ratio", options=[{'label': time, 'value':time}
+                        for time in ['0.5', '1','1.5','2']],
+                                style={'width':'200px', 'margin':'0 auto','textAlign': 'center'},
+                                value='0.5')
+                    ]),
+                html.Div(
+                    children=[
+                        html.Label("Time of the day:",
+                            style={'Align': 'center'}),
+                        dcc.Dropdown(id="time_period", options=["Morning", "Afternoon", "Night"],
+                            style={'width':'200px', 'margin':'0 auto','textAlign': 'center'},
+                            value='Morning'),
+                    ]),  
+                ], style={'margin': 'auto'}),
         
         html.Div(
             children = [
                  dcc.Graph(id = "map_graph", figure = create_graph(light_density, roads_density, 0))
             ]
         ),
-        html.Div(
-            [
-                html.P("The duration of the red light(s)")]),
-        html.Div([ dcc.Dropdown(options=[{'label': time, 'value':time}
-                          for time in ['30', '40','50','60']]),
-                   html.Div()
-                ]),
-        html.Div(
-            [
-                html.P("The duration of the green light(s)")]),
-        html.Div([ dcc.Dropdown(options=[{'label': time, 'value':time}
-                          for time in ['30', '40','50','60']]),
-                   html.Div()
-                ]),
+        
     ]
 
 )
