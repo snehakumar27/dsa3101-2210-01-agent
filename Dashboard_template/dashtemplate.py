@@ -6,7 +6,7 @@ from dash import dcc
 from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 
-app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP, 'https://codepen.io/chriddyp/pen/bWLwgP.css'])
 
 content1 = dbc.Row([
     dbc.Col([
@@ -21,15 +21,38 @@ content1 = dbc.Row([
 
 content2 = dbc.Row([
     dbc.Col([
-        html.H3("Placeholder for inputs"),
-        html.H3("Placeholder for outputs")
-    ], width = 5),
+        html.H3("View time at"),
+        dcc.Slider(
+                id = "time-slider",
+                min=0,
+                max=4,
+                marks = {
+                    0:"Morning",
+                    2:"Afternoon",
+                    4:"Night",
+                },
+                value=2
+            ),
+        html.H3("View density at"),
+        dcc.Slider(
+                id = "density-slider",
+                min=0,
+                max=4,
+                marks = {
+                    0:"low",
+                    2:"average",
+                    4:"high",
+                },
+                value=2
+            ),
+        
+        dcc.RadioItems(['Cars', 'Pedestrians','Compare', 'Both'], 'Cars', inline=False)
+    ], width = 4),
     dbc.Col([
-        "Placeholder for graph"
-    ])
+        html.H3("Placeholder for Graphs")
+    ], width = 8)
 ]
 )
-
 tabs = dbc.Tabs([
     dbc.Tab([
         content1
