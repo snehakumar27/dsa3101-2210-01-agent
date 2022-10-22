@@ -12,6 +12,11 @@ globals [
   ;selected-car  ;select car
   ;selected-pedestrian    ;select pedestrian
   lanes
+  car-ticks
+  pedestrian-ticks
+  buffer-ticks
+  cycle-length
+  trafficCycle
 ]
 
 
@@ -387,6 +392,11 @@ to make-lights
       set cars-light? false
     ]
   ]
+  set car-ticks car-lights-interval * 20 * 60
+  set pedestrian-ticks pedestrian-lights-interval * 20
+  set buffer-ticks buffer-time * 20
+  set trafficCycle 0
+  set cycle-length (car-ticks + pedestrian-ticks)
 end
 
 
@@ -440,12 +450,35 @@ to go
   ask cars [move-cars]
   ask cars with [ patience <= 0 ] [ choose-new-lane ]
   ask cars with [ xcor != targetLane ] [ move-to-targetLane]
-  ask traffic_lights with [cars-light?] [set-car-signals]
-  ask traffic_lights with [not cars-light?] [set-pedestrian-signals]
   ask persons [move-pedestrians]
+  ask traffic_lights [check-switch-lights]
+  ;ask traffic_lights with [cars-light?] [set-car-signals]
+  ;ask traffic_lights with [not cars-light?] [set-pedestrian-signals]
+
   ;ask persons [meaning] of patch-here = "
   tick
 end
+
+
+to check-switch-lights
+  if ticks mod (cycle-length) = 0 [
+    set trafficCycle trafficCycle + 1
+    switch-lights
+  ]
+
+  if ((ticks - (cycle-length * trafficCycle)) mod car-ticks = 0) or
+  ((ticks - (cycle-length * trafficCycle)) mod (car-ticks) = 0) or
+  ((ticks - (cycle-length * trafficCycle)) mod (car-ticks + pedestrian-ticks) = 0)
+  [
+      switch-lights
+  ]
+end
+
+to switch-lights
+  set greenLight? (not greenLight?)
+    ifelse greenLight? [set color red] [set color green]
+end
+
 
 to move-cars
   speed-up-car ;
@@ -461,12 +494,26 @@ to move-cars
   forward speed
 
   ;whether traffic lights show red or green
+
+;  let stop? true
+;  ask traffic_lights with [not cars-light?] [
+;    ifelse greenLight? [set stop? false] [set stop? true]
+;  ]
+;
+;  ifelse [meaning] of patch-ahead 1 = "crossing" [
+;    ifelse (stop?) [forward speed] [
+;      if [meaning] of patch-here = "crossing" [forward speed]
+;    ]
+;  ]
+;  [forward speed]
+
+
+;
+;  if not any? (traffic_lights in-cone 2 180) with [cars-light? and color = red ] [
+;    if [meaning] of patch-here = "crossing" [fd speed]]
+
   ifelse not any? (traffic_lights in-cone 2 180) with [cars-light? and color = red ] [
     if [meaning] of patch-here = "crossing" [fd speed]][set speed 0]
-
-
-;  ifelse not any? (traffic_lights in-cone 2 180) with [cars-light? and color = red ] [
-;    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0]
 ;
 ;  ifelse [meaning] of patch-ahead 1 = "crossing" [
 ;    ifelse (speed = 0) [fd speed][
@@ -618,9 +665,10 @@ end
 to set-car-signals
   ;conversion of seconds to ticks
   let ticks-interval car-lights-interval * 20 * 60
+  let ticks-interval-buffer buffer-time * 20
 
   ; changing of lights
-  if ticks mod (ticks-interval) = 0 [
+  if ticks mod (ticks-interval + buffer-time) = 0 [
       set greenLight? (not greenLight?)
     ifelse greenLight? [set color red] [set color green]
   ]
@@ -629,9 +677,10 @@ end
 to set-pedestrian-signals
   ;conversion of seconds to ticks
   let ticks-interval pedestrian-lights-interval * 20
+  let ticks-interval-buffer buffer-time * 20
 
   ; changing of lights
-  if ticks mod (ticks-interval) = 0 [
+  if ticks mod (ticks-interval + ticks-interval-buffer) = 0 [
       set greenLight? (not greenLight?)
     ifelse greenLight? [set color red] [set color green]
   ]
@@ -834,7 +883,7 @@ T
 T
 OBSERVER
 NIL
-NIL
+G
 NIL
 NIL
 0
@@ -882,6 +931,21 @@ car-lights-interval
 0.5
 1
 min
+HORIZONTAL
+
+SLIDER
+13
+459
+193
+492
+buffer-time
+buffer-time
+0
+5
+2.0
+1
+1
+seconds
 HORIZONTAL
 
 @#$#@#$#@
