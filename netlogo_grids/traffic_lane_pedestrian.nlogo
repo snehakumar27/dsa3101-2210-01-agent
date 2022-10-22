@@ -3,6 +3,7 @@ breed[cars car]
 breed[persons person]
 breed[crossings crossing]
 breed[traffic_lights traffic_light]  ;for traffic signals
+breed[towns town]
 
 globals [
   speedLimit
@@ -41,8 +42,8 @@ cars-own [
 ]
 
 traffic_lights-own [
-  redLight?
   greenLight?
+  cars-light?
 ]
 
 
@@ -53,8 +54,9 @@ to setup
   draw-roads
   draw-sidewalk
   draw-crossing
-  make-cars
+  make-town
   make-people
+  make-cars
   make-lights
   reset-ticks
   tick
@@ -65,6 +67,7 @@ to draw-roads
   ask patches [
     ;the road is surrounded by green grass of varying shades
     set pcolor 63 + random-float 0.5
+    set meaning "town"
   ]
   ;roads based on number of lanes
   set lanes n-values number-of-lanes [ n -> number-of-lanes - (n * 2) - 1 ]
@@ -89,12 +92,12 @@ to draw-roads
 end
 
 to draw-sidewalk
-  ask patches with [(pycor = 11 or pycor = 10 or pycor = 9) and (abs pxcor > number-of-lanes) and
+  ask patches with [(pycor = 11 or pycor = 10) and (abs pxcor > number-of-lanes) and
   (meaning !="road-up" and meaning != "road-down" and meaning != "divider")]
   [set pcolor 36 + random-float 0.3
   set meaning "sidewalk-right"]
 
-  ask patches with [(pycor = 11 or pycor = 10 or pycor = 9) and (pxcor < number-of-lanes) and
+  ask patches with [(pycor = 11 or pycor = 10) and (pxcor < number-of-lanes) and
   (meaning !="road-up" and meaning != "road-down" and meaning != "divider")]
   [set pcolor 36 + random-float 0.3
   set meaning "sidewalk-left"]
@@ -286,6 +289,26 @@ ask n-of (sidewalk-right-people) patches with [meaning = "sidewalk-right"] [
       ]
     ]
 
+;  ask n-of (50) patches with [meaning = "path"] [
+;    sprout-persons 1 [
+;        set shape one-of ["person business" "person construction" "person student" "person farmer"
+;        "person lumberjack" "person police" "person service" "person soldier" "bike top"]
+;        set color pedestrian-color
+;        set size 0.8
+;        ;move-to one-of free road-patches ; no need the above check should already take into account for this?
+;        ;set targetLane pxcor                  ;starting lane is the targetLane
+;        ;set patience random max-patience      ;max-patience in beginning
+;      set heading random (360)
+;        ;randomly set car speed
+;        set walk-time 0.01 + random-float (0.06 - 0.01)
+;;        let s random 10
+;;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
+;;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
+;;        if s > 7 [set maxSpeed speed-limit + random 16]
+;;        set speed maxSpeed - random 20
+;      ]
+;    ]
+
 end
 
 to-report pedestrian-color
@@ -293,31 +316,129 @@ to-report pedestrian-color
   report one-of [ 131 132 133 ] + 1.5 + random-float 1.0
 end
 
-; for traffic signals, but pls edit the following code has issues
+
 to make-lights
+  ;car lights initial green
   ask patches with [(pycor = 9) and pxcor = 1] [
     sprout-traffic_lights 1 [
       set color green
       set shape "cylinder"
       set size 0.9
       set greenLight? true
-      set redLight? false
+      set cars-light? true
     ]
   ]
-
+  ask patches with [(pycor = 9) and pxcor = -1] [
+    sprout-traffic_lights 1 [
+      set color green
+      set shape "cylinder"
+      set size 0.9
+      set greenLight? true
+      set cars-light? true
+    ]
+  ]
   ask patches with [(pycor = 12) and pxcor = -1] [
     sprout-traffic_lights 1 [
       set color green
       set shape "cylinder"
       set size 0.9
       set greenLight? true
-      set redLight? false
+      set cars-light? true
+    ]
+  ]
+  ask patches with [(pycor = 12) and pxcor = 1] [
+    sprout-traffic_lights 1 [
+      set color green
+      set shape "cylinder"
+      set size 0.9
+      set greenLight? true
+      set cars-light? true
     ]
   ]
 
+  ;pedestrian lights red
+   ask patches with [(pycor = 12) and pxcor = number-of-lanes + 1] [
+    sprout-traffic_lights 1 [
+      set color red
+      set shape "cylinder"
+      set size 0.9
+      set greenLight? false
+      set cars-light? false
+    ]
+  ]
+  ask patches with [(pycor = 9) and pxcor = number-of-lanes + 1 ]  [
+    sprout-traffic_lights 1 [
+      set color red
+      set shape "cylinder"
+      set size 0.9
+      set greenLight? false
+      set cars-light? false
+    ]
+  ]
+  ask patches with [(pycor = 12) and pxcor = 0 - number-of-lanes - 1] [
+    sprout-traffic_lights 1 [
+      set color red
+      set shape "cylinder"
+      set size 0.9
+      set greenLight? false
+      set cars-light? false
+    ]
+  ]
+  ask patches with [(pycor = 9) and pxcor = 0 - number-of-lanes - 1] [
+    sprout-traffic_lights 1 [
+      set color red
+      set shape "cylinder"
+      set size 0.9
+      set greenLight? false
+      set cars-light? false
+    ]
+  ]
 end
 
 
+;; randomly sprout
+to make-town
+  ;; set paths on vertical paths
+  ask patches with [((number-of-lanes + 2 < abs pxcor) and (abs pxcor < 9)) or ((8 <= pycor) and (pycor <= 13))
+    and meaning = "town"][
+    set pcolor brown - 1 - random-float (0.5)
+    set meaning "path"
+    sprout 1 [
+    set shape "tile stones"
+    set color 36
+    stamp
+    die
+  ]
+  ]
+;
+;  [abs pxcor >= 9 and (pycor <= 13) and meaning = "town"] [
+;    set pcolor black
+;  ]
+
+; ask n-of (5) patches with [meaning = "town"] [
+;
+;    if not any? turtles in-radius 7 [
+;      sprout-towns 1 [
+;        set shape one-of ["house bungalow" "house colonial" "house ranch"]
+;        set size 7
+;     ]
+;    ]
+;  ]
+;
+  ask n-of (20) patches with [meaning = "path"] [
+    sprout-towns 1 [
+      set shape "plant"
+      set size 2
+      set color green + 6 + random-float (0.5)
+    ]
+  ]
+;
+;  ask n-of (10) patches with [meaning = "town"] [
+;    sprout-towns 1 [
+;      set shape "tree"]
+;  ]
+
+end
 
 ;;;;;;; Run the Simulation ;;;;;;;
 
@@ -326,6 +447,8 @@ to go
   ;ask cars with [ patience <= 0 ] [ choose-new-lane ]
   ;ask cars with [ xcor != targetLane ] [ move-to-targetLane ]
   ask persons [move-pedestrians]
+  ask traffic_lights with [cars-light?] [set-car-signals]
+  ask traffic_lights with [not cars-light?] [set-pedestrian-signals]
   tick
 end
 
@@ -409,11 +532,46 @@ to move-pedestrians
 ;  if not any? cars-on patch (pxcor + 1) pycor and
 ;    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
    ;if not any? patches with [meaning = "crossing"] in-radius 2 [
-  forward walk-time;]
+  ;forward walk-time
+  ;face min-one-of patches with [meaning = "crossing"] [distance myself]
   ;face min-one-of patches with [meaning = "sidewalk"] [distance myself]
   ;walk
-  ;forward walk-time
+  forward walk-time
 
+
+  ;;randomizing
+;    forward walk-time;]
+;  ifelse [meaning] of patch-ahead 1 = one-of ["path" "sidewalk-left" "sidewalk-right" "sidewalk-roadside" "crossing"] [
+;    ifelse any? other persons-on patch-ahead 1 [
+;      rt random 45
+;      lt  random 45
+;      set walk-time walk-time + 1
+;    ]
+;    [fd speed / 200 set walk-time walk-time + 1]
+;  ]
+;  [
+;    rt random 120
+;    lt random 120
+;    if [meaning] of patch-ahead 1 = one-of ["path" "sidewalk-left" "sidewalk-right" "sidewalk-roadside" "crossing"]  [
+;      fd speed / 200
+;    ]
+;    set walk-time walk-time + 1
+;  ]
+
+end
+
+to set-car-signals
+  if  ticks mod (lights-interval) = 0 [
+      set greenLight? (not greenLight?)
+    ifelse greenLight? [set color red] [set color green]
+  ]
+end
+
+to set-pedestrian-signals
+  if  ticks mod (lights-interval) = 0 [
+      set greenLight? (not greenLight?)
+    ifelse greenLight? [set color red] [set color green]
+  ]
 end
 
 ;to walk
@@ -504,9 +662,9 @@ SLIDER
 speed-limit
 speed-limit
 0
-2
-2.0
-0.1
+0.2
+0.5
+1
 1
 NIL
 HORIZONTAL
@@ -514,16 +672,16 @@ HORIZONTAL
 SLIDER
 13
 103
-185
+192
 136
 lights-interval
 lights-interval
 0
-60
-31.0
+30
+10.0
 1
 1
-seconds
+minute
 HORIZONTAL
 
 SLIDER
@@ -535,7 +693,7 @@ number-of-cars
 number-of-cars
 0
 70
-11.0
+22.0
 1
 1
 NIL
@@ -550,7 +708,7 @@ number-of-pedestrians
 number-of-pedestrians
 0
 60
-48.0
+40.0
 1
 1
 NIL
@@ -580,7 +738,7 @@ time-to-cross
 time-to-cross
 0
 40
-14.0
+15.0
 1
 1
 seconds
@@ -627,7 +785,7 @@ acceleration
 acceleration
 0
 0.01
-0.006
+0.008
 0.001
 1
 NIL
@@ -776,6 +934,53 @@ Circle -7500403 true true 110 75 80
 Line -7500403 true 150 100 80 30
 Line -7500403 true 150 100 220 30
 
+building institution
+false
+0
+Rectangle -7500403 true true 0 60 300 270
+Rectangle -16777216 true false 130 196 168 256
+Rectangle -16777216 false false 0 255 300 270
+Polygon -7500403 true true 0 60 150 15 300 60
+Polygon -16777216 false false 0 60 150 15 300 60
+Circle -1 true false 135 26 30
+Circle -16777216 false false 135 25 30
+Rectangle -16777216 false false 0 60 300 75
+Rectangle -16777216 false false 218 75 255 90
+Rectangle -16777216 false false 218 240 255 255
+Rectangle -16777216 false false 224 90 249 240
+Rectangle -16777216 false false 45 75 82 90
+Rectangle -16777216 false false 45 240 82 255
+Rectangle -16777216 false false 51 90 76 240
+Rectangle -16777216 false false 90 240 127 255
+Rectangle -16777216 false false 90 75 127 90
+Rectangle -16777216 false false 96 90 121 240
+Rectangle -16777216 false false 179 90 204 240
+Rectangle -16777216 false false 173 75 210 90
+Rectangle -16777216 false false 173 240 210 255
+Rectangle -16777216 false false 269 90 294 240
+Rectangle -16777216 false false 263 75 300 90
+Rectangle -16777216 false false 263 240 300 255
+Rectangle -16777216 false false 0 240 37 255
+Rectangle -16777216 false false 6 90 31 240
+Rectangle -16777216 false false 0 75 37 90
+Line -16777216 false 112 260 184 260
+Line -16777216 false 105 265 196 265
+
+building store
+false
+0
+Rectangle -7500403 true true 30 45 45 240
+Rectangle -16777216 false false 30 45 45 165
+Rectangle -7500403 true true 15 165 285 255
+Rectangle -16777216 true false 120 195 180 255
+Line -7500403 true 150 195 150 255
+Rectangle -16777216 true false 30 180 105 240
+Rectangle -16777216 true false 195 180 270 240
+Line -16777216 false 0 165 300 165
+Polygon -7500403 true true 0 165 45 135 60 90 240 90 255 135 300 165
+Rectangle -7500403 true true 0 0 75 45
+Rectangle -16777216 false false 0 0 75 45
+
 butterfly
 true
 0
@@ -899,6 +1104,26 @@ Circle -16777216 true false 60 75 60
 Circle -16777216 true false 180 75 60
 Polygon -16777216 true false 150 168 90 184 62 210 47 232 67 244 90 220 109 205 150 198 192 205 210 220 227 242 251 229 236 206 212 183
 
+factory
+false
+0
+Rectangle -7500403 true true 76 194 285 270
+Rectangle -7500403 true true 36 95 59 231
+Rectangle -16777216 true false 90 210 270 240
+Line -7500403 true 90 195 90 255
+Line -7500403 true 120 195 120 255
+Line -7500403 true 150 195 150 240
+Line -7500403 true 180 195 180 255
+Line -7500403 true 210 210 210 240
+Line -7500403 true 240 210 240 240
+Line -7500403 true 90 225 270 225
+Circle -1 true false 37 73 32
+Circle -1 true false 55 38 54
+Circle -1 true false 96 21 42
+Circle -1 true false 105 40 32
+Circle -1 true false 129 19 42
+Rectangle -7500403 true true 14 228 78 270
+
 fish
 false
 0
@@ -933,6 +1158,15 @@ Circle -16777216 true false 113 68 74
 Polygon -10899396 true false 189 233 219 188 249 173 279 188 234 218
 Polygon -10899396 true false 180 255 150 210 105 210 75 240 135 240
 
+flower budding
+false
+0
+Polygon -7500403 true true 135 120 165 165 180 210 180 240 150 300 165 300 195 240 195 195 165 135
+Polygon -7500403 true true 189 233 219 188 249 173 279 188 234 218
+Polygon -7500403 true true 180 255 150 210 105 210 75 240 135 240
+Polygon -7500403 true true 180 150 180 120 165 97 135 84 128 121 147 148 165 165
+Polygon -7500403 true true 170 155 131 163 175 167 196 136
+
 house
 false
 0
@@ -940,6 +1174,83 @@ Rectangle -7500403 true true 45 120 255 285
 Rectangle -16777216 true false 120 210 180 285
 Polygon -7500403 true true 15 120 150 15 285 120
 Line -16777216 false 30 120 270 120
+
+house bungalow
+false
+0
+Rectangle -7500403 true true 210 75 225 255
+Rectangle -7500403 true true 90 135 210 255
+Rectangle -16777216 true false 165 195 195 255
+Line -16777216 false 210 135 210 255
+Rectangle -16777216 true false 105 202 135 240
+Polygon -7500403 true true 225 150 75 150 150 75
+Line -16777216 false 75 150 225 150
+Line -16777216 false 195 120 225 150
+Polygon -16777216 false false 165 195 150 195 180 165 210 195
+Rectangle -16777216 true false 135 105 165 135
+
+house colonial
+false
+0
+Rectangle -7500403 true true 270 75 285 255
+Rectangle -7500403 true true 45 135 270 255
+Rectangle -16777216 true false 124 195 187 256
+Rectangle -16777216 true false 60 195 105 240
+Rectangle -16777216 true false 60 150 105 180
+Rectangle -16777216 true false 210 150 255 180
+Line -16777216 false 270 135 270 255
+Polygon -7500403 true true 30 135 285 135 240 90 75 90
+Line -16777216 false 30 135 285 135
+Line -16777216 false 255 105 285 135
+Line -7500403 true 154 195 154 255
+Rectangle -16777216 true false 210 195 255 240
+Rectangle -16777216 true false 135 150 180 180
+
+house efficiency
+false
+0
+Rectangle -7500403 true true 180 90 195 195
+Rectangle -7500403 true true 90 165 210 255
+Rectangle -16777216 true false 165 195 195 255
+Rectangle -16777216 true false 105 202 135 240
+Polygon -7500403 true true 225 165 75 165 150 90
+Line -16777216 false 75 165 225 165
+
+house ranch
+false
+0
+Rectangle -7500403 true true 270 120 285 255
+Rectangle -7500403 true true 15 180 270 255
+Polygon -7500403 true true 0 180 300 180 240 135 60 135 0 180
+Rectangle -16777216 true false 120 195 180 255
+Line -7500403 true 150 195 150 255
+Rectangle -16777216 true false 45 195 105 240
+Rectangle -16777216 true false 195 195 255 240
+Line -7500403 true 75 195 75 240
+Line -7500403 true 225 195 225 240
+Line -16777216 false 270 180 270 255
+Line -16777216 false 0 180 300 180
+
+house two story
+false
+0
+Polygon -7500403 true true 2 180 227 180 152 150 32 150
+Rectangle -7500403 true true 270 75 285 255
+Rectangle -7500403 true true 75 135 270 255
+Rectangle -16777216 true false 124 195 187 256
+Rectangle -16777216 true false 210 195 255 240
+Rectangle -16777216 true false 90 150 135 180
+Rectangle -16777216 true false 210 150 255 180
+Line -16777216 false 270 135 270 255
+Rectangle -7500403 true true 15 180 75 255
+Polygon -7500403 true true 60 135 285 135 240 90 105 90
+Line -16777216 false 75 135 75 180
+Rectangle -16777216 true false 30 195 93 240
+Line -16777216 false 60 135 285 135
+Line -16777216 false 255 105 285 135
+Line -16777216 false 0 180 75 180
+Line -7500403 true 60 195 60 240
+Line -7500403 true 154 195 154 255
 
 leaf
 false
@@ -1178,6 +1489,16 @@ Polygon -7500403 true true 135 105 90 60 45 45 75 105 135 135
 Polygon -7500403 true true 165 105 165 135 225 105 255 45 210 60
 Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
 
+plant medium
+false
+0
+Rectangle -7500403 true true 135 165 165 300
+Polygon -7500403 true true 135 255 90 210 45 195 75 255 135 285
+Polygon -7500403 true true 165 255 210 210 255 195 225 255 165 285
+Polygon -7500403 true true 135 180 90 135 45 120 75 180 135 210
+Polygon -7500403 true true 165 180 165 210 225 180 255 120 210 135
+Polygon -7500403 true true 135 165 120 120 150 90 180 120 165 165
+
 sheep
 false
 15
@@ -1219,6 +1540,90 @@ Circle -7500403 true true 60 60 180
 Circle -16777216 true false 90 90 120
 Circle -7500403 true true 120 120 60
 
+tile brick
+false
+0
+Rectangle -1 true false 0 0 300 300
+Rectangle -7500403 true true 15 225 150 285
+Rectangle -7500403 true true 165 225 300 285
+Rectangle -7500403 true true 75 150 210 210
+Rectangle -7500403 true true 0 150 60 210
+Rectangle -7500403 true true 225 150 300 210
+Rectangle -7500403 true true 165 75 300 135
+Rectangle -7500403 true true 15 75 150 135
+Rectangle -7500403 true true 0 0 60 60
+Rectangle -7500403 true true 225 0 300 60
+Rectangle -7500403 true true 75 0 210 60
+
+tile log
+false
+0
+Rectangle -7500403 true true 0 0 300 300
+Line -16777216 false 0 30 45 15
+Line -16777216 false 45 15 120 30
+Line -16777216 false 120 30 180 45
+Line -16777216 false 180 45 225 45
+Line -16777216 false 225 45 165 60
+Line -16777216 false 165 60 120 75
+Line -16777216 false 120 75 30 60
+Line -16777216 false 30 60 0 60
+Line -16777216 false 300 30 270 45
+Line -16777216 false 270 45 255 60
+Line -16777216 false 255 60 300 60
+Polygon -16777216 false false 15 120 90 90 136 95 210 75 270 90 300 120 270 150 195 165 150 150 60 150 30 135
+Polygon -16777216 false false 63 134 166 135 230 142 270 120 210 105 116 120 88 122
+Polygon -16777216 false false 22 45 84 53 144 49 50 31
+Line -16777216 false 0 180 15 180
+Line -16777216 false 15 180 105 195
+Line -16777216 false 105 195 180 195
+Line -16777216 false 225 210 165 225
+Line -16777216 false 165 225 60 225
+Line -16777216 false 60 225 0 210
+Line -16777216 false 300 180 264 191
+Line -16777216 false 255 225 300 210
+Line -16777216 false 16 196 116 211
+Line -16777216 false 180 300 105 285
+Line -16777216 false 135 255 240 240
+Line -16777216 false 240 240 300 255
+Line -16777216 false 135 255 105 285
+Line -16777216 false 180 0 240 15
+Line -16777216 false 240 15 300 0
+Line -16777216 false 0 300 45 285
+Line -16777216 false 45 285 45 270
+Line -16777216 false 45 270 0 255
+Polygon -16777216 false false 150 270 225 300 300 285 228 264
+Line -16777216 false 223 209 255 225
+Line -16777216 false 179 196 227 183
+Line -16777216 false 228 183 266 192
+
+tile stones
+false
+0
+Polygon -7500403 true true 0 240 45 195 75 180 90 165 90 135 45 120 0 135
+Polygon -7500403 true true 300 240 285 210 270 180 270 150 300 135 300 225
+Polygon -7500403 true true 225 300 240 270 270 255 285 255 300 285 300 300
+Polygon -7500403 true true 0 285 30 300 0 300
+Polygon -7500403 true true 225 0 210 15 210 30 255 60 285 45 300 30 300 0
+Polygon -7500403 true true 0 30 30 0 0 0
+Polygon -7500403 true true 15 30 75 0 180 0 195 30 225 60 210 90 135 60 45 60
+Polygon -7500403 true true 0 105 30 105 75 120 105 105 90 75 45 75 0 60
+Polygon -7500403 true true 300 60 240 75 255 105 285 120 300 105
+Polygon -7500403 true true 120 75 120 105 105 135 105 165 165 150 240 150 255 135 240 105 210 105 180 90 150 75
+Polygon -7500403 true true 75 300 135 285 195 300
+Polygon -7500403 true true 30 285 75 285 120 270 150 270 150 210 90 195 60 210 15 255
+Polygon -7500403 true true 180 285 240 255 255 225 255 195 240 165 195 165 150 165 135 195 165 210 165 255
+
+tile water
+false
+0
+Rectangle -7500403 true true -1 0 299 300
+Polygon -1 true false 105 259 180 290 212 299 168 271 103 255 32 221 1 216 35 234
+Polygon -1 true false 300 161 248 127 195 107 245 141 300 167
+Polygon -1 true false 0 157 45 181 79 194 45 166 0 151
+Polygon -1 true false 179 42 105 12 60 0 120 30 180 45 254 77 299 93 254 63
+Polygon -1 true false 99 91 50 71 0 57 51 81 165 135
+Polygon -1 true false 194 224 258 254 295 261 211 221 144 199
+
 tree
 false
 0
@@ -1228,6 +1633,14 @@ Circle -7500403 true true 65 21 108
 Circle -7500403 true true 116 41 127
 Circle -7500403 true true 45 90 120
 Circle -7500403 true true 104 74 152
+
+tree pine
+false
+0
+Rectangle -6459832 true false 120 225 180 300
+Polygon -7500403 true true 150 240 240 270 150 135 60 270
+Polygon -7500403 true true 150 75 75 210 150 195 225 210
+Polygon -7500403 true true 150 7 90 157 150 142 210 157 150 7
 
 triangle
 false
@@ -1255,6 +1668,39 @@ Circle -7500403 false true 24 174 42
 Circle -7500403 false true 144 174 42
 Circle -7500403 false true 234 174 42
 
+truck cab top
+true
+0
+Rectangle -7500403 true true 70 45 227 120
+Polygon -7500403 true true 150 8 118 10 96 17 90 30 75 135 75 195 90 210 150 210 210 210 225 195 225 135 209 30 201 17 179 10
+Polygon -16777216 true false 94 135 118 119 184 119 204 134 193 141 110 141
+Line -16777216 false 130 14 168 14
+Line -16777216 false 130 18 168 18
+Line -16777216 false 130 11 168 11
+Line -16777216 false 185 29 194 112
+Line -16777216 false 115 29 106 112
+Line -16777216 false 195 225 210 240
+Line -16777216 false 105 225 90 240
+Polygon -16777216 true false 210 195 195 195 195 150 210 143
+Polygon -16777216 false false 90 143 90 195 105 195 105 150 90 143
+Polygon -16777216 true false 90 195 105 195 105 150 90 143
+Line -7500403 true 210 180 195 180
+Line -7500403 true 90 180 105 180
+Line -16777216 false 212 44 213 124
+Line -16777216 false 88 44 87 124
+Line -16777216 false 223 130 193 112
+Rectangle -7500403 true true 225 133 244 139
+Rectangle -7500403 true true 56 133 75 139
+Rectangle -7500403 true true 120 210 180 240
+Rectangle -7500403 true true 93 238 210 270
+Rectangle -16777216 true false 200 217 224 278
+Rectangle -16777216 true false 76 217 100 278
+Circle -16777216 false false 135 240 30
+Line -16777216 false 77 130 107 112
+Rectangle -16777216 false false 107 149 192 210
+Rectangle -1 true false 180 9 203 17
+Rectangle -1 true false 97 9 120 17
+
 turtle
 true
 0
@@ -1264,6 +1710,27 @@ Polygon -10899396 true false 105 90 75 75 55 75 40 89 31 108 39 124 60 105 75 10
 Polygon -10899396 true false 132 85 134 64 107 51 108 17 150 2 192 18 192 52 169 65 172 87
 Polygon -10899396 true false 85 204 60 233 54 254 72 266 85 252 107 210
 Polygon -7500403 true true 119 75 179 75 209 101 224 135 220 225 175 261 128 261 81 224 74 135 88 99
+
+van top
+true
+0
+Polygon -7500403 true true 90 117 71 134 228 133 210 117
+Polygon -7500403 true true 150 8 118 10 96 17 85 30 84 264 89 282 105 293 149 294 192 293 209 282 215 265 214 31 201 17 179 10
+Polygon -16777216 true false 94 129 105 120 195 120 204 128 180 150 120 150
+Polygon -16777216 true false 90 270 105 255 105 150 90 135
+Polygon -16777216 true false 101 279 120 286 180 286 198 281 195 270 105 270
+Polygon -16777216 true false 210 270 195 255 195 150 210 135
+Polygon -1 true false 201 16 201 26 179 20 179 10
+Polygon -1 true false 99 16 99 26 121 20 121 10
+Line -16777216 false 130 14 168 14
+Line -16777216 false 130 18 168 18
+Line -16777216 false 130 11 168 11
+Line -16777216 false 185 29 194 112
+Line -16777216 false 115 29 106 112
+Line -7500403 false 210 180 195 180
+Line -7500403 false 195 225 210 240
+Line -7500403 false 105 225 90 240
+Line -7500403 false 90 180 105 180
 
 waitpoint
 false
