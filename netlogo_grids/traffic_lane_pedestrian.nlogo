@@ -24,6 +24,7 @@ patches-own [
 ]
 
 persons-own [
+  start_place
   speed
   walk-time
   waiting?
@@ -438,10 +439,11 @@ end
 to go
   ask cars [move-cars]
   ask cars with [ patience <= 0 ] [ choose-new-lane ]
-  ask cars with [ xcor != targetLane ] [ move-to-targetLane ]
-  ask persons [move-pedestrians]
+  ask cars with [ xcor != targetLane ] [ move-to-targetLane]
   ask traffic_lights with [cars-light?] [set-car-signals]
   ask traffic_lights with [not cars-light?] [set-pedestrian-signals]
+  ask persons [move-pedestrians]
+  ;ask persons [meaning] of patch-here = "
   tick
 end
 
@@ -566,8 +568,31 @@ to move-pedestrians
   ;face min-one-of patches with [meaning = "crossing"] [distance myself]
   ;face min-one-of patches with [meaning = "sidewalk"] [distance myself]
   ;walk
-  forward walk-time
 
+  let stop? true
+  ask traffic_lights with [not cars-light?] [
+    ifelse greenLight? [set stop? false] [set stop? true]
+  ]
+
+  ifelse [meaning] of patch-ahead 1 = "crossing" [
+      ifelse (stop?) [forward walk-time] [
+      if [meaning] of patch-here = "crossing" [forward walk-time]
+    ]
+  ]
+  [forward walk-time]
+
+;  let change_heading one-of [0 1]
+;
+;  if [meaning] of patch-here != "crossing"
+;
+;  if [meaning] of patch-here = "sidewalk-roadside" [
+;    if [meaning] of patch-at-heading-and-distance 90 2 = "crossing" [
+;      if (change_heading = 0) [set heading 90]
+;    ]
+;    if [meaning] of patch-at-heading-and-distance 270 2 = "crossing" [
+;      if (change_heading = 0) [set heading 270]
+;    ]
+;  ]
 
   ;;randomizing
 ;    forward walk-time;]
@@ -591,14 +616,22 @@ to move-pedestrians
 end
 
 to set-car-signals
-  if  ticks mod (lights-interval) = 0 [
+  ;conversion of seconds to ticks
+  let ticks-interval car-lights-interval * 20 * 60
+
+  ; changing of lights
+  if ticks mod (ticks-interval) = 0 [
       set greenLight? (not greenLight?)
     ifelse greenLight? [set color red] [set color green]
   ]
 end
 
 to set-pedestrian-signals
-  if  ticks mod (lights-interval) = 0 [
+  ;conversion of seconds to ticks
+  let ticks-interval pedestrian-lights-interval * 20
+
+  ; changing of lights
+  if ticks mod (ticks-interval) = 0 [
       set greenLight? (not greenLight?)
     ifelse greenLight? [set color red] [set color green]
   ]
@@ -693,25 +726,25 @@ speed-limit
 speed-limit
 0
 0.2
-0.5
+0.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-13
-103
-185
-136
-lights-interval
-lights-interval
+8
+601
+269
+634
+pedestrian-lights-interval
+pedestrian-lights-interval
 0
-30
-11.0
+45
+30.0
+15
 1
-1
-minute
+seconds
 HORIZONTAL
 
 SLIDER
