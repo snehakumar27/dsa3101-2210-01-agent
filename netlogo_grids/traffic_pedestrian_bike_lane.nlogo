@@ -54,7 +54,7 @@ to setup
   draw-roads
   draw-sidewalk
   draw-crossing
-  make-cars
+  if bike-lanes != 4 [make-cars]
   make-people
   make-bike
   make-lights
@@ -323,7 +323,7 @@ ask n-of (sidewalk-right-people) patches with [meaning = "sidewalk-right"] [
 ;    not any? patches with [meaning = "crossing"] in-radius 2 [
      sprout-persons 1 [
         set shape one-of ["person business" "person construction" "person student" "person farmer"
-        "person lumberjack" "person police" "person service" "person soldier" "bike top"]
+        "person lumberjack" "person police" "person service" "person soldier"]
         set color pedestrian-color
         set size 0.8
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
@@ -673,7 +673,7 @@ bike-lanes
 bike-lanes
 0
 4
-3.0
+4.0
 1
 1
 NIL
