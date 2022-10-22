@@ -7,8 +7,8 @@ from dash.dependencies import Input, Output
 from PIL import Image
 
 #### LOADING DATASETS ####
-light_density = pd.read_csv("light_density.csv")
-roads_density = pd.read_csv("road_density.csv")
+#light_density = pd.read_csv("light_density.csv")
+#roads_density = pd.read_csv("road_density.csv")
 ##########################
 
 
@@ -51,9 +51,22 @@ app.layout = html.Div(
     children=[
         #### HTML DIV TO add time slider (AIJIA)####
         html.Div(children = [
-        ], style = {}),
+            dcc.Slider(
+                id = "time-slider",
+                min=0,
+                max=8,
+                marks = {
+                    0:"8 A.M.",
+                    2:"12 P.M.",
+                    4:"3 P.M.",
+                    6:"6 P.M.",
+                    8:"9 P.M.",
+                },
+                value=2
+            )
+        ]),
         #### END DIV 1 ####
-
+        '''
         #### HTML DIV TO add graph (AIJIA)####
         html.Div(children = [
         ], style = {}),
@@ -83,7 +96,7 @@ app.layout = html.Div(
         html.Div(children = [
         ], style = {}),
         #### END DIV 7 ####
-
+        '''
     ]
 
 )
