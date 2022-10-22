@@ -271,7 +271,7 @@ ask n-of (sidewalk-right-people) patches with [meaning = "sidewalk-right"] [
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
         ;set targetLane pxcor                  ;starting lane is the targetLane
         ;set patience random max-patience      ;max-patience in beginning
-      set heading one-of [0 180]
+        set heading one-of [0 180]
         ;randomly set car speed
         set walk-time 0.01 + random-float (0.06 - 0.01)
 ;        let s random 10
@@ -448,21 +448,38 @@ end
 to move-cars
   speed-up-car ;
 
-  let blocking-cars other cars in-cone (1 + speed) 180 with [ y-distance <= 2  ]
+  let blocking-cars other cars in-cone (1 + (speed * 5)) 180 with [ y-distance <= 2  ]
   let blocking-car min-one-of blocking-cars [ distance myself ]
   if blocking-car != nobody [
     ; match the speed of the car ahead of you and then slow
     ; down so you are driving a bit slower than that car
     set speed [ speed ] of blocking-car
-    slow-down-car
+    ;slow-down-car
   ]
   forward speed
+
+  ;whether traffic lights show red or green
+  ifelse not any? (traffic_lights in-cone 2 180) with [cars-light? and color = red ] [
+    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0]
+
+
+;  ifelse not any? (traffic_lights in-cone 2 180) with [cars-light? and color = red ] [
+;    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0]
+;
+;  ifelse [meaning] of patch-ahead 1 = "crossing" [
+;    ifelse (speed = 0) [fd speed][
+;      if [meaning] of patch-here = "crossing" [fd speed]
+;    ]
+;  ]
+;  [fd speed]
+
+
 end
 
 to choose-new-lane ; car procedure
   ; Choose a new lane among those with the minimum
   ; distance to your current lane (i.e., your xcor).
-;  let other-lanes remove xcor lanes
+  ; let other-lanes remove xcor lanes
   let other-lanes lanes
   if not empty? other-lanes [
     let min-dist min map [ x -> abs (x - xcor) ] other-lanes
@@ -475,7 +492,7 @@ end
 to move-to-targetLane ; car procedure
   ; NEED TO look how to restrict overtake in road up and road down only
 
-  if meaning = "road-up"[
+  if (meaning = "road-up" and meaning != "crossing")[
     set heading ifelse-value targetLane < xcor [ 270 ] [ 90 ]
     ;let bx random 14
     ;ifelse bx > 7 [
@@ -483,7 +500,7 @@ to move-to-targetLane ; car procedure
     ;] [
     ;  set heading ifelse-value targetLane <= xcor [ 270 ] [ 90 ]
     ;]
-    let blocking-cars other cars in-cone (  abs(xcor - targetLane)) 90 with [ x-distance <= 1 ]
+    let blocking-cars other cars in-cone (abs(xcor - targetLane)) 90 with [ x-distance <= 1] ;
     let blocking-car min-one-of blocking-cars [ distance myself ]
     ifelse blocking-car = nobody [
       forward 0.05
@@ -496,7 +513,7 @@ to move-to-targetLane ; car procedure
     ]
   ]
 
-  if meaning = "road-down"[
+  if (meaning = "road-down" and meaning != "crossing")[
     ;let bx random 2
     ;ifelse bx = 1 [
     ;  set heading ifelse-value targetLane < xcor [ 90 ] [ 270 ]
@@ -721,7 +738,7 @@ number-of-pedestrians
 number-of-pedestrians
 0
 60
-40.0
+48.0
 1
 1
 NIL
@@ -798,8 +815,8 @@ acceleration
 acceleration
 0
 0.01
-0.008
-0.001
+0.006
+0.002
 1
 NIL
 HORIZONTAL
@@ -813,8 +830,8 @@ decelaration
 decelaration
 0
 0.1
-0.07
-0.01
+0.08
+0.02
 1
 NIL
 HORIZONTAL
