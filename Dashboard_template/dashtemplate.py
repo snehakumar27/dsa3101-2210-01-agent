@@ -28,38 +28,42 @@ def create_plot_crowd(time="afternoon", density="medium"):
         rows=2, cols=2,
         column_widths=[0.5, 0.5],
         row_heights=[0.5, 0.5],
-        specs=[[{"type": "heatmap", "rowspan": 2}, {"type": "bar"}],
-           [None, {"type": "bar"}]])
+        specs=[[{"type": "bar"}, {"type": "heatmap", "rowspan": 2}],
+           [{"type": "bar"}, None]])
     
     fig.add_trace(
     go.Heatmap(x = crowd_heat_df["number_of_lanes"],
         y =  crowd_heat_df["ratio"],
         z =  crowd_heat_df["avg_crowd_size"]
         ),
-    row=1, col=1,
+    row=1, col=2,
     )
 
     fig.add_trace(
     go.Bar(x = crowd_lanes.index,
         y = crowd_lanes["avg_crowd_size"]
         ),
-    row=1, col=2,
+    row=1, col=1,
     )
 
     fig.add_trace(
     go.Bar(x = crowd_ratio.index,
         y = crowd_ratio["avg_crowd_size"]
         ),
-    row=2, col=2,
+    row=2, col=1,
     )
 
-    fig.update_xaxes(title_text="Number of Lanes", row=1, col=1)
     fig.update_xaxes(title_text="Number of Lanes", row=1, col=2)
-    fig.update_xaxes(title_text="Green-Red Ratio", row=2, col=2)
+    fig.update_xaxes(title_text="Number of Lanes", row=1, col=1)
+    fig.update_xaxes(title_text="Green-Red Ratio", row=2, col=1)
 
-    fig.update_yaxes(title_text="Green-Red Ratio", row=1, col=1)
-    fig.update_yaxes(title_text="Average Crowd Size", row=1, col=2)
-    fig.update_yaxes(title_text="Average Crowd Size", row=2, col=2)
+    fig.update_yaxes(title_text="Green-Red Ratio", row=1, col=2)
+    fig.update_yaxes(title_text="Average Crowd Size", row=1, col=1)
+    fig.update_yaxes(title_text="Average Crowd Size", row=2, col=1)
+    fig.update_layout(
+        showlegend=False
+    )
+
 
     return fig
 
