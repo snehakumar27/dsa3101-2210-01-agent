@@ -10,7 +10,8 @@ globals [
   ;  greenLight  ;for traffic signal
   ;selected-car  ;select car
   ;selected-pedestrian    ;select pedestrian
-  lanes
+  ;lanes
+  number-of-lanes
 ]
 
 
@@ -55,6 +56,7 @@ to setup
   draw-crossing
   make-cars
   make-people
+  make-bike
   make-lights
   reset-ticks
   tick
@@ -66,20 +68,34 @@ to draw-roads
     ;the road is surrounded by green grass of varying shades
     set pcolor 63 + random-float 0.5
   ]
+
+  set number-of-lanes 4
+
   ;roads based on number of lanes
-  set lanes n-values number-of-lanes [ n -> number-of-lanes - (n * 2) - 1 ]
+  ;set lanes n-values number-of-lanes [ n -> number-of-lanes - (n * 2) - 1 ]
+
+    ; lanes on left side of the middle/divider
+  ask patches with [ (pxcor >= -4 + bike-lanes) and  (pxcor <= -1) ] [
+    set pcolor grey - 2.5 + random-float 0.25
+    set meaning "road-up"
+  ]
+
+  ask patches with [(-4 <= pxcor) and (pxcor < (-4 + bike-lanes))] [
+    set pcolor grey - 1.75 + random-float 0.25
+    set meaning "bike-up"
+  ]
 
   ; lanes on right side of the middle/divider
-  ask patches with [ (0 <= pxcor) and  (pxcor <= number-of-lanes) ] [
+  ask patches with [ (1 <= pxcor) and  (pxcor <= number-of-lanes - bike-lanes) ] [
     set pcolor grey - 2.5 + random-float 0.25
     set meaning "road-down"
   ]
 
-  ; lanes on left side of the middle/divider
-  ask patches with [ (0 >= pxcor) and  (abs pxcor <= number-of-lanes) ] [
-    set pcolor grey - 2.5 + random-float 0.25
-    set meaning "road-up"
+  ask patches with [(number-of-lanes - bike-lanes < pxcor ) and (pxcor <= number-of-lanes)][
+    set pcolor grey - 1.75 + random-float 0.25
+    set meaning "bike-down"
   ]
+
 
   ; middle "lane" is the divider for 2-ways
   ask patches with [ abs pxcor = 0] [
@@ -89,12 +105,12 @@ to draw-roads
 end
 
 to draw-sidewalk
-  ask patches with [(pycor = 11 or pycor = 10 or pycor = 9) and (abs pxcor > number-of-lanes) and
+  ask patches with [(pycor = 11 or pycor = 10 or pycor = 9) and (pxcor > number-of-lanes) and
   (meaning !="road-up" and meaning != "road-down" and meaning != "divider")]
   [set pcolor 36 + random-float 0.3
   set meaning "sidewalk-right"]
 
-  ask patches with [(pycor = 11 or pycor = 10 or pycor = 9) and (pxcor < number-of-lanes) and
+  ask patches with [(pycor = 11 or pycor = 10 or pycor = 9) and (pxcor < -4) and
   (meaning !="road-up" and meaning != "road-down" and meaning != "divider")]
   [set pcolor 36 + random-float 0.3
   set meaning "sidewalk-left"]
@@ -186,6 +202,68 @@ to make-cars
 
 end
 
+to make-bike
+  ;create cars on left lane
+  let max-bike-cap (bike-lanes * 11)
+  if number-of-bike > max-bike-cap [
+    set number-of-bike max-bike-cap]
+
+  ask n-of (number-of-bike) patches with [meaning = "bike-up"] [
+    ;check if it's a pedestrian crossing: cars 2 patches away from the crossing
+    if not any? cars-on patch (pxcor + 1) pycor and
+    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
+    not any? patches with [meaning = "crossing"] in-radius 2 [
+     sprout-cars 1 [
+        set shape "bike top"
+        set color car-color
+        set size 1.2
+        set will-stop? "maybe"
+        set politeness basic-politeness + random (101 - basic-politeness)
+        if random 100 > basic-politeness [set politeness random 21]
+        ;move-to one-of free road-patches ; no need the above check should already take into account for this?
+        set targetLane pxcor               ;starting lane is the targetLane
+        set patience random max-patience     ;max-patience in beginning
+        set heading 0
+        ;randomly set car speed
+        set speed 0.3
+        let s random-float 0.2
+        if s < 7 [set maxSpeed speed-limit - 0.02 + random-float 0.05]
+        if s = 7 [set maxSpeed speed-limit - 0.05 + random-float 0.03]
+        if s > 7 [set maxSpeed speed-limit + random-float 0.02]
+        set speed maxSpeed - random-float 0.02
+      ]
+    ]
+  ]
+
+  ;create cars on right lane
+  ask n-of (number-of-bike ) patches with [meaning = "bike-down"] [
+    ;check if it's a pedestrian crossing: cars 2 patches away from the crossing
+    if not any? cars-on patch (pxcor + 1) pycor and
+    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
+    not any? patches with [meaning = "crossing"] in-radius 2 [
+     sprout-cars 1 [
+        set shape "bike top"
+        set color car-color
+        set size 1.2
+        set politeness basic-politeness + random (101 - basic-politeness)
+        if random 100 > basic-politeness [set politeness random 21]
+        ;move-to one-of free road-patches ; no need the above check should already take into account for this?
+        set targetLane pxcor                  ;starting lane is the targetLane
+        set patience random max-patience      ;max-patience in beginning
+        set heading 180
+        ;randomly set car speed
+        set speed 0.3
+        let s random-float 0.2
+        if s < 7 [set maxSpeed speed-limit - 0.02 + random-float 0.05]
+        if s = 7 [set maxSpeed speed-limit - 0.05 + random-float 0.03]
+        if s > 7 [set maxSpeed speed-limit + random-float 0.02]
+        set speed maxSpeed - random-float 0.02
+      ]
+    ]
+  ]
+
+end
+
 ;to-report free [ road-patches ] ; turtle procedure
 ;  let this-car self
 ;  report road-patches with [
@@ -221,7 +299,7 @@ ask n-of (sidewalk-left-people) patches with [meaning = "sidewalk-left"] [
 ;    not any? patches with [meaning = "crossing"] in-radius 2 [
      sprout-persons 1 [
         set shape one-of ["person business" "person construction" "person student" "person farmer"
-        "person lumberjack" "person police" "person service" "person soldier" "bike top"]
+        "person lumberjack" "person police" "person service" "person soldier"]
         set color pedestrian-color
         set size 0.8
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
@@ -269,7 +347,7 @@ ask n-of (sidewalk-right-people) patches with [meaning = "sidewalk-right"] [
 ;    not any? patches with [meaning = "crossing"] in-radius 2 [
      sprout-persons 1 [
         set shape one-of ["person business" "person construction" "person student" "person farmer"
-        "person lumberjack" "person police" "person service" "person soldier" "bike top"]
+        "person lumberjack" "person police" "person service" "person soldier"]
         set color pedestrian-color
         set size 0.8
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
@@ -535,7 +613,7 @@ number-of-cars
 number-of-cars
 0
 70
-11.0
+29.0
 1
 1
 NIL
@@ -550,7 +628,7 @@ number-of-pedestrians
 number-of-pedestrians
 0
 60
-48.0
+39.0
 1
 1
 NIL
@@ -580,7 +658,7 @@ time-to-cross
 time-to-cross
 0
 40
-14.0
+13.0
 1
 1
 seconds
@@ -591,11 +669,11 @@ SLIDER
 301
 185
 334
-number-of-lanes
-number-of-lanes
+bike-lanes
+bike-lanes
 0
 4
-2.0
+3.0
 1
 1
 NIL
@@ -627,7 +705,7 @@ acceleration
 acceleration
 0
 0.01
-0.006
+0.005
 0.001
 1
 NIL
@@ -658,6 +736,21 @@ basic-politeness
 0
 100
 70.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+14
+465
+186
+498
+number-of-bike
+number-of-bike
+0
+50
+8.0
 1
 1
 NIL
