@@ -34,9 +34,8 @@ persons-own [
 cars-own [
   speed
   maxSpeed
-  patience
+  patience       ;;how patience cars are, that means how often they will stop and let people cross the road
   targetLane     ;:the desired lane of the car
-  politeness     ;;how politeness cars are, that means how often they will stop and let people cross the road
   will-stop?     ;;whether the car will stop and let pedestrian(s) to cross the road
 ]
 
@@ -129,9 +128,6 @@ to make-cars
   if number-of-cars > max-road-cap [
     set number-of-cars max-road-cap]
 
-
-
-
   ask n-of (number-of-cars ) patches with [meaning = "road-up"] [
     ;check if it's a pedestrian crossing: cars 2 patches away from the crossing
     if not any? cars-on patch (pxcor + 1) pycor and
@@ -142,11 +138,10 @@ to make-cars
         set color car-color
         set size 1.05
         set will-stop? "maybe"
-        set politeness basic-politeness + random (101 - basic-politeness)
-        if random 100 > basic-politeness [set politeness random 21]
+        set patience max-patience + random (50 - max-patience)
+        if random 50 > max-patience [set patience random 21]
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
         set targetLane pxcor               ;starting lane is the targetLane
-        set patience random max-patience     ;max-patience in beginning
         set heading 0
         ;randomly set car speed
         set speed 0.5
@@ -169,11 +164,10 @@ to make-cars
         set shape "car top"
         set color car-color
         set size 1.05
-        set politeness basic-politeness + random (101 - basic-politeness)
-        if random 100 > basic-politeness [set politeness random 21]
+        set patience max-patience + random (50 - max-patience)
+        if random 50 > max-patience [set patience random 21]
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
         set targetLane pxcor                  ;starting lane is the targetLane
-        set patience random max-patience      ;max-patience in beginning
         set heading 180
         ;randomly set car speed
         set speed 0.5
@@ -691,13 +685,13 @@ HORIZONTAL
 SLIDER
 13
 103
-192
+185
 136
 lights-interval
 lights-interval
 0
 30
-10.0
+11.0
 1
 1
 minute
@@ -811,31 +805,16 @@ NIL
 HORIZONTAL
 
 SLIDER
-14
-422
-186
-455
+13
+382
+185
+415
 decelaration
 decelaration
 0
 0.1
 0.07
 0.01
-1
-NIL
-HORIZONTAL
-
-SLIDER
-14
-382
-186
-415
-basic-politeness
-basic-politeness
-0
-100
-70.0
-1
 1
 NIL
 HORIZONTAL
