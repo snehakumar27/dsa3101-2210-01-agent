@@ -103,29 +103,23 @@ content2 = dcc.Tabs(id="graph-tabs", children=[
 
 sidebar = html.Div([
     html.H6("Speed Limit"),
-    dcc.Slider(id = "speed-limit", min = 0, max = 2, step = 0.1, value=1, marks=None,
+    dcc.Slider(id = "speed-limit", min = 0, max = 1, step = 0.2, value=1, 
         tooltip={"placement": "bottom", "always_visible": True}),
     html.H6("Number of Cars"),
-    dcc.Slider(id = "number-of-cars", min = 0, max = 70, step = 1, value=10, marks=None,
+    dcc.Slider(id = "number-of-cars", min = 0, max = 50, step = 5, value=10, 
         tooltip={"placement": "bottom", "always_visible": True}),
     html.H6("Number of Pedestrians"),
-    dcc.Slider(id = "number-of-pedestrians", min = 0, max = 60, step = 1, value=10, marks=None,
+    dcc.Slider(id = "number-of-pedestrians", min = 0, max = 50, step = 5, value=10, 
         tooltip={"placement": "bottom", "always_visible": True}),
     html.H6("Max patience"),
-    dcc.Slider(id = "max-patience", min = 0, max = 50, step = 1, value=10, marks=None,
-        tooltip={"placement": "bottom", "always_visible": True}),
-    html.H6("Time to cross"),
-    dcc.Slider(id = "time-to-cross", min = 0, max = 40, step = 1, value=10, marks=None,
+    dcc.Slider(id = "max-patience", min = 0, max = 1, step = 0.2, value=1, 
         tooltip={"placement": "bottom", "always_visible": True}),
     html.H6("Acceleration"),
-    dcc.Slider(id = "acceleration", min = 0, max = 0.01, step = 0.001, value=0.005, marks=None,
+    dcc.Slider(id = "acceleration", min = 0, max = 1, step = 0.2, value=1, 
         tooltip={"placement": "bottom", "always_visible": True}),
     html.H6("Deceleration"),
-    dcc.Slider(id = "deceleration", min = 0, max = 0.1, step = 0.01, value=0.05, marks=None,
+    dcc.Slider(id = "deceleration", min = 0, max = 1, step = 0.2, value=1, 
         tooltip={"placement": "bottom", "always_visible": True}),
-    html.H6("Basic Politeness"),
-    dcc.Slider(id = "basic-politeness", min = 0, max = 100, step = 1, value= 10, marks=None,
-        tooltip={"placement": "bottom", "always_visible": True})
 ])
 
 ### TABS
