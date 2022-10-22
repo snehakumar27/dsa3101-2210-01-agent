@@ -38,7 +38,6 @@ cars-own [
   targetLane     ;:the desired lane of the car
   politeness     ;;how politeness cars are, that means how often they will stop and let people cross the road
   will-stop?     ;;whether the car will stop and let pedestrian(s) to cross the road
-
 ]
 
 traffic_lights-own [
@@ -444,8 +443,8 @@ end
 
 to go
   ask cars [move-cars]
-  ;ask cars with [ patience <= 0 ] [ choose-new-lane ]
-  ;ask cars with [ xcor != targetLane ] [ move-to-targetLane ]
+  ask cars with [ patience <= 0 ] [ choose-new-lane ]
+  ask cars with [ xcor != targetLane ] [ move-to-targetLane ]
   ask persons [move-pedestrians]
   ask traffic_lights with [cars-light?] [set-car-signals]
   ask traffic_lights with [not cars-light?] [set-pedestrian-signals]
@@ -466,53 +465,73 @@ to move-cars
   forward speed
 end
 
-;to choose-new-lane ; car procedure
+to choose-new-lane ; car procedure
   ; Choose a new lane among those with the minimum
   ; distance to your current lane (i.e., your xcor).
 ;  let other-lanes remove xcor lanes
-;  if not empty? other-lanes [
-;    let min-dist min map [ x -> abs (x - xcor) ] other-lanes
-;    let closest-lanes filter [ x -> abs (x - xcor) = min-dist ] other-lanes
-;    set targetLane one-of closest-lanes
-;    set patience max-patience
-;  ]
-;end
+  let other-lanes lanes
+  if not empty? other-lanes [
+    let min-dist min map [ x -> abs (x - xcor) ] other-lanes
+    let closest-lanes filter [ x -> abs (x - xcor) = min-dist ] other-lanes
+    set targetLane one-of closest-lanes
+    set patience max-patience
+  ]
+end
 
-;to move-to-targetLane ; car procedure
+to move-to-targetLane ; car procedure
   ; NEED TO look how to restrict overtake in road up and road down only
 
-  ;if meaning = "road-up"[
-    ;set heading ifelse-value targetLane < xcor [ 90 ] [ 0 ]
-    ;let blocking-cars other cars in-cone (  abs(xcor - targetLane)) 90 with [ y-distance <= 1 ]
-    ;let blocking-car min-one-of blocking-cars [ distance myself ]
-    ;ifelse blocking-car = nobody [
-    ;  forward 0.2
-    ;  set xcor precision xcor 1 ; to avoid floating point errors
+  if meaning = "road-up"[
+    set heading ifelse-value targetLane < xcor [ 270 ] [ 90 ]
+    ;let bx random 14
+    ;ifelse bx > 7 [
+     ; set heading ifelse-value targetLane < xcor [ 90 ] [ 270 ]
     ;] [
-    ; slow down if the car blocking us is behind, otherwise speed up
-    ;  ifelse towards blocking-car <= 90 [ slow-down-car ] [ speed-up-car ]
+    ;  set heading ifelse-value targetLane <= xcor [ 270 ] [ 90 ]
     ;]
- ; ]
+    let blocking-cars other cars in-cone (  abs(xcor - targetLane)) 90 with [ x-distance <= 1 ]
+    let blocking-car min-one-of blocking-cars [ distance myself ]
+    ifelse blocking-car = nobody [
+      forward 0.05
+      set xcor precision xcor 2 ; to avoid floating point errors
+      set heading 0
+    ] [
+     ;slow down if the car blocking us is behind, otherwise speed up
+      ifelse towards blocking-car <= 90 [ slow-down-car ] [ speed-up-car ]
+      set heading 0
+    ]
+  ]
 
-  ;if meaning = "road-down"[
-    ;set heading ifelse-value targetLane < xcor [ 90 ] [ 0 ]
-    ;let blocking-cars other cars in-cone (  abs(xcor - targetLane)) 90 with [ y-distance <= 1 ]
-    ;let blocking-car min-one-of blocking-cars [ distance myself ]
-    ;ifelse blocking-car = nobody [
-    ;  forward 0.2
-    ;  set xcor precision xcor 1 ; to avoid floating point errors
+  if meaning = "road-down"[
+    ;let bx random 2
+    ;ifelse bx = 1 [
+    ;  set heading ifelse-value targetLane < xcor [ 90 ] [ 270 ]
     ;] [
-    ; slow down if the car blocking us is behind, otherwise speed up
-    ;  ifelse towards blocking-car <= 90 [ slow-down-car ] [ speed-up-car ]
+    ;  set heading ifelse-value targetLane <= xcor [ 270 ] [ 90 ]
     ;]
-  ;]
-;end
+
+    set heading ifelse-value targetLane < xcor [ 90 ] [ 270 ]
+    let blocking-cars other cars in-cone (  abs(xcor - targetLane)) 90 with [ x-distance <= 1 ]
+    let blocking-car min-one-of blocking-cars [ distance myself ]
+    ifelse blocking-car = nobody [
+      forward 0.05
+      set xcor precision xcor 2 ; to avoid floating point errors
+      set heading 180
+    ] [
+    ; slow down if the car blocking us is behind, otherwise speed up
+      ifelse towards blocking-car <= 90 [ slow-down-car ] [ speed-up-car ]
+      set heading 180
+    ]
+
+  ]
+
+end
 
 to slow-down-car ; turtle procedure
   set speed (speed - decelaration) ; deceleration
   if speed < 0 [ set speed decelaration ]
   ; every time you hit the brakes, you loose a little patience
-  set patience patience - 20
+  set patience patience - 4
 end
 
 to-report x-distance
