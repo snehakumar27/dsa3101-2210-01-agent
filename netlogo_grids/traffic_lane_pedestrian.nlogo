@@ -29,7 +29,9 @@ patches-own [
 ]
 
 persons-own [
-  start_place
+  start-head
+  will-turn?
+  start-on-stone?
   speed
   walk-time
   waiting?
@@ -125,6 +127,10 @@ to draw-crossing
     set pcolor black
     set meaning "crossing"
   ]
+
+  ask patches with [meaning = "sidewalk-roadside" and (pycor = 10 or pycor = 11) and (abs pxcor = number-of-lanes + 1)] [
+    set meaning "waitpoint"
+    ]
 
 end
 
@@ -222,16 +228,20 @@ ask n-of (sidewalk-left-people) patches with [meaning = "sidewalk-left"] [
 ;    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
 ;    not any? patches with [meaning = "crossing"] in-radius 2 [
      sprout-persons 1 [
-        set shape one-of ["person business" "person construction" "person student" "person farmer"
-        "person lumberjack" "person police" "person service" "person soldier" "bike top"]
-        set color pedestrian-color
-        set size 0.8
+       set shape one-of ["person business" "person construction" "person student" "person farmer"
+       "person lumberjack" "person police" "person service" "person soldier" "bike top"]
+       set color pedestrian-color
+       set size 0.8
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
         ;set targetLane pxcor                  ;starting lane is the targetLane
         ;set patience random max-patience      ;max-patience in beginning
-        set heading 90
+       set start-head 90
+      set heading start-head
+
         ;randomly set car speed
-        set walk-time 0.01 + random-float (0.06 - 0.01)
+       set walk-time 0.01 + random-float (0.06 - 0.01)
+      set will-turn? one-of [true false]
+      set start-on-stone? false
 ;        let s random 10
 ;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
 ;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
@@ -253,9 +263,13 @@ ask n-of (sidewalk-right-people) patches with [meaning = "sidewalk-right"] [
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
         ;set targetLane pxcor                  ;starting lane is the targetLane
         ;set patience random max-patience      ;max-patience in beginning
-        set heading 270
+        set start-head 270
+      set heading start-head
         ;randomly set car speed
         set walk-time 0.01 + random-float (0.06 - 0.01)
+       set start-on-stone? false
+      set will-turn? one-of [true false]
+
 ;        let s random 10
 ;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
 ;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
@@ -277,9 +291,12 @@ ask n-of (sidewalk-right-people) patches with [meaning = "sidewalk-right"] [
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
         ;set targetLane pxcor                  ;starting lane is the targetLane
         ;set patience random max-patience      ;max-patience in beginning
-        set heading one-of [0 180]
+      set start-head one-of [0 180]
+      set heading start-head
+       set start-on-stone? false
         ;randomly set car speed
         set walk-time 0.01 + random-float (0.06 - 0.01)
+      set will-turn? one-of [true false]
 ;        let s random 10
 ;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
 ;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
@@ -300,6 +317,8 @@ ask n-of (sidewalk-right-people) patches with [meaning = "sidewalk-right"] [
 ;      set heading random (360)
 ;        ;randomly set car speed
 ;        set walk-time 0.01 + random-float (0.06 - 0.01)
+;       set start-on-stone? true
+;      set will-turn? one-of [true false]
 ;;        let s random 10
 ;;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
 ;;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
@@ -608,13 +627,7 @@ to speed-up-car ; car procedure
 end
 
 to move-pedestrians
-;  if not any? cars-on patch (pxcor + 1) pycor and
-;    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
-   ;if not any? patches with [meaning = "crossing"] in-radius 2 [
-  ;forward walk-time
-  ;face min-one-of patches with [meaning = "crossing"] [distance myself]
-  ;face min-one-of patches with [meaning = "sidewalk"] [distance myself]
-  ;walk
+  change-heading
 
   let stop? true
   ask traffic_lights with [not cars-light?] [
@@ -627,7 +640,52 @@ to move-pedestrians
     ]
   ]
   [forward walk-time]
+  change-heading
 
+  if start-on-stone? [get-to-sidewalk]
+end
+
+to get-to-sidewalk
+  if [meaning] of patch-ahead 1.5 = one-of ["road-up" "road down"] [
+  ;if [meaning] of any? patches in-radius 1.5 = "sidewalk-roadside" [
+    set heading one-of [0 90 180 270]
+    set start-on-stone? false
+  ]
+end
+
+to change-heading
+  if start-head = 0 and (will-turn?) [
+    if ([meaning] of patch-here = "waitpoint") and ([meaning] of patch-ahead 1 != "waitpoint") [
+      set start-head one-of [90 270]
+      set heading start-head
+      set will-turn? one-of [true false]
+    ]
+  ]
+  if start-head = 180 and (will-turn?) [
+    if ([meaning] of patch-here = "waitpoint") and ([meaning] of patch-ahead 1 != "waitpoint")  [
+      set start-head one-of [90 270]
+      set heading start-head
+      set will-turn? one-of [true false]
+    ]
+  ]
+  if start-head = 90 and (will-turn?)[
+    if [meaning] of patch-here = "waitpoint" [
+      set start-head one-of [0 180]
+      set heading start-head
+      set will-turn? one-of [true false]
+    ]
+  ]
+
+  if start-head = 270  and (will-turn?) [
+    if [meaning] of patch-here = "waitpoint" [
+      set start-head one-of [0 180]
+      set heading start-head
+      set will-turn? one-of [true false]
+    ]
+  ]
+
+
+end
 ;  let change_heading one-of [0 1]
 ;
 ;  if [meaning] of patch-here != "crossing"
@@ -660,7 +718,6 @@ to move-pedestrians
 ;    set walk-time walk-time + 1
 ;  ]
 
-end
 
 to set-car-signals
   ;conversion of seconds to ticks
