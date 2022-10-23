@@ -32,6 +32,7 @@ persons-own [
   start-head
   will-turn?
   start-on-stone?
+  want-change?
   speed
   walk-time
   waiting?
@@ -305,27 +306,30 @@ ask n-of (sidewalk-right-people) patches with [meaning = "sidewalk-right"] [
       ]
     ]
 
-;  ask n-of (50) patches with [meaning = "path"] [
-;    sprout-persons 1 [
-;        set shape one-of ["person business" "person construction" "person student" "person farmer"
-;        "person lumberjack" "person police" "person service" "person soldier" "bike top"]
-;        set color pedestrian-color
-;        set size 0.8
-;        ;move-to one-of free road-patches ; no need the above check should already take into account for this?
-;        ;set targetLane pxcor                  ;starting lane is the targetLane
-;        ;set patience random max-patience      ;max-patience in beginning
-;      set heading random (360)
-;        ;randomly set car speed
-;        set walk-time 0.01 + random-float (0.06 - 0.01)
-;       set start-on-stone? true
-;      set will-turn? one-of [true false]
-;;        let s random 10
-;;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
-;;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
-;;        if s > 7 [set maxSpeed speed-limit + random 16]
-;;        set speed maxSpeed - random 20
-;      ]
-;    ]
+  ask n-of (50) patches with [meaning = "path"] [
+    sprout-persons 1 [
+        set shape one-of ["person business" "person construction" "person student" "person farmer"
+        "person lumberjack" "person police" "person service" "person soldier" "bike top"]
+        set color pedestrian-color
+        set size 0.8
+        ;move-to one-of free road-patches ; no need the above check should already take into account for this?
+        ;set targetLane pxcor                  ;starting lane is the targetLane
+        ;set patience random max-patience      ;max-patience in beginning
+
+        ;randomly set car speed
+        set walk-time 0.01 + random-float (0.06 - 0.01)
+       set start-on-stone? true
+      set start-head random (360)
+      set heading start-head
+      set will-turn? one-of [true false]
+      set want-change? one-of [true false]
+;        let s random 10
+;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
+;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
+;        if s > 7 [set maxSpeed speed-limit + random 16]
+;        set speed maxSpeed - random 20
+      ]
+    ]
 
 end
 
@@ -646,11 +650,61 @@ to move-pedestrians
 end
 
 to get-to-sidewalk
-  if [meaning] of patch-ahead 1.5 = one-of ["road-up" "road down"] [
-  ;if [meaning] of any? patches in-radius 1.5 = "sidewalk-roadside" [
-    set heading one-of [0 90 180 270]
-    set start-on-stone? false
+;  face min-one-of patches with [meaning = "town"] [
+;    distance myself
+;
+;    ;set heading (random 360)
+;  ]
+  if [meaning] of patch-ahead 1 = "town" [
+    set heading (random 360)
   ]
+  if [meaning] of patch-here = "sidewalk-roadside"[
+    ifelse want-change? [
+      if [meaning] of patch-ahead 1 != "sidewalk-roadside" [
+      set heading one-of [0 180]
+      set start-on-stone? false
+      set want-change? false
+      ]
+
+    ]
+    [ set heading (random 360)
+    ]
+  ]
+
+  if [meaning] of patch-here = "sidewalk-left"[
+    ifelse want-change? [
+      if [meaning] of patch-ahead 1 != "sidewalk-left" [
+      set heading one-of [90 270]
+      set start-on-stone? false
+      set want-change? false
+      ]
+
+    ]
+    [ set heading (random 360)
+    ]
+  ]
+
+  if [meaning] of patch-here = "sidewalk-right"[
+    ifelse want-change? [
+      if [meaning] of patch-ahead 1 != "sidewalk-right" [
+      set heading one-of [90 270]
+      set start-on-stone? false
+      set want-change? false
+      ]
+
+    ]
+    [ set heading (random 360)
+    ]
+  ]
+
+
+
+
+;  if [meaning] of patch-ahead 1.5 = one-of ["road-up" "road down"] [
+;  ;if [meaning] of any? patches in-radius 1.5 = "sidewalk-roadside" [
+;    set heading one-of [0 90 180 270]
+;    set start-on-stone? false
+;  ]
 end
 
 to change-heading
