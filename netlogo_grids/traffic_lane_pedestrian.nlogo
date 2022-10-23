@@ -53,6 +53,10 @@ traffic_lights-own [
   cars-light?
 ]
 
+towns-own [
+  shape-to-set
+]
+
 
 ;;;;;;; Setup the Simulation ;;;;;;;
 to setup
@@ -224,110 +228,63 @@ to make-people
   let sidewalk-roadside-people (rem-people-one - sidewalk-right-people)
 
 ask n-of (sidewalk-left-people) patches with [meaning = "sidewalk-left"] [
-    ;check if it's a pedestrian crossing: cars 2 patches away from the crossing
-;    if not any? cars-on patch (pxcor + 1) pycor and
-;    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
-;    not any? patches with [meaning = "crossing"] in-radius 2 [
      sprout-persons 1 [
-       set shape one-of ["person business" "person construction" "person student" "person farmer"
-       "person lumberjack" "person police" "person service" "person soldier" "bike top"]
-       set color pedestrian-color
-       set size 0.8
-        ;move-to one-of free road-patches ; no need the above check should already take into account for this?
-        ;set targetLane pxcor                  ;starting lane is the targetLane
-        ;set patience random max-patience      ;max-patience in beginning
-       set start-head 90
+      set shape one-of ["person business" "person construction" "person student" "person farmer"
+      "person lumberjack" "person police" "person service" "person soldier" "bike top"]
+      set color pedestrian-color
+      set size 0.8
+      set start-head 90
       set heading start-head
-
-        ;randomly set car speed
-       set walk-time 0.01 + random-float (0.06 - 0.01)
+      set walk-time 0.01 + random-float (0.06 - 0.01)
       set will-turn? one-of [true false]
       set start-on-stone? false
-;        let s random 10
-;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
-;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
-;        if s > 7 [set maxSpeed speed-limit + random 16]
-;        set speed maxSpeed - random 20
+      set want-change? false
       ]
     ]
 
 ask n-of (sidewalk-right-people) patches with [meaning = "sidewalk-right"] [
-    ;check if it's a pedestrian crossing: cars 2 patches away from the crossing
-;    if not any? cars-on patch (pxcor + 1) pycor and
-;    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
-;    not any? patches with [meaning = "crossing"] in-radius 2 [
      sprout-persons 1 [
-        set shape one-of ["person business" "person construction" "person student" "person farmer"
-        "person lumberjack" "person police" "person service" "person soldier" "bike top"]
-        set color pedestrian-color
-        set size 0.8
-        ;move-to one-of free road-patches ; no need the above check should already take into account for this?
-        ;set targetLane pxcor                  ;starting lane is the targetLane
-        ;set patience random max-patience      ;max-patience in beginning
-        set start-head 270
+      set shape one-of ["person business" "person construction" "person student" "person farmer"
+      "person lumberjack" "person police" "person service" "person soldier" "bike top"]
+      set color pedestrian-color
+      set size 0.8
+      set start-head 270
       set heading start-head
-        ;randomly set car speed
-        set walk-time 0.01 + random-float (0.06 - 0.01)
-       set start-on-stone? false
+      set walk-time 0.01 + random-float (0.06 - 0.01)
+      set start-on-stone? false
       set will-turn? one-of [true false]
-
-;        let s random 10
-;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
-;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
-;        if s > 7 [set maxSpeed speed-limit + random 16]
-;        set speed maxSpeed - random 20
+      set want-change? false
       ]
     ]
 
   ask n-of (sidewalk-roadside-people) patches with [meaning = "sidewalk-roadside"] [
-    ;check if it's a pedestrian crossing: cars 2 patches away from the crossing
-;    if not any? cars-on patch (pxcor + 1) pycor and
-;    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
-;    not any? patches with [meaning = "crossing"] in-radius 2 [
      sprout-persons 1 [
-        set shape one-of ["person business" "person construction" "person student" "person farmer"
+      set shape one-of ["person business" "person construction" "person student" "person farmer"
         "person lumberjack" "person police" "person service" "person soldier" "bike top"]
-        set color pedestrian-color
-        set size 0.8
-        ;move-to one-of free road-patches ; no need the above check should already take into account for this?
-        ;set targetLane pxcor                  ;starting lane is the targetLane
-        ;set patience random max-patience      ;max-patience in beginning
+      set color pedestrian-color
+      set size 0.8
       set start-head one-of [0 180]
       set heading start-head
-       set start-on-stone? false
-        ;randomly set car speed
-        set walk-time 0.01 + random-float (0.06 - 0.01)
+      set start-on-stone? false
+      set walk-time 0.01 + random-float (0.06 - 0.01)
       set will-turn? one-of [true false]
-;        let s random 10
-;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
-;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
-;        if s > 7 [set maxSpeed speed-limit + random 16]
-;        set speed maxSpeed - random 20
+      set want-change? false
       ]
     ]
 
   ask n-of (50) patches with [meaning = "path"] [
     sprout-persons 1 [
-        set shape one-of ["person business" "person construction" "person student" "person farmer"
-        "person lumberjack" "person police" "person service" "person soldier" "bike top"]
-        set color pedestrian-color
-        set size 0.8
-        ;move-to one-of free road-patches ; no need the above check should already take into account for this?
-        ;set targetLane pxcor                  ;starting lane is the targetLane
-        ;set patience random max-patience      ;max-patience in beginning
-
+      set shape one-of ["person business" "person construction" "person student" "person farmer"
+      "person lumberjack" "person police" "person service" "person soldier" "bike top"]
+      set color pedestrian-color
+      set size 0.8
         ;randomly set car speed
-        set walk-time 0.01 + random-float (0.06 - 0.01)
-       set start-on-stone? true
+      set walk-time 0.01 + random-float (0.06 - 0.01)
+      set start-on-stone? true
       set start-head random (360)
       set heading start-head
       set will-turn? one-of [true false]
       set want-change? one-of [true false]
-;        let s random 10
-;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
-;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
-;        if s > 7 [set maxSpeed speed-limit + random 16]
-;        set speed maxSpeed - random 20
       ]
     ]
 
@@ -437,33 +394,102 @@ to make-town
     die
   ]
   ]
-;
-;  [abs pxcor >= 9 and (pycor <= 13) and meaning = "town"] [
-;    set pcolor black
-;  ]
-
-; ask n-of (5) patches with [meaning = "town"] [
-;
-;    if not any? turtles in-radius 7 [
-;      sprout-towns 1 [
-;        set shape one-of ["house bungalow" "house colonial" "house ranch"]
-;        set size 7
-;     ]
-;    ]
-;  ]
-;
-  ask n-of (20) patches with [meaning = "path"] [
-    sprout-towns 1 [
-      set shape "plant"
-      set size 2
-      set color green + 6 + random-float (0.5)
+ ;put plants
+ ask n-of (40) patches with [meaning = "path"] [
+    if not any? turtles in-radius 2 [
+      sprout-towns 1 [
+        set shape-to-set one-of ["flower" "plant"]
+        if shape-to-set = "flower" [
+          set shape one-of ["flower" "flower budding"]
+          set size 1.2
+          set color one-of [red yellow pink]
+        ]
+        if shape-to-set = "plant" [
+          set shape one-of ["plant" "plant medium"]
+          set size 2
+          set color green + 6 + random-float (0.5)
+        ]
+      ]
     ]
   ]
-;
-;  ask n-of (10) patches with [meaning = "town"] [
-;    sprout-towns 1 [
-;      set shape "tree"]
-;  ]
+
+  ;; bottom patches
+  ask patches with [(meaning = "town" and abs pxcor = 13 and pycor = 5)] [
+    sprout-towns 1 [
+      set shape one-of ["house ranch" "house colonial" "house two story"]
+      set color 26 + random-float(2)
+      set size 7
+      set heading 0
+    ]
+  ]
+
+  ask patches with [(meaning = "town" and (abs pxcor = 10 or abs pxcor = 13 or abs pxcor = 16) and pycor = 0)] [
+    sprout-towns 1 [
+      set shape one-of ["tree" "tree pine"]
+      set color 62 + random-float (1)
+      set size 3.6
+    ]
+  ]
+
+  ask patches with [(meaning = "town" and (pxcor = -10)) and pycor mod 4 = 0 and pycor != 4 and pycor != 0] [
+    sprout-towns 1 [
+      set shape one-of ["tree" "tree pine"]
+      set color 62 + random-float (1.3)
+      set size 3
+    ]
+  ]
+
+  ask patches with [(meaning = "town" and (pxcor = -14) and pycor <= -4 and pycor mod -4 = 0)] [
+    sprout-towns 1 [
+      set shape one-of ["house bungalow" "house efficiency"]
+      set color 16 + random-float(2)
+      set heading 270
+      set size 5
+    ]
+  ]
+
+ ask patches with [meaning = "town" and (pxcor = 13) and pycor = -7] [
+    sprout-towns 1 [
+      set shape "building institution"
+      set color 86 + random-float(2)
+      set heading 90
+      set size 7
+    ]
+  ]
+
+ ask patches with [(meaning = "town" and (pxcor = 10 or pxcor = 12 or pxcor = 14 or pxcor = 16) and pycor = -12)] [
+    sprout-towns 1 [
+      set shape one-of ["plant" "plant medium"]
+      set color 55 + random-float (1)
+      set size 2
+    ]
+  ]
+
+ ask patches with [meaning = "town" and (pxcor = 11 or pxcor = 15) and pycor = -14] [
+    sprout-towns 1 [
+      set shape one-of ["house bungalow" "house efficiency"]
+      set color 137 + random-float(2)
+      set heading 0
+      set size 4.5
+    ]
+  ]
+
+   ask patches with [meaning = "town" and (pxcor = 10 or pxcor = 12 or pxcor = 14 or pxcor = 16) and pycor = 15] [
+      sprout-towns 1 [
+        set shape-to-set one-of ["flower" "plant"]
+        if shape-to-set = "flower" [
+          set shape one-of ["flower" "flower budding"]
+          set size 1.5
+          set color one-of [red yellow pink]
+        ]
+        if shape-to-set = "plant" [
+          set shape one-of ["plant" "plant medium"]
+          set size 2
+          set color 55 + random-float (2)
+        ]
+
+    ]
+  ]
 
 end
 
@@ -475,31 +501,7 @@ to go
   ask cars with [ xcor != targetLane ] [ move-to-targetLane]
   ask persons [move-pedestrians]
   ask traffic_lights [check-switch-lights]
-  ;ask traffic_lights with [cars-light?] [set-car-signals]
-  ;ask traffic_lights with [not cars-light?] [set-pedestrian-signals]
-
-  ;ask persons [meaning] of patch-here = "
   tick
-end
-
-
-to check-switch-lights
-  if ticks mod (cycle-length) = 0 [
-    set trafficCycle trafficCycle + 1
-    switch-lights
-  ]
-
-  if ((ticks - (cycle-length * trafficCycle)) mod car-ticks = 0) or
-  ((ticks - (cycle-length * trafficCycle)) mod (car-ticks) = 0) or
-  ((ticks - (cycle-length * trafficCycle)) mod (car-ticks + pedestrian-ticks) = 0)
-  [
-      switch-lights
-  ]
-end
-
-to switch-lights
-  set greenLight? (not greenLight?)
-    ifelse greenLight? [set color red] [set color green]
 end
 
 
@@ -650,11 +652,6 @@ to move-pedestrians
 end
 
 to get-to-sidewalk
-;  face min-one-of patches with [meaning = "town"] [
-;    distance myself
-;
-;    ;set heading (random 360)
-;  ]
   if [meaning] of patch-ahead 1 = "town" [
     set heading (random 360)
   ]
@@ -697,14 +694,9 @@ to get-to-sidewalk
     ]
   ]
 
-
-
-
-;  if [meaning] of patch-ahead 1.5 = one-of ["road-up" "road down"] [
-;  ;if [meaning] of any? patches in-radius 1.5 = "sidewalk-roadside" [
-;    set heading one-of [0 90 180 270]
-;    set start-on-stone? false
-;  ]
+  if [meaning] of patch-here = one-of ["road-up" "road-down"] [
+    die
+  ]
 end
 
 to change-heading
@@ -738,64 +730,50 @@ to change-heading
     ]
   ]
 
-
 end
-;  let change_heading one-of [0 1]
-;
-;  if [meaning] of patch-here != "crossing"
-;
-;  if [meaning] of patch-here = "sidewalk-roadside" [
-;    if [meaning] of patch-at-heading-and-distance 90 2 = "crossing" [
-;      if (change_heading = 0) [set heading 90]
-;    ]
-;    if [meaning] of patch-at-heading-and-distance 270 2 = "crossing" [
-;      if (change_heading = 0) [set heading 270]
-;    ]
-;  ]
 
-  ;;randomizing
-;    forward walk-time;]
-;  ifelse [meaning] of patch-ahead 1 = one-of ["path" "sidewalk-left" "sidewalk-right" "sidewalk-roadside" "crossing"] [
-;    ifelse any? other persons-on patch-ahead 1 [
-;      rt random 45
-;      lt  random 45
-;      set walk-time walk-time + 1
-;    ]
-;    [fd speed / 200 set walk-time walk-time + 1]
-;  ]
-;  [
-;    rt random 120
-;    lt random 120
-;    if [meaning] of patch-ahead 1 = one-of ["path" "sidewalk-left" "sidewalk-right" "sidewalk-roadside" "crossing"]  [
-;      fd speed / 200
-;    ]
-;    set walk-time walk-time + 1
-;  ]
+to check-switch-lights
+  if ticks mod (cycle-length) = 0 [
+    set trafficCycle trafficCycle + 1
+    switch-lights
+  ]
 
-
-to set-car-signals
-  ;conversion of seconds to ticks
-  let ticks-interval car-lights-interval * 20 * 60
-  let ticks-interval-buffer buffer-time * 20
-
-  ; changing of lights
-  if ticks mod (ticks-interval + buffer-time) = 0 [
-      set greenLight? (not greenLight?)
-    ifelse greenLight? [set color red] [set color green]
+  if ((ticks - (cycle-length * trafficCycle)) mod car-ticks = 0) or
+  ((ticks - (cycle-length * trafficCycle)) mod (car-ticks) = 0) or
+  ((ticks - (cycle-length * trafficCycle)) mod (car-ticks + pedestrian-ticks) = 0)
+  [
+      switch-lights
   ]
 end
 
-to set-pedestrian-signals
-  ;conversion of seconds to ticks
-  let ticks-interval pedestrian-lights-interval * 20
-  let ticks-interval-buffer buffer-time * 20
-
-  ; changing of lights
-  if ticks mod (ticks-interval + ticks-interval-buffer) = 0 [
-      set greenLight? (not greenLight?)
+to switch-lights
+  set greenLight? (not greenLight?)
     ifelse greenLight? [set color red] [set color green]
-  ]
 end
+
+;to set-car-signals
+;  ;conversion of seconds to ticks
+;  let ticks-interval car-lights-interval * 20 * 60
+;  let ticks-interval-buffer buffer-time * 20
+;
+;  ; changing of lights
+;  if ticks mod (ticks-interval + buffer-time) = 0 [
+;      set greenLight? (not greenLight?)
+;    ifelse greenLight? [set color red] [set color green]
+;  ]
+;end
+;
+;to set-pedestrian-signals
+;  ;conversion of seconds to ticks
+;  let ticks-interval pedestrian-lights-interval * 20
+;  let ticks-interval-buffer buffer-time * 20
+;
+;  ; changing of lights
+;  if ticks mod (ticks-interval + ticks-interval-buffer) = 0 [
+;      set greenLight? (not greenLight?)
+;    ifelse greenLight? [set color red] [set color green]
+;  ]
+;end
 
 ;to walk
 ;  ifelse [meaning] of patch-ahead 1 = "sidewalk" [
@@ -931,7 +909,7 @@ number-of-pedestrians
 number-of-pedestrians
 0
 60
-48.0
+40.0
 1
 1
 NIL
@@ -1173,7 +1151,7 @@ Line -7500403 true 150 100 80 30
 Line -7500403 true 150 100 220 30
 
 building institution
-false
+true
 0
 Rectangle -7500403 true true 0 60 300 270
 Rectangle -16777216 true false 130 196 168 256
@@ -1414,7 +1392,7 @@ Polygon -7500403 true true 15 120 150 15 285 120
 Line -16777216 false 30 120 270 120
 
 house bungalow
-false
+true
 0
 Rectangle -7500403 true true 210 75 225 255
 Rectangle -7500403 true true 90 135 210 255
@@ -1428,7 +1406,7 @@ Polygon -16777216 false false 165 195 150 195 180 165 210 195
 Rectangle -16777216 true false 135 105 165 135
 
 house colonial
-false
+true
 0
 Rectangle -7500403 true true 270 75 285 255
 Rectangle -7500403 true true 45 135 270 255
@@ -1445,7 +1423,7 @@ Rectangle -16777216 true false 210 195 255 240
 Rectangle -16777216 true false 135 150 180 180
 
 house efficiency
-false
+true
 0
 Rectangle -7500403 true true 180 90 195 195
 Rectangle -7500403 true true 90 165 210 255
@@ -1455,7 +1433,7 @@ Polygon -7500403 true true 225 165 75 165 150 90
 Line -16777216 false 75 165 225 165
 
 house ranch
-false
+true
 0
 Rectangle -7500403 true true 270 120 285 255
 Rectangle -7500403 true true 15 180 270 255
@@ -1470,7 +1448,7 @@ Line -16777216 false 270 180 270 255
 Line -16777216 false 0 180 300 180
 
 house two story
-false
+true
 0
 Polygon -7500403 true true 2 180 227 180 152 150 32 150
 Rectangle -7500403 true true 270 75 285 255
