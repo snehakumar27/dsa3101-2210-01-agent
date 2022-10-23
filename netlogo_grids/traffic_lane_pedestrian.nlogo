@@ -646,7 +646,7 @@ to move-pedestrians
     ]
   ]
   [forward walk-time]
-  change-heading
+  ;change-heading
 
   if start-on-stone? [get-to-sidewalk]
 end
@@ -657,7 +657,7 @@ to get-to-sidewalk
   ]
   if [meaning] of patch-here = "sidewalk-roadside"[
     ifelse want-change? [
-      if [meaning] of patch-ahead 1 != "sidewalk-roadside" [
+      if [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"] [
       set heading one-of [0 180]
       set start-on-stone? false
       set want-change? false
@@ -670,7 +670,7 @@ to get-to-sidewalk
 
   if [meaning] of patch-here = "sidewalk-left"[
     ifelse want-change? [
-      if [meaning] of patch-ahead 1 != "sidewalk-left" [
+      if [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"] [
       set heading one-of [90 270]
       set start-on-stone? false
       set want-change? false
@@ -683,7 +683,20 @@ to get-to-sidewalk
 
   if [meaning] of patch-here = "sidewalk-right"[
     ifelse want-change? [
-      if [meaning] of patch-ahead 1 != "sidewalk-right" [
+      if [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"][
+      set heading one-of [90 270]
+      set start-on-stone? false
+      set want-change? false
+      ]
+
+    ]
+    [ set heading (random 360)
+    ]
+  ]
+
+   if [meaning] of patch-here = "waitpoint"[
+    ifelse want-change? [
+      if [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"][
       set heading one-of [90 270]
       set start-on-stone? false
       set want-change? false
