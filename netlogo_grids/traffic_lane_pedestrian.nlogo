@@ -892,7 +892,7 @@ pedestrian-lights-interval
 pedestrian-lights-interval
 0
 45
-45.0
+30.0
 15
 1
 seconds
@@ -907,7 +907,7 @@ number-of-cars
 number-of-cars
 0
 70
-22.0
+24.0
 1
 1
 NIL
@@ -922,7 +922,7 @@ number-of-pedestrians
 number-of-pedestrians
 0
 60
-40.0
+28.0
 1
 1
 NIL
@@ -937,7 +937,7 @@ max-patience
 max-patience
 0
 50
-50.0
+25.0
 1
 1
 NIL
@@ -967,7 +967,7 @@ number-of-lanes
 number-of-lanes
 0
 4
-2.0
+3.0
 1
 1
 NIL
@@ -999,7 +999,7 @@ acceleration
 acceleration
 0
 0.01
-0.0
+0.01
 0.002
 1
 NIL
@@ -1029,7 +1029,7 @@ car-lights-interval
 car-lights-interval
 0
 2
-1.0
+2.0
 0.5
 1
 min
@@ -1049,6 +1049,42 @@ buffer-time
 1
 seconds
 HORIZONTAL
+
+PLOT
+13
+598
+213
+748
+Average Speed of Cars
+Time
+Avg Speed
+0.0
+100.0
+0.0
+100.0
+true
+false
+"set-plot-y-range 0 speed-limit" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot mean [speed] of cars"
+
+PLOT
+214
+598
+414
+748
+Average Speed of People
+Time
+Avg Speed
+0.0
+1000.0
+0.0
+10.0
+true
+false
+"set-plot-y-range 0 0.1" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot mean [walk-time] of persons"
 
 @#$#@#$#@
 ## WHAT IS IT?
