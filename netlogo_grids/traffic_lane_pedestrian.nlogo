@@ -12,6 +12,7 @@ globals [
   ;selected-car  ;select car
   ;selected-pedestrian    ;select pedestrian
   lanes
+  c-lanes
   car-ticks
   pedestrian-ticks
   buffer-ticks
@@ -45,7 +46,6 @@ cars-own [
   maxSpeed
   patience       ;;how patience cars are, that means how often they will stop and let people cross the road
   targetLane     ;:the desired lane of the car
-  will-stop?     ;;whether the car will stop and let pedestrian(s) to cross the road
 ]
 
 traffic_lights-own [
@@ -82,7 +82,7 @@ to draw-roads
   ]
   ;roads based on number of lanes
   set lanes n-values number-of-lanes [ n -> number-of-lanes - (n * 2) - 1 ]
-
+  set c-lanes (range (- number-of-lanes) (number-of-lanes + 1))
   ; lanes on right side of the middle/divider
   ask patches with [ (0 <= pxcor) and  (pxcor <= number-of-lanes) ] [
     set pcolor grey - 2.5 + random-float 0.25
@@ -154,7 +154,6 @@ to make-cars
         set shape "car top"
         set color car-color
         set size 1.05
-        set will-stop? "maybe"
         set patience max-patience + random (50 - max-patience)
         if random 50 > max-patience [set patience random 21]
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
@@ -196,6 +195,7 @@ to make-cars
       ]
     ]
   ]
+
 
 end
 
@@ -496,9 +496,12 @@ end
 ;;;;;;; Run the Simulation ;;;;;;;
 
 to go
+  ;make-cars
   ask cars [move-cars]
-  ask cars with [ patience <= 0 ] [ choose-new-lane ]
-  ;ask cars with [ xcor != targetLane ] [ move-to-targetLane]
+  if number-of-lanes > 1 [
+    ask cars with [ patience <= 0 and speed > 0.008 ] [ choose-new-lane ]
+    ask cars with [ xcor != targetLane ] [ move-to-targetLane]
+  ]
   ask persons [move-pedestrians]
   ask traffic_lights [check-switch-lights]
   tick
@@ -506,7 +509,7 @@ end
 
 to move-cars
   speed-up-car ;
-  let blockingd-cars other cars in-cone (1 + ((speed / decelaration) * speed)) 180 with [ y-distance <= 3 ]
+  let blockingd-cars other cars in-cone (1 + ((speed / decelaration) * speed)) 180 with [ y-distance <= 2 ]
   let blockingd-car min-one-of blockingd-cars [ distance myself ]
   if blockingd-car != nobody [
     ; match the speed of the car ahead of you and then slow
@@ -517,7 +520,7 @@ to move-cars
   ]
 
   ;whether traffic lights show red or green
-  ifelse [meaning] of patch-ahead 1 = "crossing" [
+  ifelse ([meaning] of patch-ahead 1 = "crossing") [
       ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
       fd speed
       ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
@@ -532,7 +535,7 @@ to move-cars
   ]
   [speed-up-car ;
 
-  let blocking-cars other cars in-cone (1 + ((speed / decelaration) * speed)) 180 with [ y-distance <= 2 ]
+  let blocking-cars other cars in-cone (1 + ((speed / decelaration) * speed)) 180 with [ y-distance <= 1 ]
   let blocking-car min-one-of blocking-cars [ distance myself ]
   if blocking-car != nobody [
     ; match the speed of the car ahead of you and then slow
@@ -600,11 +603,14 @@ end
 to choose-new-lane ; car procedure
   ; Choose a new lane among those with the minimum
   ; distance to your current lane (i.e., your xcor).
-  ; let other-lanes remove xcor lanes
-  let other-lanes lanes
+  let other-lanes remove pxcor c-lanes
+  ;let other-lane lanes
+  set other-lanes remove 0 other-lanes
+  ;set other-lanes remove 0.5 other-lanes
+
   if not empty? other-lanes [
-    let min-dist min map [ x -> abs (x - xcor) ] other-lanes
-    let closest-lanes filter [ x -> abs (x - xcor) = min-dist ] other-lanes
+    let min-dist min map [ x -> abs (x - pxcor) ] other-lanes
+    let closest-lanes filter [ x -> abs (x - pxcor) = min-dist ] other-lanes
     set targetLane one-of closest-lanes
     set patience max-patience
   ]
@@ -613,7 +619,7 @@ end
 to move-to-targetLane ; car procedure
   ; NEED TO look how to restrict overtake in road up and road down only
 
-  if (meaning = "road-up")[
+  if (meaning = "road-up" and meaning != "crossing" and speed != 0)[
     set heading ifelse-value targetLane < xcor [ 270 ] [ 90 ]
     ;let bx random 14
     ;ifelse bx > 7 [
@@ -621,11 +627,11 @@ to move-to-targetLane ; car procedure
     ;] [
     ;  set heading ifelse-value targetLane <= xcor [ 270 ] [ 90 ]
     ;]
-    let blocking-cars other cars in-cone (abs(xcor - targetLane)) 90 with [ x-distance <= 1] ;
+    let blocking-cars other cars in-cone (abs(xcor - targetLane)) 120 with [ y-distance <= 1 and x-distance <= 1] ;
     let blocking-car min-one-of blocking-cars [ distance myself ]
     ifelse blocking-car = nobody [
-      forward 0.05
-      set xcor precision xcor 2 ; to avoid floating point errors
+      forward 0.1
+      set xcor precision xcor 1 ; to avoid floating point errors
       set heading 0
     ] [
      ;slow down if the car blocking us is behind, otherwise speed up
@@ -634,7 +640,7 @@ to move-to-targetLane ; car procedure
     ]
   ]
 
-  if (meaning = "road-down")[
+  if (meaning = "road-down" and meaning != "crossing" and speed != 0)[
     ;let bx random 2
     ;ifelse bx = 1 [
     ;  set heading ifelse-value targetLane < xcor [ 90 ] [ 270 ]
@@ -642,12 +648,12 @@ to move-to-targetLane ; car procedure
     ;  set heading ifelse-value targetLane <= xcor [ 270 ] [ 90 ]
     ;]
 
-    set heading ifelse-value targetLane < xcor [ 90 ] [ 270 ]
-    let blocking-cars other cars in-cone (  abs(xcor - targetLane)) 90 with [ x-distance <= 1 ]
+    set heading ifelse-value targetLane < xcor [ 270 ] [ 90 ]
+    let blocking-cars other cars in-cone (  abs(xcor - targetLane)) 120 with [ y-distance <= 1 and x-distance <= 1 ]
     let blocking-car min-one-of blocking-cars [ distance myself ]
     ifelse blocking-car = nobody [
-      forward 0.05
-      set xcor precision xcor 2 ; to avoid floating point errors
+      forward 0.1
+      set xcor precision xcor 1 ; to avoid floating point errors
       set heading 180
     ] [
     ; slow down if the car blocking us is behind, otherwise speed up
@@ -663,7 +669,7 @@ to slow-down-car ; turtle procedure
   set speed (speed - decelaration) ; deceleration
   if speed < 0 [ set speed decelaration ]
   ; every time you hit the brakes, you loose a little patience
-  set patience patience - 4
+  set patience patience - 1
 end
 
 to-report x-distance
@@ -676,7 +682,7 @@ end
 
 to speed-up-car ; car procedure
   set speed (speed + acceleration)
-  if speed > maxSpeed [ set speed maxSpeed ]
+  if speed > maxSpeed [ set speed (maxSpeed - 0.001) ]
 end
 
 to move-pedestrians
@@ -939,7 +945,7 @@ pedestrian-lights-interval
 pedestrian-lights-interval
 0
 45
-15.0
+30.0
 15
 1
 seconds
@@ -954,7 +960,7 @@ number-of-cars
 number-of-cars
 0
 60
-24.0
+15.0
 1
 1
 NIL
@@ -983,8 +989,8 @@ SLIDER
 max-patience
 max-patience
 0
-50
-50.0
+100
+100.0
 1
 1
 NIL
@@ -1014,7 +1020,7 @@ number-of-lanes
 number-of-lanes
 0
 4
-3.0
+2.0
 1
 1
 NIL
@@ -1046,7 +1052,7 @@ acceleration
 acceleration
 0
 0.01
-0.01
+0.006
 0.002
 1
 NIL
