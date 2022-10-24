@@ -746,7 +746,7 @@ to change-heading
 end
 
 to check-switch-lights
-  if ticks mod (cycle-length) = 0 [
+  if ticks mod (cycle-length) = 1 [
     set trafficCycle trafficCycle + 1
     switch-lights
   ]
@@ -892,7 +892,7 @@ pedestrian-lights-interval
 pedestrian-lights-interval
 0
 45
-30.0
+45.0
 15
 1
 seconds
@@ -937,7 +937,7 @@ max-patience
 max-patience
 0
 50
-25.0
+50.0
 1
 1
 NIL
