@@ -18,6 +18,9 @@ data.head()
 
 ### TAB 2-1 GRAPHS
 def create_plot_crowd():
+#def create_plot_crowd(num_cars = default,num_pedestrians = default, patience = default):
+#todo-1: define default
+#todo-2: make dataframe/graphs change by changing with inputs
     line1 = data[data['num_lanes'] ==1]
     line2 = data[data['num_lanes'] ==2]
     line3 = data[data['num_lanes'] ==3]
