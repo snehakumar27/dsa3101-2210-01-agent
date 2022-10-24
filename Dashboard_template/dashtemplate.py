@@ -102,9 +102,6 @@ content2 = dcc.Tabs(id="graph-tabs", children=[
 ## SIDEBAR
 
 sidebar = html.Div([
-    html.H6("Speed Limit"),
-    dcc.Slider(id = "speed-limit", min = 0, max = 1, step = 0.2, value=1, 
-        tooltip={"placement": "bottom", "always_visible": True}),
     html.H6("Number of Cars"),
     dcc.Slider(id = "number-of-cars", min = 0, max = 50, step = 5, value=10, 
         tooltip={"placement": "bottom", "always_visible": True}),
@@ -113,12 +110,6 @@ sidebar = html.Div([
         tooltip={"placement": "bottom", "always_visible": True}),
     html.H6("Max patience"),
     dcc.Slider(id = "max-patience", min = 0, max = 1, step = 0.2, value=1, 
-        tooltip={"placement": "bottom", "always_visible": True}),
-    html.H6("Acceleration"),
-    dcc.Slider(id = "acceleration", min = 0, max = 1, step = 0.2, value=1, 
-        tooltip={"placement": "bottom", "always_visible": True}),
-    html.H6("Deceleration"),
-    dcc.Slider(id = "deceleration", min = 0, max = 1, step = 0.2, value=1, 
         tooltip={"placement": "bottom", "always_visible": True}),
 ])
 
