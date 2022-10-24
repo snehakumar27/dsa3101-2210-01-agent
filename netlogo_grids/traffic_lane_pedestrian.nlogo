@@ -4,6 +4,7 @@ breed[persons person]
 breed[crossings crossing]
 breed[traffic_lights traffic_light]  ;for traffic signals
 breed[towns town]
+breed[datas data]
 
 globals [
   speedLimit
@@ -44,8 +45,10 @@ persons-own [
 cars-own [
   speed
   maxSpeed
-  patience       ;;how patience cars are, that means how often they will stop and let people cross the road
+  patience       ;;how patient cars are, that means how often they will stop and let people cross the road
   targetLane     ;:the desired lane of the car
+  will-stop?     ;;whether the car will stop and let pedestrian(s) to cross the road
+  stopTime
 ]
 
 traffic_lights-own [
@@ -57,6 +60,11 @@ towns-own [
   shape-to-set
 ]
 
+datas-own [
+  avgSpeed
+]
+
+extensions [ csv ]
 
 ;;;;;;; Setup the Simulation ;;;;;;;
 to setup
@@ -166,6 +174,7 @@ to make-cars
         if s = 7 [set maxSpeed speed-limit - 0.05 + random-float 0.03]
         if s > 7 [set maxSpeed speed-limit + random-float 0.02]
         set speed maxSpeed - random-float 0.02
+        set stopTime 0
       ]
     ]
   ]
@@ -524,12 +533,14 @@ to move-cars
       ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
       fd speed
       ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
-    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0]
+    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0
+      set stopTime stopTime + 1]
     ] [
       if [meaning] of patch-here = "crossing" [
         forward speed
         ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
-    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0]
+    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0
+        set stopTime stopTime + 1]
       ]
     ]
   ]
@@ -544,12 +555,14 @@ to move-cars
     set speed 0
     slow-down-car
   ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
-    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0]
+    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0
+      set stopTime stopTime + 1]
   ]
   forward speed
   ]
   ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
-    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0]
+    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0
+  set stopTime stopTime + 1]
 
 
 
@@ -817,6 +830,10 @@ to switch-lights
     ifelse greenLight? [set color red] [set color green]
 end
 
+to write-to-csv
+  csv:to-file "output.csv" [ (list speed stopTime) ] of cars
+end
+
 ;to set-car-signals
 ;  ;conversion of seconds to ticks
 ;  let ticks-interval car-lights-interval * 20 * 60
@@ -960,7 +977,7 @@ number-of-cars
 number-of-cars
 0
 60
-15.0
+20.0
 1
 1
 NIL
@@ -975,7 +992,7 @@ number-of-pedestrians
 number-of-pedestrians
 0
 60
-28.0
+30.0
 1
 1
 NIL
@@ -1005,7 +1022,7 @@ time-to-cross
 time-to-cross
 0
 40
-15.0
+20.0
 1
 1
 seconds
@@ -1097,7 +1114,7 @@ buffer-time
 buffer-time
 0
 5
-2.0
+3.0
 1
 1
 seconds
@@ -1124,7 +1141,7 @@ PENS
 PLOT
 214
 598
-414
+523
 748
 Average Speed of People
 Time
@@ -1135,9 +1152,26 @@ Avg Speed
 10.0
 true
 false
-"set-plot-y-range 0 0.1" ""
+"set-plot-y-range (mean [walk-time] of persons) ((mean [walk-time] of persons) + 0.00001)" ""
 PENS
 "default" 1.0 0 -16777216 true "" "plot mean [walk-time] of persons"
+
+BUTTON
+13
+497
+122
+530
+NIL
+write-to-csv
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
