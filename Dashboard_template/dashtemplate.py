@@ -1,7 +1,6 @@
 import pandas as pd
 import plotly.express as px
 import dash
-import numpy as np
 from dash import html
 from dash import dcc
 from dash.dependencies import Input, Output
@@ -17,7 +16,6 @@ data.head()
 
 
 ### TAB 2-1 GRAPHS
-'''
 def create_plot_crowd():
     line1 = data[data['num_lanes'] ==1]
     line2 = data[data['num_lanes'] ==2]
@@ -159,110 +157,10 @@ def create_plot_crowd():
 
 
     return fig
-'''
 
 ### TAB 2-2 GRAPHS
-def create_plot_car():
-    
-    line1 = data[data['num_lanes'] ==1]
-    line2 = data[data['num_lanes'] ==2]
-    line3 = data[data['num_lanes'] ==3]
-    line4 = data[data['num_lanes'] ==4]
-    
-    car_marker_df = data[["num_lanes", "light_interval", "avg_waiting_cars", "no._stopped_cars"]]
-    car_marker_df = car_marker_df.groupby(["num_lanes", "light_interval"])["avg_waiting_cars", "no._stopped_cars"].mean().reset_index()
-    car_heat_df = data[["num_lanes", "light_interval", "avg_speed_cars"]]
-    
-    car_interval1 = line1[["light_interval", "avg_waiting_cars"]].groupby("light_interval").mean()
-    car_interval2 = line2[["light_interval", "avg_waiting_cars"]].groupby("light_interval").mean()
-    car_interval3 = line3[["light_interval", "avg_waiting_cars"]].groupby("light_interval").mean()
-    car_interval4 = line4[["light_interval", "avg_waiting_cars"]].groupby("light_interval").mean()
-    
-    car_lanes = data[["num_lanes", "avg_waiting_cars"]].groupby("num_lanes").mean()
-    
 
-    fig = make_subplots(
-        rows=4, cols=1,
-        vertical_spacing=0.08,
-        subplot_titles=("No.of lanes VS Average waiting time",
-            "Traffic light interval VS Average waiting time",
-            "Heatmap on Average speed of the car"),
-        row_heights=[0.6,0.6,0.95,0.95])
 
-    fig.add_trace(
-    go.Scatter(
-        mode='markers',
-        x=car_marker_df["num_lanes"],
-        y=car_marker_df["light_interval"],
-        marker=dict(
-            color=car_marker_df["no._stopped_cars"],
-            size=car_marker_df["avg_waiting_cars"]**3/20000,
-            colorscale='sunset',
-            showscale=False
-        )
-    ),
-    row=4, col=1,
-    )
-
-    fig.add_trace(
-    go.Heatmap(x = car_heat_df["num_lanes"],
-        y =  car_heat_df["light_interval"],
-        z =  car_heat_df["avg_speed_cars"],
-        colorbar=dict(y=0.45,len=0.25)),
-    row=3, col=1,
-    )
-
-    trace1 =go.Line(x = car_interval1.index,
-        y = car_interval1["avg_waiting_cars"],
-        name = "number of lanes = 1",
-        legendgroup='1'
-        )
-
-    trace2 =go.Line(x = car_interval2.index,
-        y = car_interval2["avg_waiting_cars"],
-        name = "number of lanes = 2",
-        )
-
-    trace3 =go.Line(x = car_interval3.index,
-        y = car_interval3["avg_waiting_cars"],
-        name = "number of lanes = 3",
-        )
-
-    trace4 =go.Line(x = car_interval4.index,
-        y = car_interval4["avg_waiting_cars"],
-        name = "number of lanes = 4",               
-        )
-
-    fig.add_trace(trace1, row=2, col=1,),
-    fig.add_trace(trace2, row=2, col=1,),
-    fig.add_trace(trace3, row=2, col=1,),
-    fig.add_trace(trace4, row=2, col=1,),
-
-    fig.add_trace(
-    go.Line(x = car_lanes.index,
-        y = car_lanes["avg_waiting_cars"]
-        ),
-    row=1, col=1,
-    )
-
-    fig.update_xaxes(title_text="Number of Lanes", row=1, col=1)
-    fig.update_xaxes(title_text="Light Interval", row=2, col=1)
-    fig.update_xaxes(title_text="Number of Lanes", row=3, col=1)
-    fig.update_xaxes(title_text="Number of Lanes", row=4, col=1)
-    
-    fig.update_yaxes(title_text="Average Waiting Time", row=1, col=1)
-    fig.update_yaxes(title_text="Average Waiting Time", row=2, col=1)
-    fig.update_yaxes(title_text="Light Interval", row=3, col=1)
-    fig.update_yaxes(title_text="Light Interval", row=4, col=1)
-    fig.update_layout(
-        height = 1200,
-        width = 800,
-        showlegend=True
-    )
-
-    
-
-    return fig
 ### TAB 2-3 GRAPHS
 
 
@@ -283,8 +181,8 @@ content1 = dbc.Row([
 
 ### TAB 2 CONTENT
 content2 = dcc.Tabs(id="graph-tabs", children=[
-            #dcc.Tab([dcc.Graph(id = "graph_crowd", figure=create_plot_crowd())],label='Pedestrians'),
-            dcc.Tab([dcc.Graph(id = "graph_car", figure=create_plot_car())],label='Cars'),
+            dcc.Tab([dcc.Graph(id = "graph_crowd", figure=create_plot_crowd())],label='Pedestrians'),
+            dcc.Tab([dcc.Graph(id = "graph_crowd2", figure=create_plot_crowd())],label='Cars'),
             dcc.Tab(label='Compare'),
         ],  vertical=True, parent_style={'float': 'left'})
 
