@@ -170,10 +170,10 @@ to make-cars
         ;randomly set car speed
         set speed 0.5
         let s random-float 0.2
-        if s < 7 [set maxSpeed speed-limit - 0.02 + random-float 0.05]
-        if s = 7 [set maxSpeed speed-limit - 0.05 + random-float 0.03]
-        if s > 7 [set maxSpeed speed-limit + random-float 0.02]
-        set speed maxSpeed - random-float 0.02
+        if s < 7 [set maxSpeed speed-limit - 0.0005 + random-float 0.003]
+        if s = 7 [set maxSpeed speed-limit - 0.0005 + random-float 0.002]
+        if s > 7 [set maxSpeed speed-limit + random-float 0.001]
+        set speed maxSpeed - random-float 0.002
         set stopTime 0
       ]
     ]
@@ -197,10 +197,10 @@ to make-cars
         ;randomly set car speed
         set speed 0.5
         let s random-float 0.2
-        if s < 7 [set maxSpeed speed-limit - 0.02 + random-float 0.05]
-        if s = 7 [set maxSpeed speed-limit - 0.05 + random-float 0.03]
-        if s > 7 [set maxSpeed speed-limit + random-float 0.02]
-        set speed maxSpeed - random-float 0.02
+        if s < 7 [set maxSpeed speed-limit - 0.001 + random-float 0.005]
+        if s = 7 [set maxSpeed speed-limit - 0.0005 + random-float 0.003]
+        if s > 7 [set maxSpeed speed-limit + random-float 0.002]
+        set speed maxSpeed - random-float 0.002
       ]
     ]
   ]
@@ -516,55 +516,116 @@ to go
   tick
 end
 
+;to move-cars
+;;  speed-up-car ;
+;;  let blockingd-cars other cars in-cone (1 + ((speed / decelaration) * speed)) 180 with [ y-distance <= 2 ]
+;;  let blockingd-car min-one-of blockingd-cars [ distance myself ]
+;;  if blockingd-car != nobody [
+;;    ; match the speed of the car ahead of you and then slow
+;;    ; down so you are driving a bit slower than that car
+;;
+;;          set speed [ speed ] of blockingd-car
+;;          slow-down-car
+;;  ]
+;;
+;  let cstop? false
+;  ask traffic_lights with [cars-light?] [
+;    ifelse greenLight? [set cstop? false] [set cstop? true]
+;  ]
+;
+;  ;whether traffic lights show red or green
+;  ifelse ([meaning] of patch-ahead 1 = "crossing") [
+;      ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
+;      fd speed
+;      ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
+;    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0
+;      set stopTime stopTime + 1]
+;    ] [
+;      if [meaning] of patch-here = "crossing" [
+;        forward speed
+;        ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
+;    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0
+;        set stopTime stopTime + 1]
+;      ]
+;    ]
+;  ]
+;  [speed-up-car ;
+;
+;  let blocking-cars other cars in-cone (1 + ((speed / decelaration) * speed)) 180 with [ y-distance <= 1 ]
+;  let blocking-car min-one-of blocking-cars [ distance myself ]
+;  if blocking-car != nobody [
+;    ; match the speed of the car ahead of you and then slow
+;    ; down so you are driving a bit slower than that car
+;    set speed [ speed ] of blocking-car
+;    set speed 0
+;    slow-down-car
+;  ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
+;    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0
+;      set stopTime stopTime + 1]
+;  ]
+;  forward speed
+;  ]
+;  ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
+;    if [meaning] of patch-here = "crossing" [if not cstop? [fd speed]]][set speed 0
+;      set stopTime stopTime + 1]
+;
+;
+;
+;end
+
 to move-cars
-  speed-up-car ;
-  let blockingd-cars other cars in-cone (1 + ((speed / decelaration) * speed)) 180 with [ y-distance <= 2 ]
-  let blockingd-car min-one-of blockingd-cars [ distance myself ]
-  if blockingd-car != nobody [
-    ; match the speed of the car ahead of you and then slow
-    ; down so you are driving a bit slower than that car
 
-          set speed [ speed ] of blockingd-car
-          slow-down-car
+  let cstop? false
+  ask traffic_lights with [cars-light?] [
+    ifelse greenLight? [set cstop? true] [set cstop? false]
   ]
 
-  ;whether traffic lights show red or green
-  ifelse ([meaning] of patch-ahead 1 = "crossing") [
-      ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
-      fd speed
-      ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
-    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0
-      set stopTime stopTime + 1]
-    ] [
-      if [meaning] of patch-here = "crossing" [
-        forward speed
-        ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
-    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0
-        set stopTime stopTime + 1]
-      ]
-    ]
-  ]
-  [speed-up-car ;
+  if not cstop?[
+    speed-up-car ]
 
-  let blocking-cars other cars in-cone (1 + ((speed / decelaration) * speed)) 180 with [ y-distance <= 1 ]
+  let blocking-cars other cars in-cone (1 + ((speed / decelaration) * speed)) 120 with [ y-distance <= 2  ]
   let blocking-car min-one-of blocking-cars [ distance myself ]
   if blocking-car != nobody [
     ; match the speed of the car ahead of you and then slow
     ; down so you are driving a bit slower than that car
-    set speed [ speed ] of blocking-car
-    set speed 0
     slow-down-car
-  ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
-    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0
-      set stopTime stopTime + 1]
+    set speed [ speed ] of blocking-car
+
   ]
   forward speed
+
+  ;whether traffic lights show red or green
+  if [meaning] of patch-here = "crossing" [
+      speed-up-car
+      fd speed]
+
+  ; if patch ahead is crossing & not red light, then speed up else
+  if ([meaning] of patch-ahead 1 = "crossing")[
+    ifelse (not cstop?) [
+      speed-up-car
+      fd speed
+    ][
+      ifelse ([meaning] of patch-here = "crossing")[  ; if cstop and crossing
+        if [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"][
+          speed-up-car
+      fd speed]][
+        set speed 0]
+    ]
   ]
-  ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
-    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0
-  set stopTime stopTime + 1]
+
+;  ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ][
+;    speed-up-car
+;    fd speed
+;  ][ ifelse [meaning] of patch-here = "crossing" or [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"]   [
+;      speed-up-car
+;      fd speed][
+;      set speed 0]
+;  ]
+;
 
 
+;  ifelse ((not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ])) [
+;    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0]
 
 end
 
@@ -632,7 +693,7 @@ end
 to move-to-targetLane ; car procedure
   ; NEED TO look how to restrict overtake in road up and road down only
 
-  if (meaning = "road-up" and meaning != "crossing" and speed != 0)[
+  if (meaning = "road-up")[ if (meaning != "crossing" and speed != 0)[
     set heading ifelse-value targetLane < xcor [ 270 ] [ 90 ]
     ;let bx random 14
     ;ifelse bx > 7 [
@@ -652,8 +713,9 @@ to move-to-targetLane ; car procedure
       set heading 0
     ]
   ]
+]
 
-  if (meaning = "road-down" and meaning != "crossing" and speed != 0)[
+  if (meaning = "road-down")[ if (meaning != "crossing" and speed != 0)[
     ;let bx random 2
     ;ifelse bx = 1 [
     ;  set heading ifelse-value targetLane < xcor [ 90 ] [ 270 ]
@@ -673,7 +735,7 @@ to move-to-targetLane ; car procedure
       ifelse towards blocking-car <= 90 [ slow-down-car ] [ speed-up-car ]
       set heading 180
     ]
-
+    ]
   ]
 
 end
@@ -694,7 +756,7 @@ to-report y-distance
 end
 
 to speed-up-car ; car procedure
-  set speed (speed + acceleration)
+  set speed (speed + acceleration + random-float 0.005)
   if speed > maxSpeed [ set speed (maxSpeed - 0.001) ]
 end
 
@@ -977,7 +1039,7 @@ number-of-cars
 number-of-cars
 0
 60
-20.0
+30.0
 1
 1
 NIL
@@ -1022,7 +1084,7 @@ time-to-cross
 time-to-cross
 0
 40
-20.0
+0.0
 1
 1
 seconds
@@ -1069,7 +1131,7 @@ acceleration
 acceleration
 0
 0.01
-0.006
+0.002
 0.002
 1
 NIL
@@ -1099,7 +1161,7 @@ car-lights-interval
 car-lights-interval
 0
 2
-1.0
+0.5
 0.5
 1
 min
