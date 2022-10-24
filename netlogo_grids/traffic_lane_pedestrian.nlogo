@@ -12,6 +12,11 @@ globals [
   ;selected-car  ;select car
   ;selected-pedestrian    ;select pedestrian
   lanes
+  car-ticks
+  pedestrian-ticks
+  buffer-ticks
+  cycle-length
+  trafficCycle
 ]
 
 
@@ -24,6 +29,10 @@ patches-own [
 ]
 
 persons-own [
+  start-head
+  will-turn?
+  start-on-stone?
+  want-change?
   speed
   walk-time
   waiting?
@@ -34,15 +43,18 @@ persons-own [
 cars-own [
   speed
   maxSpeed
-  patience
+  patience       ;;how patience cars are, that means how often they will stop and let people cross the road
   targetLane     ;:the desired lane of the car
-  politeness     ;;how politeness cars are, that means how often they will stop and let people cross the road
   will-stop?     ;;whether the car will stop and let pedestrian(s) to cross the road
 ]
 
 traffic_lights-own [
   greenLight?
   cars-light?
+]
+
+towns-own [
+  shape-to-set
 ]
 
 
@@ -121,6 +133,10 @@ to draw-crossing
     set meaning "crossing"
   ]
 
+  ask patches with [meaning = "sidewalk-roadside" and (pycor = 10 or pycor = 11) and (abs pxcor = number-of-lanes + 1)] [
+    set meaning "waitpoint"
+    ]
+
 end
 
 to make-cars
@@ -128,9 +144,6 @@ to make-cars
   let max-road-cap (number-of-lanes * 11)
   if number-of-cars > max-road-cap [
     set number-of-cars max-road-cap]
-
-
-
 
   ask n-of (number-of-cars ) patches with [meaning = "road-up"] [
     ;check if it's a pedestrian crossing: cars 2 patches away from the crossing
@@ -142,11 +155,10 @@ to make-cars
         set color car-color
         set size 1.05
         set will-stop? "maybe"
-        set politeness basic-politeness + random (101 - basic-politeness)
-        if random 100 > basic-politeness [set politeness random 21]
+        set patience max-patience + random (50 - max-patience)
+        if random 50 > max-patience [set patience random 21]
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
         set targetLane pxcor               ;starting lane is the targetLane
-        set patience random max-patience     ;max-patience in beginning
         set heading 0
         ;randomly set car speed
         set speed 0.5
@@ -169,11 +181,10 @@ to make-cars
         set shape "car top"
         set color car-color
         set size 1.05
-        set politeness basic-politeness + random (101 - basic-politeness)
-        if random 100 > basic-politeness [set politeness random 21]
+        set patience max-patience + random (50 - max-patience)
+        if random 50 > max-patience [set patience random 21]
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
         set targetLane pxcor                  ;starting lane is the targetLane
-        set patience random max-patience      ;max-patience in beginning
         set heading 180
         ;randomly set car speed
         set speed 0.5
@@ -217,96 +228,65 @@ to make-people
   let sidewalk-roadside-people (rem-people-one - sidewalk-right-people)
 
 ask n-of (sidewalk-left-people) patches with [meaning = "sidewalk-left"] [
-    ;check if it's a pedestrian crossing: cars 2 patches away from the crossing
-;    if not any? cars-on patch (pxcor + 1) pycor and
-;    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
-;    not any? patches with [meaning = "crossing"] in-radius 2 [
      sprout-persons 1 [
-        set shape one-of ["person business" "person construction" "person student" "person farmer"
-        "person lumberjack" "person police" "person service" "person soldier" "bike top"]
-        set color pedestrian-color
-        set size 0.8
-        ;move-to one-of free road-patches ; no need the above check should already take into account for this?
-        ;set targetLane pxcor                  ;starting lane is the targetLane
-        ;set patience random max-patience      ;max-patience in beginning
-        set heading 90
-        ;randomly set car speed
-        set walk-time 0.01 + random-float (0.06 - 0.01)
-;        let s random 10
-;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
-;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
-;        if s > 7 [set maxSpeed speed-limit + random 16]
-;        set speed maxSpeed - random 20
+      set shape one-of ["person business" "person construction" "person student" "person farmer"
+      "person lumberjack" "person police" "person service" "person soldier" "bike top"]
+      set color pedestrian-color
+      set size 0.8
+      set start-head 90
+      set heading start-head
+      set walk-time 0.01 + random-float (0.06 - 0.01)
+      set will-turn? one-of [true false]
+      set start-on-stone? false
+      set want-change? false
       ]
     ]
 
 ask n-of (sidewalk-right-people) patches with [meaning = "sidewalk-right"] [
-    ;check if it's a pedestrian crossing: cars 2 patches away from the crossing
-;    if not any? cars-on patch (pxcor + 1) pycor and
-;    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
-;    not any? patches with [meaning = "crossing"] in-radius 2 [
      sprout-persons 1 [
-        set shape one-of ["person business" "person construction" "person student" "person farmer"
-        "person lumberjack" "person police" "person service" "person soldier" "bike top"]
-        set color pedestrian-color
-        set size 0.8
-        ;move-to one-of free road-patches ; no need the above check should already take into account for this?
-        ;set targetLane pxcor                  ;starting lane is the targetLane
-        ;set patience random max-patience      ;max-patience in beginning
-        set heading 270
-        ;randomly set car speed
-        set walk-time 0.01 + random-float (0.06 - 0.01)
-;        let s random 10
-;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
-;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
-;        if s > 7 [set maxSpeed speed-limit + random 16]
-;        set speed maxSpeed - random 20
+      set shape one-of ["person business" "person construction" "person student" "person farmer"
+      "person lumberjack" "person police" "person service" "person soldier" "bike top"]
+      set color pedestrian-color
+      set size 0.8
+      set start-head 270
+      set heading start-head
+      set walk-time 0.01 + random-float (0.06 - 0.01)
+      set start-on-stone? false
+      set will-turn? one-of [true false]
+      set want-change? false
       ]
     ]
 
   ask n-of (sidewalk-roadside-people) patches with [meaning = "sidewalk-roadside"] [
-    ;check if it's a pedestrian crossing: cars 2 patches away from the crossing
-;    if not any? cars-on patch (pxcor + 1) pycor and
-;    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
-;    not any? patches with [meaning = "crossing"] in-radius 2 [
      sprout-persons 1 [
-        set shape one-of ["person business" "person construction" "person student" "person farmer"
+      set shape one-of ["person business" "person construction" "person student" "person farmer"
         "person lumberjack" "person police" "person service" "person soldier" "bike top"]
-        set color pedestrian-color
-        set size 0.8
-        ;move-to one-of free road-patches ; no need the above check should already take into account for this?
-        ;set targetLane pxcor                  ;starting lane is the targetLane
-        ;set patience random max-patience      ;max-patience in beginning
-      set heading one-of [0 180]
-        ;randomly set car speed
-        set walk-time 0.01 + random-float (0.06 - 0.01)
-;        let s random 10
-;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
-;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
-;        if s > 7 [set maxSpeed speed-limit + random 16]
-;        set speed maxSpeed - random 20
+      set color pedestrian-color
+      set size 0.8
+      set start-head one-of [0 180]
+      set heading start-head
+      set start-on-stone? false
+      set walk-time 0.01 + random-float (0.06 - 0.01)
+      set will-turn? one-of [true false]
+      set want-change? false
       ]
     ]
 
-;  ask n-of (50) patches with [meaning = "path"] [
-;    sprout-persons 1 [
-;        set shape one-of ["person business" "person construction" "person student" "person farmer"
-;        "person lumberjack" "person police" "person service" "person soldier" "bike top"]
-;        set color pedestrian-color
-;        set size 0.8
-;        ;move-to one-of free road-patches ; no need the above check should already take into account for this?
-;        ;set targetLane pxcor                  ;starting lane is the targetLane
-;        ;set patience random max-patience      ;max-patience in beginning
-;      set heading random (360)
-;        ;randomly set car speed
-;        set walk-time 0.01 + random-float (0.06 - 0.01)
-;;        let s random 10
-;;        if s < 7 [set maxSpeed speed-limit - 15 + random 16]
-;;        if s = 7 [set maxSpeed speed-limit - 20 + random 6]
-;;        if s > 7 [set maxSpeed speed-limit + random 16]
-;;        set speed maxSpeed - random 20
-;      ]
-;    ]
+  ask n-of (50) patches with [meaning = "path"] [
+    sprout-persons 1 [
+      set shape one-of ["person business" "person construction" "person student" "person farmer"
+      "person lumberjack" "person police" "person service" "person soldier" "bike top"]
+      set color pedestrian-color
+      set size 0.8
+        ;randomly set car speed
+      set walk-time 0.01 + random-float (0.06 - 0.01)
+      set start-on-stone? true
+      set start-head random (360)
+      set heading start-head
+      set will-turn? one-of [true false]
+      set want-change? one-of [true false]
+      ]
+    ]
 
 end
 
@@ -392,6 +372,11 @@ to make-lights
       set cars-light? false
     ]
   ]
+  set car-ticks car-lights-interval * 20 * 60
+  set pedestrian-ticks pedestrian-lights-interval * 20
+  set buffer-ticks buffer-time * 20
+  set trafficCycle 0
+  set cycle-length (car-ticks + pedestrian-ticks)
 end
 
 
@@ -409,33 +394,102 @@ to make-town
     die
   ]
   ]
-;
-;  [abs pxcor >= 9 and (pycor <= 13) and meaning = "town"] [
-;    set pcolor black
-;  ]
-
-; ask n-of (5) patches with [meaning = "town"] [
-;
-;    if not any? turtles in-radius 7 [
-;      sprout-towns 1 [
-;        set shape one-of ["house bungalow" "house colonial" "house ranch"]
-;        set size 7
-;     ]
-;    ]
-;  ]
-;
-  ask n-of (20) patches with [meaning = "path"] [
-    sprout-towns 1 [
-      set shape "plant"
-      set size 2
-      set color green + 6 + random-float (0.5)
+ ;put plants
+ ask n-of (40) patches with [meaning = "path"] [
+    if not any? turtles in-radius 2 [
+      sprout-towns 1 [
+        set shape-to-set one-of ["flower" "plant"]
+        if shape-to-set = "flower" [
+          set shape one-of ["flower" "flower budding"]
+          set size 1.2
+          set color one-of [red yellow pink]
+        ]
+        if shape-to-set = "plant" [
+          set shape one-of ["plant" "plant medium"]
+          set size 2
+          set color green + 6 + random-float (0.5)
+        ]
+      ]
     ]
   ]
-;
-;  ask n-of (10) patches with [meaning = "town"] [
-;    sprout-towns 1 [
-;      set shape "tree"]
-;  ]
+
+  ;; bottom patches
+  ask patches with [(meaning = "town" and abs pxcor = 13 and pycor = 5)] [
+    sprout-towns 1 [
+      set shape one-of ["house ranch" "house colonial" "house two story"]
+      set color 26 + random-float(2)
+      set size 7
+      set heading 0
+    ]
+  ]
+
+  ask patches with [(meaning = "town" and (abs pxcor = 10 or abs pxcor = 13 or abs pxcor = 16) and pycor = 0)] [
+    sprout-towns 1 [
+      set shape one-of ["tree" "tree pine"]
+      set color 62 + random-float (1)
+      set size 3.6
+    ]
+  ]
+
+  ask patches with [(meaning = "town" and (pxcor = -10)) and pycor mod 4 = 0 and pycor != 4 and pycor != 0] [
+    sprout-towns 1 [
+      set shape one-of ["tree" "tree pine"]
+      set color 62 + random-float (1.3)
+      set size 3
+    ]
+  ]
+
+  ask patches with [(meaning = "town" and (pxcor = -14) and pycor <= -4 and pycor mod -4 = 0)] [
+    sprout-towns 1 [
+      set shape one-of ["house bungalow" "house efficiency"]
+      set color 16 + random-float(2)
+      set heading 270
+      set size 5
+    ]
+  ]
+
+ ask patches with [meaning = "town" and (pxcor = 13) and pycor = -7] [
+    sprout-towns 1 [
+      set shape "building institution"
+      set color 86 + random-float(2)
+      set heading 90
+      set size 7
+    ]
+  ]
+
+ ask patches with [(meaning = "town" and (pxcor = 10 or pxcor = 12 or pxcor = 14 or pxcor = 16) and pycor = -12)] [
+    sprout-towns 1 [
+      set shape one-of ["plant" "plant medium"]
+      set color 55 + random-float (1)
+      set size 2
+    ]
+  ]
+
+ ask patches with [meaning = "town" and (pxcor = 11 or pxcor = 15) and pycor = -14] [
+    sprout-towns 1 [
+      set shape one-of ["house bungalow" "house efficiency"]
+      set color 137 + random-float(2)
+      set heading 0
+      set size 4.5
+    ]
+  ]
+
+   ask patches with [meaning = "town" and (pxcor = 10 or pxcor = 12 or pxcor = 14 or pxcor = 16) and pycor = 15] [
+      sprout-towns 1 [
+        set shape-to-set one-of ["flower" "plant"]
+        if shape-to-set = "flower" [
+          set shape one-of ["flower" "flower budding"]
+          set size 1.5
+          set color one-of [red yellow pink]
+        ]
+        if shape-to-set = "plant" [
+          set shape one-of ["plant" "plant medium"]
+          set size 2
+          set color 55 + random-float (2)
+        ]
+
+    ]
+  ]
 
 end
 
@@ -444,31 +498,62 @@ end
 to go
   ask cars [move-cars]
   ask cars with [ patience <= 0 ] [ choose-new-lane ]
-  ask cars with [ xcor != targetLane ] [ move-to-targetLane ]
+  ask cars with [ xcor != targetLane ] [ move-to-targetLane]
   ask persons [move-pedestrians]
-  ask traffic_lights with [cars-light?] [set-car-signals]
-  ask traffic_lights with [not cars-light?] [set-pedestrian-signals]
+  ask traffic_lights [check-switch-lights]
   tick
 end
+
 
 to move-cars
   speed-up-car ;
 
-  let blocking-cars other cars in-cone (1 + speed) 180 with [ y-distance <= 2  ]
+  let blocking-cars other cars in-cone (1 + (speed * 5)) 180 with [ y-distance <= 2  ]
   let blocking-car min-one-of blocking-cars [ distance myself ]
   if blocking-car != nobody [
     ; match the speed of the car ahead of you and then slow
     ; down so you are driving a bit slower than that car
     set speed [ speed ] of blocking-car
-    slow-down-car
+    ;slow-down-car
   ]
   forward speed
+
+  ;whether traffic lights show red or green
+
+;  let stop? true
+;  ask traffic_lights with [not cars-light?] [
+;    ifelse greenLight? [set stop? false] [set stop? true]
+;  ]
+;
+;  ifelse [meaning] of patch-ahead 1 = "crossing" [
+;    ifelse (stop?) [forward speed] [
+;      if [meaning] of patch-here = "crossing" [forward speed]
+;    ]
+;  ]
+;  [forward speed]
+
+
+;
+;  if not any? (traffic_lights in-cone 2 180) with [cars-light? and color = red ] [
+;    if [meaning] of patch-here = "crossing" [fd speed]]
+
+  ifelse not any? (traffic_lights in-cone 2 180) with [cars-light? and color = red ] [
+    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0]
+;
+;  ifelse [meaning] of patch-ahead 1 = "crossing" [
+;    ifelse (speed = 0) [fd speed][
+;      if [meaning] of patch-here = "crossing" [fd speed]
+;    ]
+;  ]
+;  [fd speed]
+
+
 end
 
 to choose-new-lane ; car procedure
   ; Choose a new lane among those with the minimum
   ; distance to your current lane (i.e., your xcor).
-;  let other-lanes remove xcor lanes
+  ; let other-lanes remove xcor lanes
   let other-lanes lanes
   if not empty? other-lanes [
     let min-dist min map [ x -> abs (x - xcor) ] other-lanes
@@ -481,7 +566,7 @@ end
 to move-to-targetLane ; car procedure
   ; NEED TO look how to restrict overtake in road up and road down only
 
-  if meaning = "road-up"[
+  if (meaning = "road-up" and meaning != "crossing")[
     set heading ifelse-value targetLane < xcor [ 270 ] [ 90 ]
     ;let bx random 14
     ;ifelse bx > 7 [
@@ -489,7 +574,7 @@ to move-to-targetLane ; car procedure
     ;] [
     ;  set heading ifelse-value targetLane <= xcor [ 270 ] [ 90 ]
     ;]
-    let blocking-cars other cars in-cone (  abs(xcor - targetLane)) 90 with [ x-distance <= 1 ]
+    let blocking-cars other cars in-cone (abs(xcor - targetLane)) 90 with [ x-distance <= 1] ;
     let blocking-car min-one-of blocking-cars [ distance myself ]
     ifelse blocking-car = nobody [
       forward 0.05
@@ -502,7 +587,7 @@ to move-to-targetLane ; car procedure
     ]
   ]
 
-  if meaning = "road-down"[
+  if (meaning = "road-down" and meaning != "crossing")[
     ;let bx random 2
     ;ifelse bx = 1 [
     ;  set heading ifelse-value targetLane < xcor [ 90 ] [ 270 ]
@@ -548,50 +633,160 @@ to speed-up-car ; car procedure
 end
 
 to move-pedestrians
-;  if not any? cars-on patch (pxcor + 1) pycor and
-;    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
-   ;if not any? patches with [meaning = "crossing"] in-radius 2 [
-  ;forward walk-time
-  ;face min-one-of patches with [meaning = "crossing"] [distance myself]
-  ;face min-one-of patches with [meaning = "sidewalk"] [distance myself]
-  ;walk
-  forward walk-time
+  change-heading
 
+  let stop? true
+  ask traffic_lights with [not cars-light?] [
+    ifelse greenLight? [set stop? false] [set stop? true]
+  ]
 
-  ;;randomizing
-;    forward walk-time;]
-;  ifelse [meaning] of patch-ahead 1 = one-of ["path" "sidewalk-left" "sidewalk-right" "sidewalk-roadside" "crossing"] [
-;    ifelse any? other persons-on patch-ahead 1 [
-;      rt random 45
-;      lt  random 45
-;      set walk-time walk-time + 1
-;    ]
-;    [fd speed / 200 set walk-time walk-time + 1]
-;  ]
-;  [
-;    rt random 120
-;    lt random 120
-;    if [meaning] of patch-ahead 1 = one-of ["path" "sidewalk-left" "sidewalk-right" "sidewalk-roadside" "crossing"]  [
-;      fd speed / 200
-;    ]
-;    set walk-time walk-time + 1
-;  ]
+  ifelse [meaning] of patch-ahead 1 = "crossing" [
+      ifelse (stop?) [forward walk-time] [
+      if [meaning] of patch-here = "crossing" [forward walk-time]
+    ]
+  ]
+  [forward walk-time]
+  ;change-heading
 
+  if start-on-stone? [get-to-sidewalk]
 end
 
-to set-car-signals
-  if  ticks mod (lights-interval) = 0 [
-      set greenLight? (not greenLight?)
-    ifelse greenLight? [set color red] [set color green]
+to get-to-sidewalk
+  if [meaning] of patch-ahead 1 = "town" [
+    set heading (random 360)
+  ]
+  if [meaning] of patch-here = "sidewalk-roadside"[
+    ifelse want-change? [
+      if [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"] [
+      set heading one-of [0 180]
+      set start-on-stone? false
+      set want-change? false
+      ]
+
+    ]
+    [ set heading (random 360)
+    ]
+  ]
+
+  if [meaning] of patch-here = "sidewalk-left"[
+    ifelse want-change? [
+      if [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"] [
+      set heading one-of [90 270]
+      set start-on-stone? false
+      set want-change? false
+      ]
+
+    ]
+    [ set heading (random 360)
+    ]
+  ]
+
+  if [meaning] of patch-here = "sidewalk-right"[
+    ifelse want-change? [
+      if [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"][
+      set heading one-of [90 270]
+      set start-on-stone? false
+      set want-change? false
+      ]
+
+    ]
+    [ set heading (random 360)
+    ]
+  ]
+
+   if [meaning] of patch-here = "waitpoint"[
+    ifelse want-change? [
+      if [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"][
+      set heading one-of [90 270]
+      set start-on-stone? false
+      set want-change? false
+      ]
+
+    ]
+    [ set heading (random 360)
+    ]
+  ]
+
+  if [meaning] of patch-here = one-of ["road-up" "road-down"] [
+    die
   ]
 end
 
-to set-pedestrian-signals
-  if  ticks mod (lights-interval) = 0 [
-      set greenLight? (not greenLight?)
-    ifelse greenLight? [set color red] [set color green]
+to change-heading
+  if start-head = 0 and (will-turn?) [
+    if ([meaning] of patch-here = "waitpoint") and ([meaning] of patch-ahead 1 != "waitpoint") [
+      set start-head one-of [90 270]
+      set heading start-head
+      set will-turn? one-of [true false]
+    ]
+  ]
+  if start-head = 180 and (will-turn?) [
+    if ([meaning] of patch-here = "waitpoint") and ([meaning] of patch-ahead 1 != "waitpoint")  [
+      set start-head one-of [90 270]
+      set heading start-head
+      set will-turn? one-of [true false]
+    ]
+  ]
+  if start-head = 90 and (will-turn?)[
+    if [meaning] of patch-here = "waitpoint" [
+      set start-head one-of [0 180]
+      set heading start-head
+      set will-turn? one-of [true false]
+    ]
+  ]
+
+  if start-head = 270  and (will-turn?) [
+    if [meaning] of patch-here = "waitpoint" [
+      set start-head one-of [0 180]
+      set heading start-head
+      set will-turn? one-of [true false]
+    ]
+  ]
+
+end
+
+to check-switch-lights
+  if ticks mod (cycle-length) = 0 [
+    set trafficCycle trafficCycle + 1
+    switch-lights
+  ]
+
+  if ((ticks - (cycle-length * trafficCycle)) mod car-ticks = 0) or
+  ((ticks - (cycle-length * trafficCycle)) mod (car-ticks) = 0) or
+  ((ticks - (cycle-length * trafficCycle)) mod (car-ticks + pedestrian-ticks) = 0)
+  [
+      switch-lights
   ]
 end
+
+to switch-lights
+  set greenLight? (not greenLight?)
+    ifelse greenLight? [set color red] [set color green]
+end
+
+;to set-car-signals
+;  ;conversion of seconds to ticks
+;  let ticks-interval car-lights-interval * 20 * 60
+;  let ticks-interval-buffer buffer-time * 20
+;
+;  ; changing of lights
+;  if ticks mod (ticks-interval + buffer-time) = 0 [
+;      set greenLight? (not greenLight?)
+;    ifelse greenLight? [set color red] [set color green]
+;  ]
+;end
+;
+;to set-pedestrian-signals
+;  ;conversion of seconds to ticks
+;  let ticks-interval pedestrian-lights-interval * 20
+;  let ticks-interval-buffer buffer-time * 20
+;
+;  ; changing of lights
+;  if ticks mod (ticks-interval + ticks-interval-buffer) = 0 [
+;      set greenLight? (not greenLight?)
+;    ifelse greenLight? [set color red] [set color green]
+;  ]
+;end
 
 ;to walk
 ;  ifelse [meaning] of patch-ahead 1 = "sidewalk" [
@@ -630,9 +825,9 @@ end
 ;end
 @#$#@#$#@
 GRAPHICS-WINDOW
-222
+278
 10
-798
+854
 587
 -1
 -1
@@ -682,25 +877,25 @@ speed-limit
 speed-limit
 0
 0.2
-0.5
-1
+0.1
+0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-13
-103
-192
-136
-lights-interval
-lights-interval
+11
+421
+272
+454
+pedestrian-lights-interval
+pedestrian-lights-interval
 0
-30
-10.0
+45
+30.0
+15
 1
-1
-minute
+seconds
 HORIZONTAL
 
 SLIDER
@@ -712,7 +907,7 @@ number-of-cars
 number-of-cars
 0
 70
-22.0
+24.0
 1
 1
 NIL
@@ -727,7 +922,7 @@ number-of-pedestrians
 number-of-pedestrians
 0
 60
-40.0
+28.0
 1
 1
 NIL
@@ -742,7 +937,7 @@ max-patience
 max-patience
 0
 50
-50.0
+25.0
 1
 1
 NIL
@@ -772,7 +967,7 @@ number-of-lanes
 number-of-lanes
 0
 4
-2.0
+3.0
 1
 1
 NIL
@@ -790,7 +985,7 @@ T
 T
 OBSERVER
 NIL
-NIL
+G
 NIL
 NIL
 0
@@ -804,41 +999,92 @@ acceleration
 acceleration
 0
 0.01
-0.008
-0.001
+0.01
+0.002
 1
 NIL
 HORIZONTAL
 
 SLIDER
-14
-422
-186
-455
+13
+382
+185
+415
 decelaration
 decelaration
 0
 0.1
-0.07
-0.01
+0.08
+0.02
 1
 NIL
 HORIZONTAL
 
 SLIDER
-14
-382
-186
-415
-basic-politeness
-basic-politeness
+12
+101
+206
+134
+car-lights-interval
+car-lights-interval
 0
-100
-70.0
+2
+2.0
+0.5
 1
-1
-NIL
+min
 HORIZONTAL
+
+SLIDER
+13
+459
+193
+492
+buffer-time
+buffer-time
+0
+5
+2.0
+1
+1
+seconds
+HORIZONTAL
+
+PLOT
+13
+598
+213
+748
+Average Speed of Cars
+Time
+Avg Speed
+0.0
+100.0
+0.0
+100.0
+true
+false
+"set-plot-y-range 0 speed-limit" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot mean [speed] of cars"
+
+PLOT
+214
+598
+414
+748
+Average Speed of People
+Time
+Avg Speed
+0.0
+1000.0
+0.0
+10.0
+true
+false
+"set-plot-y-range 0 0.1" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot mean [walk-time] of persons"
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -954,7 +1200,7 @@ Line -7500403 true 150 100 80 30
 Line -7500403 true 150 100 220 30
 
 building institution
-false
+true
 0
 Rectangle -7500403 true true 0 60 300 270
 Rectangle -16777216 true false 130 196 168 256
@@ -1195,7 +1441,7 @@ Polygon -7500403 true true 15 120 150 15 285 120
 Line -16777216 false 30 120 270 120
 
 house bungalow
-false
+true
 0
 Rectangle -7500403 true true 210 75 225 255
 Rectangle -7500403 true true 90 135 210 255
@@ -1209,7 +1455,7 @@ Polygon -16777216 false false 165 195 150 195 180 165 210 195
 Rectangle -16777216 true false 135 105 165 135
 
 house colonial
-false
+true
 0
 Rectangle -7500403 true true 270 75 285 255
 Rectangle -7500403 true true 45 135 270 255
@@ -1226,7 +1472,7 @@ Rectangle -16777216 true false 210 195 255 240
 Rectangle -16777216 true false 135 150 180 180
 
 house efficiency
-false
+true
 0
 Rectangle -7500403 true true 180 90 195 195
 Rectangle -7500403 true true 90 165 210 255
@@ -1236,7 +1482,7 @@ Polygon -7500403 true true 225 165 75 165 150 90
 Line -16777216 false 75 165 225 165
 
 house ranch
-false
+true
 0
 Rectangle -7500403 true true 270 120 285 255
 Rectangle -7500403 true true 15 180 270 255
@@ -1251,7 +1497,7 @@ Line -16777216 false 270 180 270 255
 Line -16777216 false 0 180 300 180
 
 house two story
-false
+true
 0
 Polygon -7500403 true true 2 180 227 180 152 150 32 150
 Rectangle -7500403 true true 270 75 285 255
