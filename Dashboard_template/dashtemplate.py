@@ -8,7 +8,7 @@ import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-data = pd.read_excel("outputdata.xlsx", header=1)
+data = pd.read_excel("permsnewdata.xlsx", header=0)
 data.head()
 
 
@@ -17,49 +17,144 @@ data.head()
 
 ### TAB 2-1 GRAPHS
 def create_plot_crowd():
+    line1 = data[data['num_lanes'] ==1]
+    line2 = data[data['num_lanes'] ==2]
+    line3 = data[data['num_lanes'] ==3]
+    line4 = data[data['num_lanes'] ==4]
 
-    crowd_heat_df = data[["number_of_lanes", "ratio", "avg_crowd_size"]]
-    crowd_lanes = data[["number_of_lanes", "avg_crowd_size"]].groupby("number_of_lanes").mean()
-    crowd_ratio = data[["ratio", "avg_crowd_size"]].groupby("ratio").mean()
+    crowd_heat_df = data[["num_lanes", "light_interval", "avg_crowd_size"]]
+    crowd_lanes = data[["num_lanes", "avg_crowd_size"]].groupby("num_lanes").mean()
+    crowd_light_interval = data[["light_interval", "avg_crowd_size"]].groupby("light_interval").mean()
+    crowd_light_interval1 = line1[["light_interval", "avg_crowd_size"]].groupby("light_interval").mean()
+    crowd_light_interval2 = line2[["light_interval", "avg_crowd_size"]].groupby("light_interval").mean()
+    crowd_light_interval3 = line3[["light_interval", "avg_crowd_size"]].groupby("light_interval").mean()
+    crowd_light_interval4 = line4[["light_interval", "avg_crowd_size"]].groupby("light_interval").mean()
+    #df = [crowd_light_interval1,crowd_light_interval2,crowd_light_interval3,crowd_light_interval4]
+    #newdata =pd.concat(df)
 
+    interval1 = data[data['light_interval'] ==0.5]
+    interval2 = data[data['light_interval'] ==1.0]
+    interval3 = data[data['light_interval'] ==1.5]
+    interval4 = data[data['light_interval'] ==2.0]
+    crowd_lanes1 = interval1[["num_lanes","light_interval", "avg_crowd_size"]].groupby("num_lanes").mean()
+    crowd_lanes2 = interval2[["num_lanes","light_interval", "avg_crowd_size"]].groupby("num_lanes").mean()
+    crowd_lanes3 = interval3[["num_lanes","light_interval", "avg_crowd_size"]].groupby("num_lanes").mean()
+    crowd_lanes4 = interval4[["num_lanes","light_interval", "avg_crowd_size"]].groupby("num_lanes").mean()
+    #df2 = [crowd_lanes1,crowd_lanes2,crowd_lanes3,crowd_lanes4]
+    #newdata2 =pd.concat(df2)
+
+    
     fig = make_subplots(
-        rows=1, cols=3,
-        horizontal_spacing=0.15,
-        subplot_titles=("Plot1", "Plot 2", "Plot 3"),
-        column_widths=[0.5,0.5,0.8])
+        rows=3, cols=1,
+        vertical_spacing=0.15,
+        subplot_titles=("no.of lanes VS average crowd size",
+                        "traffic light interval VS average crowd size",
+                        "Heatmap between traffic light interval and average crowd size"),
+        row_heights=[0.6,0.6,0.95])
+        
 
     fig.add_trace(
-    go.Heatmap(x = crowd_heat_df["number_of_lanes"],
-        y =  crowd_heat_df["ratio"],
-        z =  crowd_heat_df["avg_crowd_size"]
+    go.Heatmap(x = crowd_heat_df["num_lanes"],
+        y =  crowd_heat_df["light_interval"],
+        z =  crowd_heat_df["avg_crowd_size"],
+               colorbar=dict(y=0.16,len=.3)
         ),
-    row=1, col=3,
+    row=3, col=1,
     )
 
-    fig.add_trace(
-    go.Line(x = crowd_lanes.index,
-        y = crowd_lanes["avg_crowd_size"]
-        ),
-    row=1, col=2,
+    #first graph with four lines
+    trace_1 = go.Line(x = crowd_lanes1.index,
+                      y = crowd_lanes1["avg_crowd_size"],
+                      name = "light_interval = 0.5",
+                      legendgroup='1')
+    trace_2 = go.Line(x = crowd_lanes2.index,
+                      y = crowd_lanes2["avg_crowd_size"],
+                      name = "light_interval = 1.0",
+                      #legendgroup='1'
+                      )
+    trace_3 = go.Line(x = crowd_lanes3.index,
+                      y = crowd_lanes3["avg_crowd_size"],
+                      name = "light_interval = 1.5",
+                      #legendgroup='1'
+                      )
+    trace_4 = go.Line(x = crowd_lanes4.index,
+                      y = crowd_lanes4["avg_crowd_size"],
+                      name = "light_interval = 2.0",
+                      #legendgroup='1'
+                      )
+    
+    
+    fig.add_trace(trace_1,
+    row=1, col=1,
     )
-
-    fig.add_trace(
-    go.Bar(x = crowd_ratio.index,
-        y = crowd_ratio["avg_crowd_size"]
-        ),
+    fig.add_trace(trace_2,
+    row=1, col=1,
+    )
+    fig.add_trace(trace_3,
+    row=1, col=1,
+    )
+    fig.add_trace(trace_4,
     row=1, col=1,
     )
 
-    fig.update_xaxes(title_text="Number of Lanes", row=1, col=3)
-    fig.update_xaxes(title_text="Number of Lanes", row=1, col=2)
-    fig.update_xaxes(title_text="Green-Red Ratio", row=1, col=1)
+    #second graph with four lines
+    trace1 =go.Line(x = crowd_light_interval1.index,
+        y = crowd_light_interval1["avg_crowd_size"],
+                    name = "number of lanes = 1",
+                    legendgroup='2'
+        )
+    
+    trace2 =go.Line(x = crowd_light_interval2.index,
+        y = crowd_light_interval2["avg_crowd_size"],
+                    name = "number of lanes = 2",
+                    #legendgroup='2'
+        )
 
-    fig.update_yaxes(title_text="Green-Red Ratio", row=1, col=3)
-    fig.update_yaxes(title_text="Average Crowd Size", row=1, col=2)
-    fig.update_yaxes(title_text="Average Crowd Size", row=1, col=1)
-    fig.update_layout(
-        showlegend=False
+    trace3 =go.Line(x = crowd_light_interval3.index,
+        y = crowd_light_interval3["avg_crowd_size"],
+                    name = "number of lanes = 3",
+                    #legendgroup='2'
+        )
+
+    trace4 =go.Line(x = crowd_light_interval4.index,
+        y = crowd_light_interval4["avg_crowd_size"],
+                    name = "number of lanes = 4",
+                    #legendgroup='2'
+        )
+    
+    fig.add_trace(trace1,
+    row=2, col=1,
     )
+
+    fig.add_trace(trace2,
+    row=2, col=1,
+    )
+
+    fig.add_trace(trace3,
+    row=2, col=1,
+    )
+
+    fig.add_trace(trace4,
+    row=2, col=1,
+    )
+    
+
+    
+    
+    fig.update_xaxes(title_text="Traffic light interval", row=2, col=1)
+    fig.update_xaxes(title_text="Number of Lanes", row=1, col=1)
+    fig.update_xaxes(title_text="Number of lines", row=3, col=1)
+
+    fig.update_yaxes(title_text="Average Crowd Size", row=2, col=1)
+    fig.update_yaxes(title_text="Average Crowd Size", row=1, col=1)
+    fig.update_yaxes(title_text="Traffic light interval", row=3, col=1)
+    fig.update_layout(
+        height = 800,
+        width = 800,
+        #legend_tracegroupgap = 180,
+        showlegend=True
+    )
+
 
     return fig
 
