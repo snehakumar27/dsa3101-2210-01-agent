@@ -165,7 +165,7 @@ end
 
 to make-cars
   ;create cars on left lane
-  let max-road-cap (number-of-lanes * 15)
+  let max-road-cap (number-c-lanes * 15)
   if number-of-cars > max-road-cap [
     set number-of-cars max-road-cap]
 
@@ -928,7 +928,7 @@ number-of-cars
 number-of-cars
 0
 70
-60.0
+56.0
 1
 1
 NIL
@@ -943,7 +943,7 @@ number-of-pedestrians
 number-of-pedestrians
 0
 60
-39.0
+37.0
 1
 1
 NIL
@@ -988,7 +988,7 @@ bike-lanes
 bike-lanes
 0
 4
-0.0
+3.0
 1
 1
 NIL
@@ -1065,7 +1065,7 @@ number-of-bike
 number-of-bike
 0
 50
-0.0
+11.0
 1
 1
 NIL
