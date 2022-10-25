@@ -969,7 +969,7 @@ pedestrian-lights-interval
 pedestrian-lights-interval
 0
 45
-0.0
+45.0
 15
 1
 seconds
@@ -1106,7 +1106,7 @@ car-lights-interval
 car-lights-interval
 0
 2
-0.5
+1.0
 0.5
 1
 min
@@ -1216,10 +1216,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot mean [stopTime] of cars"
 
 PLOT
-13
-750
-213
-900
+868
+10
+1068
+160
 No. of Cars Stopped
 Time
 Number
@@ -1234,10 +1234,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot stoppedCars"
 
 PLOT
-215
-750
-415
-900
+868
+170
+1068
+320
 No. of Cars Changing Lanes
 Time
 Number
