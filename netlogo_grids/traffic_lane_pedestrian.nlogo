@@ -19,6 +19,9 @@ globals [
   buffer-ticks
   cycle-length
   trafficCycle
+  stoppedCars
+  recordData
+  dataLength
 ]
 
 
@@ -60,16 +63,15 @@ towns-own [
   shape-to-set
 ]
 
-datas-own [
-  avgSpeed
-]
-
 extensions [ csv ]
 
 ;;;;;;; Setup the Simulation ;;;;;;;
 to setup
   clear-all
   set speedLimit speed-limit
+  set stoppedCars 0
+  set recordData (list)
+  set dataLength 0
   draw-roads
   draw-sidewalk
   draw-crossing
@@ -597,19 +599,24 @@ to move-cars
   ;whether traffic lights show red or green
   if [meaning] of patch-here = "crossing" [
       speed-up-car
-      fd speed]
+      fd speed
+  ]
 
   ; if patch ahead is crossing & not red light, then speed up else
   if ([meaning] of patch-ahead 1 = "crossing")[
     ifelse (not cstop?) [
       speed-up-car
       fd speed
+      set stoppedCars stoppedCars - 1
     ][
       ifelse ([meaning] of patch-here = "crossing")[  ; if cstop and crossing
         if [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"][
           speed-up-car
-      fd speed]][
-        set speed 0]
+          fd speed
+      ]][
+        set speed 0
+        set stopTime stopTime + 1
+        set stoppedCars stoppedCars + 1]
     ]
   ]
 
@@ -892,8 +899,13 @@ to switch-lights
     ifelse greenLight? [set color red] [set color green]
 end
 
+to record-current-data
+  set dataLength (length recordData)
+  set recordData (lput (list (mean [speed] of cars) (mean [stopTime] of cars) stoppedCars) recordData)
+end
+
 to write-to-csv
-  csv:to-file "output.csv" [ (list speed stopTime) ] of cars
+  csv:to-file "output.csv" recordData
 end
 
 ;to set-car-signals
@@ -1084,7 +1096,7 @@ time-to-cross
 time-to-cross
 0
 40
-0.0
+15.0
 1
 1
 seconds
@@ -1161,7 +1173,7 @@ car-lights-interval
 car-lights-interval
 0
 2
-0.5
+1.0
 0.5
 1
 min
@@ -1219,12 +1231,29 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot mean [walk-time] of persons"
 
 BUTTON
-13
-497
-122
-530
+14
+537
+123
+570
 NIL
 write-to-csv
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+14
+498
+173
+531
+NIL
+record-current-data
 NIL
 1
 T
