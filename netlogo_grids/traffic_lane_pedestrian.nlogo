@@ -22,6 +22,7 @@ globals [
   stoppedCars
   recordData
   dataLength
+  changeLane
 ]
 
 
@@ -72,6 +73,7 @@ to setup
   set stoppedCars 0
   set recordData (list)
   set dataLength 0
+  set changeLane 0
   draw-roads
   draw-sidewalk
   draw-crossing
@@ -605,9 +607,9 @@ to move-cars
   ; if patch ahead is crossing & not red light, then speed up else
   if ([meaning] of patch-ahead 1 = "crossing")[
     ifelse (not cstop?) [
+      if speed = 0 [set stoppedCars stoppedCars - 1]
       speed-up-car
       fd speed
-      set stoppedCars stoppedCars - 1
     ][
       ifelse ([meaning] of patch-here = "crossing")[  ; if cstop and crossing
         if [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"][
@@ -714,6 +716,7 @@ to move-to-targetLane ; car procedure
       forward 0.1
       set xcor precision xcor 1 ; to avoid floating point errors
       set heading 0
+      set changeLane changeLane + 1
     ] [
      ;slow down if the car blocking us is behind, otherwise speed up
       ifelse towards blocking-car <= 90 [ slow-down-car ] [ speed-up-car ]
@@ -776,10 +779,10 @@ to move-pedestrians
   ]
 
   ifelse [meaning] of patch-ahead 1 = "crossing" [
-      ifelse (stop?) [forward walk-time] [
-      if [meaning] of patch-here = "crossing" [forward walk-time]
-    ]
-  ]
+      ifelse (stop?) [set walk-time 0.01 + random-float (0.06 - 0.01)
+      forward walk-time] [
+      ifelse [meaning] of patch-here = "crossing" [forward walk-time] [set walk-time 0]
+  ]]
   [forward walk-time]
   ;change-heading
 
@@ -884,6 +887,9 @@ to check-switch-lights
   if ticks mod (cycle-length) = 1 [
     set trafficCycle trafficCycle + 1
     switch-lights
+    set stoppedCars 0
+    set changeLane 0
+    ask cars [set stopTime 0]
   ]
 
   if ((ticks - (cycle-length * trafficCycle)) mod car-ticks = 0) or
@@ -1111,7 +1117,7 @@ number-of-lanes
 number-of-lanes
 0
 4
-2.0
+3.0
 1
 1
 NIL
@@ -1173,7 +1179,7 @@ car-lights-interval
 car-lights-interval
 0
 2
-1.0
+0.5
 0.5
 1
 min
@@ -1271,7 +1277,7 @@ PLOT
 748
 Average Stoptime of Cars
 Time
-Cars
+Stoptime
 0.0
 10.0
 0.0
@@ -1299,6 +1305,24 @@ false
 "set-plot-y-range 0 number-of-cars" ""
 PENS
 "default" 1.0 0 -16777216 true "" "plot stoppedCars"
+
+PLOT
+215
+750
+415
+900
+No. of Cars Changing Lanes
+Time
+Number
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot changeLane"
 
 @#$#@#$#@
 ## WHAT IS IT?
