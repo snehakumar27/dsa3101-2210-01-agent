@@ -171,7 +171,7 @@ to make-cars
         set heading 0
         ;randomly set car speed
         set speed 0.5
-        let s random-float 0.2
+        let s random 14
         if s < 7 [set maxSpeed speed-limit - 0.0005 + random-float 0.003]
         if s = 7 [set maxSpeed speed-limit - 0.0005 + random-float 0.002]
         if s > 7 [set maxSpeed speed-limit + random-float 0.001]
@@ -198,7 +198,7 @@ to make-cars
         set heading 180
         ;randomly set car speed
         set speed 0.5
-        let s random-float 0.2
+        let s random 14
         if s < 7 [set maxSpeed speed-limit - 0.001 + random-float 0.005]
         if s = 7 [set maxSpeed speed-limit - 0.0005 + random-float 0.003]
         if s > 7 [set maxSpeed speed-limit + random-float 0.002]
