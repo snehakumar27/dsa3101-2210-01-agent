@@ -9,6 +9,7 @@ breed[datas data]
 globals [
   speedLimit
   number-of-lanes
+  number-c-lanes
   c-lanes
   car-ticks
   pedestrian-ticks
@@ -92,7 +93,8 @@ to draw-roads
   ]
 
   set number-of-lanes 4
-  set c-lanes (range (- number-of-lanes) (number-of-lanes + 1))
+  set number-c-lanes (4 - bike-lanes)
+  set c-lanes (range (- number-c-lanes) (number-c-lanes + 1))
 
     ; lanes on left side of the middle/divider
   ask patches with [ (pxcor >= -4 + bike-lanes) and  (pxcor <= -1) ] [
@@ -183,7 +185,7 @@ to make-cars
         set heading 0
         ;randomly set car speed
         set speed 0.5
-        let s random-float 0.2
+        let s random 14
         if s < 7 [set maxSpeed speed-limit - 0.0005 + random-float 0.003]
         if s = 7 [set maxSpeed speed-limit - 0.0005 + random-float 0.002]
         if s > 7 [set maxSpeed speed-limit + random-float 0.001]
@@ -210,7 +212,7 @@ to make-cars
         set heading 180
         ;randomly set car speed
         set speed 0.5
-        let s random-float 0.2
+        let s random 14
         if s < 7 [set maxSpeed speed-limit - 0.001 + random-float 0.005]
         if s = 7 [set maxSpeed speed-limit - 0.0005 + random-float 0.003]
         if s > 7 [set maxSpeed speed-limit + random-float 0.002]
@@ -245,12 +247,12 @@ to make-bike
         set patience random max-patience     ;max-patience in beginning
         set heading 0
         ;randomly set car speed
-        set speed 0.3
-        let s random-float 0.2
-        if s < 7 [set maxSpeed speed-limit - 0.02 + random-float 0.05]
-        if s = 7 [set maxSpeed speed-limit - 0.05 + random-float 0.03]
-        if s > 7 [set maxSpeed speed-limit + random-float 0.02]
-        set speed maxSpeed - random-float 0.02
+        set speed 0.01
+        let s random-float 14
+        if s < 7 [set maxSpeed speed-limit - 0.002 + random-float 0.005]
+        if s = 7 [set maxSpeed speed-limit - 0.005 + random-float 0.03]
+        if s > 7 [set maxSpeed speed-limit + random-float 0.002]
+        set speed maxSpeed - random-float 0.002
       ]
     ]
   ]
@@ -272,12 +274,12 @@ to make-bike
         set patience random max-patience      ;max-patience in beginning
         set heading 180
         ;randomly set car speed
-        set speed 0.3
-        let s random-float 0.2
-        if s < 7 [set maxSpeed speed-limit - 0.02 + random-float 0.05]
-        if s = 7 [set maxSpeed speed-limit - 0.05 + random-float 0.03]
-        if s > 7 [set maxSpeed speed-limit + random-float 0.02]
-        set speed maxSpeed - random-float 0.02
+        set speed 0.01
+        let s random-float 14
+        if s < 7 [set maxSpeed speed-limit - 0.002 + random-float 0.005]
+        if s = 7 [set maxSpeed speed-limit - 0.005 + random-float 0.03]
+        if s > 7 [set maxSpeed speed-limit + random-float 0.002]
+        set speed maxSpeed - random-float 0.002
       ]
     ]
   ]
@@ -572,7 +574,7 @@ end
 
 to go
   ask cars [move-cars]
-  if number-of-lanes > 1 [
+  if number-c-lanes > 1 [
     ask cars with [ patience <= 0 and speed > 0.008 ] [ choose-new-lane ]
     ask cars with [ xcor != targetLane ] [ move-to-targetLane]
   ]
@@ -634,7 +636,7 @@ to choose-new-lane ; car procedure
   let other-lanes remove pxcor c-lanes
   ;let other-lane lanes
   set other-lanes remove 0 other-lanes
-  ;set other-lanes remove 0.5 other-lanes
+  ;set other-lanes remove 1 other-lanes
 
   if not empty? other-lanes [
     let min-dist min map [ x -> abs (x - pxcor) ] other-lanes
@@ -859,9 +861,9 @@ to write-to-csv
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-222
+235
 10
-798
+811
 587
 -1
 -1
@@ -926,7 +928,7 @@ number-of-cars
 number-of-cars
 0
 70
-29.0
+60.0
 1
 1
 NIL
@@ -986,7 +988,7 @@ bike-lanes
 bike-lanes
 0
 4
-2.0
+0.0
 1
 1
 NIL
@@ -1063,7 +1065,7 @@ number-of-bike
 number-of-bike
 0
 50
-22.0
+0.0
 1
 1
 NIL
@@ -1078,7 +1080,7 @@ car-lights-interval
 car-lights-interval
 0
 2
-1.0
+0.5
 0.5
 1
 minutes
