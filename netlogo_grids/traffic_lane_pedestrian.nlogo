@@ -1066,7 +1066,7 @@ number-of-pedestrians
 number-of-pedestrians
 0
 60
-30.0
+31.0
 1
 1
 NIL
@@ -1081,7 +1081,7 @@ max-patience
 max-patience
 0
 100
-100.0
+25.0
 1
 1
 NIL
@@ -1096,7 +1096,7 @@ time-to-cross
 time-to-cross
 0
 40
-15.0
+25.0
 1
 1
 seconds
@@ -1203,9 +1203,9 @@ Average Speed of Cars
 Time
 Avg Speed
 0.0
-100.0
+5.0
 0.0
-100.0
+10.0
 true
 false
 "set-plot-y-range 0 speed-limit" ""
@@ -1221,7 +1221,7 @@ Average Speed of People
 Time
 Avg Speed
 0.0
-1000.0
+5.0
 0.0
 10.0
 true
@@ -1263,6 +1263,42 @@ NIL
 NIL
 NIL
 1
+
+PLOT
+524
+598
+724
+748
+Average Stoptime of Cars
+Time
+Cars
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot mean [stopTime] of cars"
+
+PLOT
+13
+750
+213
+900
+No. of Cars Stopped
+Time
+Number
+0.0
+5.0
+0.0
+10.0
+true
+false
+"set-plot-y-range 0 number-of-cars" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot stoppedCars"
 
 @#$#@#$#@
 ## WHAT IS IT?
