@@ -1,8 +1,8 @@
-;;;;;;; Declare/Define variables and breeds ;;;;;;;
+;;;;;;; Declare Global Variables, Turtle Breeds and Extensions ;;;;;;;
 breed[cars car]
 breed[persons person]
 breed[crossings crossing]
-breed[traffic_lights traffic_light]  ;for traffic signals
+breed[traffic_lights traffic_light]
 breed[towns town]
 breed[datas data]
 
@@ -16,7 +16,6 @@ globals [
   c-lanes
   car-ticks
   pedestrian-ticks
-  buffer-ticks
   cycle-length
   trafficCycle
   stoppedCars
@@ -44,7 +43,6 @@ persons-own [
   waiting?
 ]
 
-;lights-own
 
 cars-own [
   speed
@@ -212,15 +210,6 @@ to make-cars
 
 end
 
-;to-report free [ road-patches ] ; turtle procedure
-;  let this-car self
-;  report road-patches with [
-;    if not any? cars-on patch (pxcor + 1) pycor and
-;    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
-;    not any? patches with [meaning = "crossing"] in-radius 2
-;  ]
-;end
-
 to-report car-color
   ; give all cars a blueish color, but still make them distinguishable
   report one-of [ blue cyan sky violet ] + 1.5 + random-float 1.0
@@ -387,13 +376,11 @@ to make-lights
   ]
   set car-ticks car-lights-interval * 20 * 60
   set pedestrian-ticks pedestrian-lights-interval * 20
-  set buffer-ticks buffer-time * 20
   set trafficCycle 0
   set cycle-length (car-ticks + pedestrian-ticks)
 end
 
 
-;; randomly sprout
 to make-town
   ;; set paths on vertical paths
   ask patches with [((number-of-lanes + 2 < abs pxcor) and (abs pxcor < 9)) or ((8 <= pycor) and (pycor <= 13))
@@ -913,66 +900,6 @@ end
 to write-to-csv
   csv:to-file "output.csv" recordData
 end
-
-;to set-car-signals
-;  ;conversion of seconds to ticks
-;  let ticks-interval car-lights-interval * 20 * 60
-;  let ticks-interval-buffer buffer-time * 20
-;
-;  ; changing of lights
-;  if ticks mod (ticks-interval + buffer-time) = 0 [
-;      set greenLight? (not greenLight?)
-;    ifelse greenLight? [set color red] [set color green]
-;  ]
-;end
-;
-;to set-pedestrian-signals
-;  ;conversion of seconds to ticks
-;  let ticks-interval pedestrian-lights-interval * 20
-;  let ticks-interval-buffer buffer-time * 20
-;
-;  ; changing of lights
-;  if ticks mod (ticks-interval + ticks-interval-buffer) = 0 [
-;      set greenLight? (not greenLight?)
-;    ifelse greenLight? [set color red] [set color green]
-;  ]
-;end
-
-;to walk
-;  ifelse [meaning] of patch-ahead 1 = "sidewalk" [
-;    ifelse any? other persons-on patch-ahead 1 [
-;      rt random-float 0.02
-;      lt  random-float 0.005
-;      set walk-time walk-time + 0.001
-;    ]
-;    [fd speed / 20 set walk-time walk-time - 0.001]
-;  ]
-;  [
-    ;rt random 2
-    ;lt random 2
-;    if [meaning] of patch-ahead 1 = "sidewalk" [
-;      fd speed / 20
-;    ]
-;    set walk-time walk-time + 0.001
-;  ]
-;end
-
-;to control-traffic-signals
-;  if ticks mod (50 * lights-interval * greenLight + 65 * lights-interval * redLight ) = 0 [change-color traffic_lights]
-;end
-;
-;to change-color [lights]
-;  ask one-of lights [
-;    ifelse color = red [
-;      set greenLight greenLight + 1
-;    ][set redLight redLight + 1
-;    ]
-;  ]
-;
-;  ask lights [
-;    ifelse color = red [set color green][set color red]
-;  ]
-;end
 @#$#@#$#@
 GRAPHICS-WINDOW
 278
@@ -1042,7 +969,7 @@ pedestrian-lights-interval
 pedestrian-lights-interval
 0
 45
-30.0
+0.0
 15
 1
 seconds
@@ -1057,7 +984,7 @@ number-of-cars
 number-of-cars
 0
 60
-30.0
+45.0
 1
 1
 NIL
