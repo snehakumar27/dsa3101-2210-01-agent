@@ -619,29 +619,44 @@ to move-cars
       fd speed
   ]
 
-  ; if patch ahead is crossing & not red light, then speed up else
-  if ([meaning] of patch-ahead 1 = "crossing")[
+;  ; if patch ahead is crossing & not red light, then speed up else
+;  if ([meaning] of patch-ahead 1 = "crossing")[
+;    ifelse (not cstop?) [
+;      if speed = 0 [set stoppedCars stoppedCars - 1]
+;;      speed-up-car
+;;      fd speed
+;      ifelse not any? persons in-cone 1 90[
+;        speed-up-car
+;        fd speed] [set speed 0]
+;    ][
+;      ifelse ([meaning] of patch-here = "crossing")[  ; if cstop and crossing
+;        if [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"][
+;          speed-up-car
+;          fd speed
+;      ]][
+;        if speed > 0 [
+;          set stoppedCars stoppedCars + 1
+;        ]
+;        set speed 0
+;        set stopTime stopTime + 1
+;    ]]
+;    ]
+ if ([meaning] of patch-ahead 1 = "crossing")[
     ifelse (not cstop?) [
       if speed = 0 [set stoppedCars stoppedCars - 1]
-;      speed-up-car
-;      fd speed
-      ifelse not any? persons in-cone 1 90[
-        speed-up-car
-        fd speed] [set speed 0]
+      speed-up-car
+      fd speed
     ][
       ifelse ([meaning] of patch-here = "crossing")[  ; if cstop and crossing
         if [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"][
           speed-up-car
           fd speed
       ]][
-        if speed > 0 [
-          set stoppedCars stoppedCars + 1
-        ]
         set speed 0
         set stopTime stopTime + 1
-    ]]
+        set stoppedCars stoppedCars + 1]
     ]
-
+  ]
 ;  ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ][
 ;    speed-up-car
 ;    fd speed
