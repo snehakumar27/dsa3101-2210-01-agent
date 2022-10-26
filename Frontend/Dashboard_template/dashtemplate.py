@@ -172,7 +172,8 @@ def create_plot_crowd(num_cars = 10, num_ped = 10, patience=0.6):
     return fig
 
 ### TAB 2-2 GRAPHS
-def create_plot_car():
+def create_plot_car(num_cars = 10, num_ped = 10, patience=0.6):
+    data = get_data(num_cars, num_ped, patience)
     
     line1 = data[data['num_lanes'] ==1]
     line2 = data[data['num_lanes'] ==2]
@@ -183,12 +184,20 @@ def create_plot_car():
     car_marker_df = car_marker_df.groupby(["num_lanes", "light_interval"])["avg_waiting_cars", "no._stopped_cars"].mean().reset_index()
     car_heat_df = data[["num_lanes", "light_interval", "avg_speed_cars"]]
     
+    interval1 = data[data['light_interval'] ==0.5]
+    interval2 = data[data['light_interval'] ==1.0]
+    interval3 = data[data['light_interval'] ==1.5]
+    interval4 = data[data['light_interval'] ==2.0]
+  
     car_interval1 = line1[["light_interval", "avg_waiting_cars"]].groupby("light_interval").mean()
     car_interval2 = line2[["light_interval", "avg_waiting_cars"]].groupby("light_interval").mean()
     car_interval3 = line3[["light_interval", "avg_waiting_cars"]].groupby("light_interval").mean()
     car_interval4 = line4[["light_interval", "avg_waiting_cars"]].groupby("light_interval").mean()
     
-    car_lanes = data[["num_lanes", "avg_waiting_cars"]].groupby("num_lanes").mean()
+    car_lanes1 = interval1[["num_lanes", "light_interval","avg_waiting_cars"]].groupby("num_lanes").mean()
+    car_lanes2 = interval2[["num_lanes","light_interval", "avg_waiting_cars"]].groupby("num_lanes").mean()
+    car_lanes3 = interval3[["num_lanes","light_interval", "avg_waiting_cars"]].groupby("num_lanes").mean()
+    car_lanes4 = interval4[["num_lanes","light_interval", "avg_waiting_cars"]].groupby("num_lanes").mean()
     
 
     fig = make_subplots(
@@ -225,7 +234,7 @@ def create_plot_car():
     trace1 =go.Line(x = car_interval1.index,
         y = car_interval1["avg_waiting_cars"],
         name = "number of lanes = 1",
-        legendgroup='1'
+        legendgroup='2'
         )
 
     trace2 =go.Line(x = car_interval2.index,
@@ -248,12 +257,43 @@ def create_plot_car():
     fig.add_trace(trace3, row=2, col=1,),
     fig.add_trace(trace4, row=2, col=1,),
 
-    fig.add_trace(
-    go.Line(x = car_lanes.index,
-        y = car_lanes["avg_waiting_cars"]
-        ),
+
+
+    #first graph with four lines
+    trace_1 = go.Line(x = car_lanes1.index,
+                      y = car_lanes1["avg_waiting_cars"],
+                      name = "light_interval = 0.5",
+                      legendgroup='1')
+    trace_2 = go.Line(x = car_lanes2.index,
+                      y = car_lanes2["avg_waiting_cars"],
+                      name = "light_interval = 1.0",
+                      #legendgroup='1'
+                      )
+    trace_3 = go.Line(x = car_lanes3.index,
+                      y = car_lanes3["avg_waiting_cars"],
+                      name = "light_interval = 1.5",
+                      #legendgroup='1'
+                      )
+    trace_4 = go.Line(x = car_lanes4.index,
+                      y = car_lanes4["avg_waiting_cars"],
+                      name = "light_interval = 2.0",
+                      #legendgroup='1'
+                      )
+    
+    
+    fig.add_trace(trace_1,
     row=1, col=1,
     )
+    fig.add_trace(trace_2,
+    row=1, col=1,
+    )
+    fig.add_trace(trace_3,
+    row=1, col=1,
+    )
+    fig.add_trace(trace_4,
+    row=1, col=1,
+    )
+
 
     fig.update_xaxes(title_text="Number of Lanes", row=1, col=1)
     fig.update_xaxes(title_text="Light Interval", row=2, col=1)
@@ -273,6 +313,8 @@ def create_plot_car():
     
 
     return fig
+
+
 ### TAB 2-3 GRAPHS
 
 
