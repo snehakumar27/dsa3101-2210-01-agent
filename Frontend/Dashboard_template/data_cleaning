@@ -1,0 +1,9 @@
+import pandas as pd
+data_car = pd.read_excel("speed_of_cars.modelRunHistory.xlsx", header=0)
+data_change_lanes=pd.read_excel("changeLanes.modelRunHistory.xlsx", header=0)
+df1=data_car.iloc[:,:6]
+df2=data_change_lanes.iloc[:,:6]
+df1=df1.drop_duplicates()
+df2=df2.drop_duplicates()
+#print(df1)
+print(df2)
