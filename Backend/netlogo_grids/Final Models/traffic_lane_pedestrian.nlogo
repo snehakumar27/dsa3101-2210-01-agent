@@ -22,6 +22,7 @@ globals [
   recordData
   dataLength
   changeLane
+  totalTicks
 ]
 
 
@@ -51,6 +52,7 @@ cars-own [
   targetLane     ;:the desired lane of the car
   will-stop?     ;;whether the car will stop and let pedestrian(s) to cross the road
   stopTime
+  stopped?
 ]
 
 traffic_lights-own [
@@ -72,6 +74,7 @@ to setup
   set recordData (list)
   set dataLength 0
   set changeLane 0
+  set totalTicks (car-lights-interval + pedestrian-lights-interval)
   draw-roads
   draw-sidewalk
   draw-crossing
@@ -177,6 +180,7 @@ to make-cars
         if s > 7 [set maxSpeed speed-limit + random-float 0.001]
         set speed maxSpeed - random-float 0.002
         set stopTime 0
+        set stopped? false
       ]
     ]
   ]
@@ -605,7 +609,9 @@ to move-cars
       ]][
         set speed 0
         set stopTime stopTime + 1
-        set stoppedCars stoppedCars + 1]
+        if stopped? = false [
+          set stoppedCars stoppedCars + 1
+          set stopped? true]]
     ]
   ]
 
@@ -876,7 +882,10 @@ to check-switch-lights
     switch-lights
     set stoppedCars 0
     set changeLane 0
-    ask cars [set stopTime 0]
+    ask cars [
+      set stopTime 0
+      set stopped? false
+    ]
   ]
 
   if ((ticks - (cycle-length * trafficCycle)) mod car-ticks = 0) or
