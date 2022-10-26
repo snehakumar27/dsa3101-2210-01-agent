@@ -13,15 +13,23 @@ import dash_daq as daq
 data = pd.read_excel("permsnewdata.xlsx", header=0)
 data.head()
 
+default = {"num_cars": 10, "patience":0.6, "num_pedestrians":10}
+
+def get_data(num_cars, num_ped, patience):
+    data1 = data[data['num_cars'] == num_cars]
+    data2 = data1[data1['num_pedestrians'] == num_ped]
+    datause = data2[data2['patience'] == patience]
+    return datause
+
+
 
 ###TAB 1 GRAPHS
 
 
 ### TAB 2-1 GRAPHS
-def create_plot_crowd():
-#def create_plot_crowd(num_cars = default,num_pedestrians = default, patience = default):
-#todo-1: define default
-#todo-2: make dataframe/graphs change by changing with inputs
+def create_plot_crowd(num_cars = 10, num_ped = 10, patience=0.6):
+    data = get_data(num_cars, num_ped, patience)
+    
     line1 = data[data['num_lanes'] ==1]
     line2 = data[data['num_lanes'] ==2]
     line3 = data[data['num_lanes'] ==3]
