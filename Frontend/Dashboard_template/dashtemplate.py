@@ -329,7 +329,7 @@ content1 = dbc.Row([
             [
                 dbc.Button("Decrease Lane", id = "decrease_lane", color = "danger", className = "me-1", n_clicks = 0),
                 html.Span(id="number-of-lanes", style={"verticalAlign": "middle"}),
-                dbc.Button("Increase Line", id = "increase_lane", color = "success", className = "me-1", n_clicks = 0),
+                dbc.Button("Increase Line", id = "increase_lane", color = "success", className = "me-1", n_clicks = 1),
             ]
         ),
         html.H6("Green to Red Ratio"),
@@ -337,7 +337,7 @@ content1 = dbc.Row([
             [
                 dbc.Button("-", id = "decrease_light", color = "danger", className = "me-1", n_clicks = 0),
                 html.Span(id="light-interval", style={"verticalAlign": "middle"}),
-                dbc.Button("+", id = "increase_light", color = "success", className = "me-1", n_clicks = 0),
+                dbc.Button("+", id = "increase_light", color = "success", className = "me-1", n_clicks = 1),
             ]
         ),
     ], width = 5),
