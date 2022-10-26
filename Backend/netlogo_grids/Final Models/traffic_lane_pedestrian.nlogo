@@ -918,7 +918,7 @@ to check-car-switch-lights
     ]
 
     if ((ticks - (cycle-length * trafficCycle) - car-ticks) mod cycle-length = 0) [
-      set color orange
+      set color 25.5
       set greenLight? not greenLight?
       set amberLight? not amberLight?
     ]
