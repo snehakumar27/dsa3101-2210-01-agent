@@ -599,8 +599,11 @@ to move-cars
   if ([meaning] of patch-ahead 1 = "crossing")[
     ifelse (not cstop?) [
       if speed = 0 [set stoppedCars stoppedCars - 1]
-      speed-up-car
-      fd speed
+;      speed-up-car
+;      fd speed
+      ifelse not any? persons in-cone 1 90[
+        speed-up-car
+        fd speed] [set speed 0]
     ][
       ifelse ([meaning] of patch-here = "crossing")[  ; if cstop and crossing
         if [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"][
@@ -1114,7 +1117,7 @@ car-lights-interval
 car-lights-interval
 0
 2
-0.0
+0.5
 0.5
 1
 min
