@@ -378,8 +378,7 @@ content1 = dbc.Row([
 ### TAB 2 CONTENT
 content2 = dcc.Tabs(id="graph-tabs", children=[
             dcc.Tab([dcc.Graph(id = "graph_crowd", figure=create_plot_crowd())],label='Pedestrians'),
-            dcc.Tab(["Please select the number of lanes", html.Br(),
-                dcc.Dropdown([1, 2, 3, 4], 1, id='lanes-number'), dcc.Graph(id = "graph_car", figure=create_plot_car())],label='Cars'),
+            dcc.Tab([dcc.Graph(id = "graph_car", figure=create_plot_car())],label='Cars'),
             dcc.Tab(label='Compare'),
         ],  vertical=True, parent_style={'float': 'left'})
 
