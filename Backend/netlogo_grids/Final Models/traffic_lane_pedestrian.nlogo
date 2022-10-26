@@ -16,6 +16,8 @@ globals [
   c-lanes
   car-ticks
   pedestrian-ticks
+  amber-ticks
+  safety-buffer-ticks
   cycle-length
   trafficCycle
   stoppedCars
@@ -57,6 +59,8 @@ cars-own [
 
 traffic_lights-own [
   greenLight?
+  amberLight?
+  redLight?
   cars-light?
 ]
 
@@ -310,6 +314,8 @@ to make-lights
       set shape "cylinder"
       set size 0.9
       set greenLight? true
+      set redLight? false
+      set amberLight? false
       set cars-light? true
     ]
   ]
@@ -319,6 +325,8 @@ to make-lights
       set shape "cylinder"
       set size 0.9
       set greenLight? true
+      set redLight? false
+      set amberLight? false
       set cars-light? true
     ]
   ]
@@ -328,6 +336,8 @@ to make-lights
       set shape "cylinder"
       set size 0.9
       set greenLight? true
+      set redLight? false
+      set amberLight? false
       set cars-light? true
     ]
   ]
@@ -337,6 +347,8 @@ to make-lights
       set shape "cylinder"
       set size 0.9
       set greenLight? true
+      set redLight? false
+      set amberLight? false
       set cars-light? true
     ]
   ]
@@ -348,6 +360,8 @@ to make-lights
       set shape "cylinder"
       set size 0.9
       set greenLight? false
+      set redLight? true
+      set amberLight? false
       set cars-light? false
     ]
   ]
@@ -357,6 +371,8 @@ to make-lights
       set shape "cylinder"
       set size 0.9
       set greenLight? false
+      set redLight? true
+      set amberLight? false
       set cars-light? false
     ]
   ]
@@ -366,6 +382,8 @@ to make-lights
       set shape "cylinder"
       set size 0.9
       set greenLight? false
+      set redLight? true
+      set amberLight? false
       set cars-light? false
     ]
   ]
@@ -375,13 +393,17 @@ to make-lights
       set shape "cylinder"
       set size 0.9
       set greenLight? false
+      set redLight? true
+      set amberLight? false
       set cars-light? false
     ]
   ]
-  set car-ticks car-lights-interval * 20 * 60
-  set pedestrian-ticks pedestrian-lights-interval * 20
+  set car-ticks car-lights-interval * 60 * 20
+  set pedestrian-ticks number-of-lanes * 2 * 7 * 20
+  set amber-ticks 3 * 20
+  set safety-buffer-ticks 3 * 20
   set trafficCycle 0
-  set cycle-length (car-ticks + pedestrian-ticks)
+  set cycle-length (car-ticks + amber-ticks + pedestrian-ticks + safety-buffer-ticks + safety-buffer-ticks)
 end
 
 
@@ -507,7 +529,9 @@ to go
     ask cars with [ xcor != targetLane ] [ move-to-targetLane]
   ]
   ask persons [move-pedestrians]
-  ask traffic_lights [check-switch-lights]
+  ;ask traffic_lights [check-switch-lights]
+  ask traffic_lights with [cars-light?] [check-car-switch-lights]
+  ask traffic_lights with [not cars-light?] [check-pedestrian-switch-lights]
   tick
 end
 
@@ -572,7 +596,7 @@ to move-cars
 
   let cstop? false
   ask traffic_lights with [cars-light?] [
-    ifelse greenLight? [set cstop? true] [set cstop? false]
+    ifelse redLight? [set cstop? true] [set cstop? false]
   ]
 
   if not cstop?[
@@ -771,7 +795,7 @@ to move-pedestrians
 
   let stop? true
   ask traffic_lights with [not cars-light?] [
-    ifelse greenLight? [set stop? false] [set stop? true]
+    ifelse greenLight? [set stop? true] [set stop? false]
   ]
 
   ifelse [meaning] of patch-ahead 1 = "crossing" [
@@ -879,29 +903,74 @@ to change-heading
 
 end
 
-to check-switch-lights
-  if ticks mod (cycle-length) = 1 [
-    set trafficCycle trafficCycle + 1
-    switch-lights
-    set stoppedCars 0
-    set changeLane 0
-    ask cars [
-      set stopTime 0
+to check-car-switch-lights
+    if ticks mod (cycle-length) = 1 [
+      set trafficCycle trafficCycle + 1
+      set stoppedCars 0
+      set changeLane 0
+      ask cars [set stopTime 0]
     ]
-  ]
 
-  if ((ticks - (cycle-length * trafficCycle)) mod car-ticks = 0) or
-  ((ticks - (cycle-length * trafficCycle)) mod (car-ticks) = 0) or
-  ((ticks - (cycle-length * trafficCycle)) mod (car-ticks + pedestrian-ticks) = 0)
-  [
-      switch-lights
-  ]
+    if ((ticks - (cycle-length * trafficCycle)) mod cycle-length = 0) [
+      set color green
+      set greenLight? not greenLight?
+      set redLight? not redLight?
+    ]
+
+    if ((ticks - (cycle-length * trafficCycle) - car-ticks) mod cycle-length = 0) [
+      set color orange
+      set greenLight? not greenLight?
+      set amberLight? not amberLight?
+    ]
+
+    if ((ticks - (cycle-length * trafficCycle) - car-ticks - safety-buffer-ticks) mod cycle-length = 0) [
+      set color red
+      set amberLight? not amberLight?
+      set redLight? not redLight?
+   ]
+
 end
 
-to switch-lights
-  set greenLight? (not greenLight?)
-    ifelse greenLight? [set color red] [set color green]
+to check-pedestrian-switch-lights
+
+  if ((ticks - (cycle-length * trafficCycle) - car-ticks - amber-ticks - safety-buffer-ticks ) mod cycle-length = 0) [
+       set color green
+       set redLight? not redLight?
+       set greenLight? not greenLight?
+  ]
+
+  if ((ticks - (cycle-length * trafficCycle)  + safety-buffer-ticks) mod cycle-length = 0) [
+      set color red
+      set greenLight? not greenLight?
+      set redLight? not redLight?
+  ]
+
 end
+
+
+;to check-switch-lights
+;  if ticks mod (cycle-length) = 1 [
+;    set trafficCycle trafficCycle + 1
+;    switch-lights
+;    set stoppedCars 0
+;    set changeLane 0
+;    ask cars [
+;      set stopTime 0
+;    ]
+;  ]
+;
+;  if ((ticks - (cycle-length * trafficCycle)) mod car-ticks = 0) or
+;  ((ticks - (cycle-length * trafficCycle)) mod (car-ticks) = 0) or
+;  ((ticks - (cycle-length * trafficCycle)) mod (car-ticks + pedestrian-ticks) = 0)
+;  [
+;      switch-lights
+;  ]
+;end
+;
+;to switch-lights
+;  set greenLight? (not greenLight?)
+;    ifelse greenLight? [set color red] [set color green]
+;end
 
 to record-current-data
   set dataLength (length recordData)
