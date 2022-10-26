@@ -607,13 +607,13 @@ to move-cars
           speed-up-car
           fd speed
       ]][
+        if speed > 0 [
+          set stoppedCars stoppedCars + 1
+        ]
         set speed 0
         set stopTime stopTime + 1
-        if stopped? = false [
-          set stoppedCars stoppedCars + 1
-          set stopped? true]]
+    ]]
     ]
-  ]
 
 ;  ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ][
 ;    speed-up-car
@@ -884,7 +884,6 @@ to check-switch-lights
     set changeLane 0
     ask cars [
       set stopTime 0
-      set stopped? false
     ]
   ]
 
@@ -1115,7 +1114,7 @@ car-lights-interval
 car-lights-interval
 0
 2
-1.0
+0.0
 0.5
 1
 min
