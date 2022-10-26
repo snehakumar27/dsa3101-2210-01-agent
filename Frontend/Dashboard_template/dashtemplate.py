@@ -290,12 +290,11 @@ content1 = dbc.Row([
                 dbc.Button("+", id = "increase_light", color = "success", className = "me-1", n_clicks = 0),
             ]
         ),
-    ], width = 5),
+    ], width = 3),
     dbc.Col([
         html.H6("Average Waiting Time"),
-        html.Div(
-            [
-                daq.Gauge(
+        dbc.Row([
+            dbc.Col([daq.Gauge(
                     showCurrentValue=True,
                     color={"gradient":True, 
                             "ranges":{"green":[0,60], "yellow":[60,80],"red":[80,100],"purple": [100, 120]}},
@@ -306,8 +305,8 @@ content1 = dbc.Row([
                     max=120,
                     min=0,
                     size = 200
-                ),
-                daq.Gauge(
+                )], width = 6),
+            dbc.Col([daq.Gauge(
                     showCurrentValue=True,
                     color={"gradient":True, 
                             "ranges":{"green":[0,60], "yellow":[60,80],"red":[80,100],"purple": [100, 120]}},
@@ -318,17 +317,19 @@ content1 = dbc.Row([
                     max=120,
                     min=0,
                     size = 200
-                ),
+                )], width = 6)
+        ])
+        
+                
             ]
         ),
     ])
-]
-)
 
 ### TAB 2 CONTENT
 content2 = dcc.Tabs(id="graph-tabs", children=[
             dcc.Tab([dcc.Graph(id = "graph_crowd", figure=create_plot_crowd())],label='Pedestrians'),
-            dcc.Tab([dcc.Graph(id = "graph_car", figure=create_plot_car())],label='Cars'),
+            dcc.Tab(["Please select the number of lanes", html.Br(),
+                dcc.Dropdown([1, 2, 3, 4], 1, id='lanes-number'), dcc.Graph(id = "graph_car", figure=create_plot_car())],label='Cars'),
             dcc.Tab(label='Compare'),
         ],  vertical=True, parent_style={'float': 'left'})
 
@@ -340,10 +341,25 @@ content2 = dcc.Tabs(id="graph-tabs", children=[
 
 sidebar = html.Div([
     html.H6("Number of Cars"),
-    dcc.Slider(id = "number-of-cars", min = 0, max = 50, step = 5, value=10, 
+    dcc.Slider(id = "number-of-cars", min = 5, max = 45, step = 10,
+    marks={
+        5: "5",
+        15: "15",
+        25: "25",
+        35: "35",
+        45: "45"
+    }, value=15, 
         tooltip={"placement": "bottom", "always_visible": True}),
     html.H6("Number of Pedestrians"),
-    dcc.Slider(id = "number-of-pedestrians", min = 0, max = 50, step = 5, value=10, 
+    dcc.Slider(id = "number-of-pedestrians", min = 5, max = 45, step = 10,
+    marks={
+        5: "5",
+        15: "15",
+        25: "25",
+        35: "35",
+        45: "45"
+    }, 
+    value=15, 
         tooltip={"placement": "bottom", "always_visible": True}),
     html.H6("Max patience"),
     dcc.Slider(id = "max-patience", min = 0, max = 1, step = 0.2, value=1, 
@@ -355,10 +371,10 @@ sidebar = html.Div([
 tabs = dbc.Tabs([
     dbc.Tab([
         content1
-    ], label = "Tab 1"), 
+    ], label = "Exploration"), 
     dbc.Tab([
         content2
-    ], label = "Tab 2")
+    ], label = "Investigation")
 ])
 
 
