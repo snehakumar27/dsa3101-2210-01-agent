@@ -8,6 +8,7 @@ from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import dash_daq as daq
 
 data = pd.read_excel("permsnewdata.xlsx", header=0)
 data.head()
@@ -273,11 +274,53 @@ app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP, 'https://codepen.io/
 #### TAB 1 CONTENT
 content1 = dbc.Row([
     dbc.Col([
-        html.H3("Placeholder for inputs"),
-        html.H3("Placeholder for outputs")
+        html.H6("Number of Lanes"),
+        html.Div(
+            [
+                dbc.Button("Decrease Lane", id = "decrease_lane", color = "danger", className = "me-1", n_clicks = 0),
+                html.Span(id="number-of-lanes", style={"verticalAlign": "middle"}),
+                dbc.Button("Increase Line", id = "increase_lane", color = "success", className = "me-1", n_clicks = 0),
+            ]
+        ),
+        html.H6("Green to Red Ratio"),
+        html.Div(
+            [
+                dbc.Button("-", id = "decrease_light", color = "danger", className = "me-1", n_clicks = 0),
+                html.Span(id="light-interval", style={"verticalAlign": "middle"}),
+                dbc.Button("+", id = "increase_light", color = "success", className = "me-1", n_clicks = 0),
+            ]
+        ),
     ], width = 5),
     dbc.Col([
-        html.H3("Placeholder for Graph"),
+        html.H6("Average Waiting Time"),
+        html.Div(
+            [
+                daq.Gauge(
+                    showCurrentValue=True,
+                    color={"gradient":True, 
+                            "ranges":{"green":[0,60], "yellow":[60,80],"red":[80,100],"purple": [100, 120]}},
+                    scale={'start': 0, 'interval': 10, 'labelInterval': 3},
+                    units="seconds",
+                    value=40,
+                    label='Avg Waiting Time (Cars)',
+                    max=120,
+                    min=0,
+                    size = 200
+                ),
+                daq.Gauge(
+                    showCurrentValue=True,
+                    color={"gradient":True, 
+                            "ranges":{"green":[0,60], "yellow":[60,80],"red":[80,100],"purple": [100, 120]}},
+                    scale={'start': 0, 'interval': 10, 'labelInterval': 3},
+                    units="seconds",
+                    value=75,
+                    label='Avg Waiting Time (Cars)',
+                    max=120,
+                    min=0,
+                    size = 200
+                ),
+            ]
+        ),
     ])
 ]
 )
@@ -321,7 +364,7 @@ tabs = dbc.Tabs([
 
 app.layout = html.Div(
     children=[
-        html.H1("Title"),
+        html.H1("Junction Simulation"),
         dbc.Row([ 
             dbc.Col([
                 sidebar
@@ -336,7 +379,17 @@ app.layout = html.Div(
 
 
 #####CALLBACKS
+@app.callback(
+    Output("number-of-lanes", "children"), [Input("increase_lane", "n_clicks"), Input("decrease_lane", "n_clicks")]
+)
+def on_button_click(n, m):
+    return f"{n - m} lanes"
 
+@app.callback(
+    Output("light-interval", "children"), [Input("increase_light", "n_clicks"), Input("decrease_light", "n_clicks")]
+)
+def on_button_click(n, m):
+    return format((n - m) / 2, '.1f')
 
 if __name__ == '__main__':
     app.run_server(debug=True, port = 8055)
