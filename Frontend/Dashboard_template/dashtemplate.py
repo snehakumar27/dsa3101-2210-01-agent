@@ -329,7 +329,7 @@ content1 = dbc.Row([
             [
                 dbc.Button("Decrease Lane", id = "decrease_lane", color = "danger", className = "me-1", n_clicks = 0),
                 html.Span(id="number-of-lanes", style={"verticalAlign": "middle"}),
-                dbc.Button("Increase Line", id = "increase_lane", color = "success", className = "me-1", n_clicks = 0),
+                dbc.Button("Increase Line", id = "increase_lane", color = "success", className = "me-1", n_clicks = 1),
             ]
         ),
         html.H6("Green to Red Ratio"),
@@ -337,7 +337,7 @@ content1 = dbc.Row([
             [
                 dbc.Button("-", id = "decrease_light", color = "danger", className = "me-1", n_clicks = 0),
                 html.Span(id="light-interval", style={"verticalAlign": "middle"}),
-                dbc.Button("+", id = "increase_light", color = "success", className = "me-1", n_clicks = 0),
+                dbc.Button("+", id = "increase_light", color = "success", className = "me-1", n_clicks = 1),
             ]
         ),
     ], width = 5),
@@ -351,7 +351,7 @@ content1 = dbc.Row([
                             "ranges":{"green":[0,60], "yellow":[60,80],"red":[80,100],"purple": [100, 120]}},
                     scale={'start': 0, 'interval': 10, 'labelInterval': 3},
                     units="seconds",
-                    value=40,
+                    id='test01',
                     label='Avg Waiting Time (Cars)',
                     max=120,
                     min=0,
@@ -429,17 +429,36 @@ app.layout = html.Div(
 
 
 #####CALLBACKS
+
+# callback for lane buttons
 @app.callback(
     Output("number-of-lanes", "children"), [Input("increase_lane", "n_clicks"), Input("decrease_lane", "n_clicks")]
 )
 def on_button_click(n, m):
     return f"{n - m} lanes"
 
+# callback for light interval buttons
 @app.callback(
     Output("light-interval", "children"), [Input("increase_light", "n_clicks"), Input("decrease_light", "n_clicks")]
 )
 def on_button_click(n, m):
     return format((n - m) / 2, '.1f')
+
+# callback from sidebar to tab 1
+@app.callback(
+    Output("test01", "value"), 
+    [Input("number-of-cars", "value"),
+    Input("number-of-pedestrians", "value"),
+    Input("max-patience", "value"),
+    Input("number-of-lanes", "children"),
+    Input("light-interval", "children"),]
+)
+def get_value(nc, np, mp, nl, li):
+    datause = get_data(nc, np, mp)
+    data3 = datause[datause['num_lanes'] == int(nl[0])]
+    data4 = data3[data3['light_interval'] == float(li)]
+    return_value = data4['avg_speed_cars'].iloc[0]
+    return return_value
 
 if __name__ == '__main__':
     app.run_server(debug=True, port = 8055)
