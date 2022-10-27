@@ -36,12 +36,13 @@ def create_plot_crowd(num_cars = 10, num_ped = 10, patience=0.6):
     line4 = data[data['num_lanes'] ==4]
 
     crowd_heat_df = data[["num_lanes", "light_interval", "avg_crowd_size"]]
-    crowd_lanes = data[["num_lanes", "avg_crowd_size"]].groupby("num_lanes").mean()
-    crowd_light_interval = data[["light_interval", "avg_crowd_size"]].groupby("light_interval").mean()
-    crowd_light_interval1 = line1[["light_interval", "avg_crowd_size"]].groupby("light_interval").mean()
-    crowd_light_interval2 = line2[["light_interval", "avg_crowd_size"]].groupby("light_interval").mean()
-    crowd_light_interval3 = line3[["light_interval", "avg_crowd_size"]].groupby("light_interval").mean()
-    crowd_light_interval4 = line4[["light_interval", "avg_crowd_size"]].groupby("light_interval").mean()
+
+    #crowd_lanes = data[["num_lanes", "avg_crowd_size"]].groupby("num_lanes").mean()
+    #crowd_light_interval = data[["light_interval", "avg_crowd_size"]].groupby("light_interval").mean()
+    crowd_light_interval1 = line1[["light_interval", "avg_crowd_size"]]
+    crowd_light_interval2 = line2[["light_interval", "avg_crowd_size"]]
+    crowd_light_interval3 = line3[["light_interval", "avg_crowd_size"]]
+    crowd_light_interval4 = line4[["light_interval", "avg_crowd_size"]]
     #df = [crowd_light_interval1,crowd_light_interval2,crowd_light_interval3,crowd_light_interval4]
     #newdata =pd.concat(df)
 
@@ -49,17 +50,17 @@ def create_plot_crowd(num_cars = 10, num_ped = 10, patience=0.6):
     interval2 = data[data['light_interval'] ==1.0]
     interval3 = data[data['light_interval'] ==1.5]
     interval4 = data[data['light_interval'] ==2.0]
-    crowd_lanes1 = interval1[["num_lanes","light_interval", "avg_crowd_size"]].groupby("num_lanes").mean()
-    crowd_lanes2 = interval2[["num_lanes","light_interval", "avg_crowd_size"]].groupby("num_lanes").mean()
-    crowd_lanes3 = interval3[["num_lanes","light_interval", "avg_crowd_size"]].groupby("num_lanes").mean()
-    crowd_lanes4 = interval4[["num_lanes","light_interval", "avg_crowd_size"]].groupby("num_lanes").mean()
+    crowd_lanes1 = interval1[["num_lanes","avg_crowd_size"]]
+    crowd_lanes2 = interval2[["num_lanes","avg_crowd_size"]]
+    crowd_lanes3 = interval3[["num_lanes","avg_crowd_size"]]
+    crowd_lanes4 = interval4[["num_lanes","avg_crowd_size"]]
     #df2 = [crowd_lanes1,crowd_lanes2,crowd_lanes3,crowd_lanes4]
     #newdata2 =pd.concat(df2)
 
     
     fig = make_subplots(
         rows=3, cols=1,
-        vertical_spacing=0.15,
+        vertical_spacing=0.20,
         subplot_titles=("no.of lanes VS average crowd size",
                         "traffic light interval VS average crowd size",
                         "Heatmap between traffic light interval and average crowd size"),
@@ -76,21 +77,21 @@ def create_plot_crowd(num_cars = 10, num_ped = 10, patience=0.6):
     )
 
     #first graph with four lines
-    trace_1 = go.Line(x = crowd_lanes1.index,
+    trace_1 = go.Line(x = crowd_lanes1["num_lanes"],
                       y = crowd_lanes1["avg_crowd_size"],
                       name = "light_interval = 0.5",
                       legendgroup='1')
-    trace_2 = go.Line(x = crowd_lanes2.index,
+    trace_2 = go.Line(x = crowd_lanes2["num_lanes"],
                       y = crowd_lanes2["avg_crowd_size"],
                       name = "light_interval = 1.0",
                       #legendgroup='1'
                       )
-    trace_3 = go.Line(x = crowd_lanes3.index,
+    trace_3 = go.Line(x = crowd_lanes3["num_lanes"],
                       y = crowd_lanes3["avg_crowd_size"],
                       name = "light_interval = 1.5",
                       #legendgroup='1'
                       )
-    trace_4 = go.Line(x = crowd_lanes4.index,
+    trace_4 = go.Line(x = crowd_lanes4["num_lanes"],
                       y = crowd_lanes4["avg_crowd_size"],
                       name = "light_interval = 2.0",
                       #legendgroup='1'
@@ -111,25 +112,25 @@ def create_plot_crowd(num_cars = 10, num_ped = 10, patience=0.6):
     )
 
     #second graph with four lines
-    trace1 =go.Line(x = crowd_light_interval1.index,
+    trace1 =go.Line(x = crowd_light_interval1["light_interval"],
         y = crowd_light_interval1["avg_crowd_size"],
                     name = "number of lanes = 1",
                     legendgroup='2'
         )
     
-    trace2 =go.Line(x = crowd_light_interval2.index,
+    trace2 =go.Line(x = crowd_light_interval2["light_interval"],
         y = crowd_light_interval2["avg_crowd_size"],
                     name = "number of lanes = 2",
                     #legendgroup='2'
         )
 
-    trace3 =go.Line(x = crowd_light_interval3.index,
+    trace3 =go.Line(x = crowd_light_interval3["light_interval"],
         y = crowd_light_interval3["avg_crowd_size"],
                     name = "number of lanes = 3",
                     #legendgroup='2'
         )
 
-    trace4 =go.Line(x = crowd_light_interval4.index,
+    trace4 =go.Line(x = crowd_light_interval4["light_interval"],
         y = crowd_light_interval4["avg_crowd_size"],
                     name = "number of lanes = 4",
                     #legendgroup='2'
@@ -172,6 +173,33 @@ def create_plot_crowd(num_cars = 10, num_ped = 10, patience=0.6):
     return fig
 
 ### TAB 2-2 GRAPHS
+
+#### Graph 1: plot with 2 output 2 inputs, x = num.lanes, y=light interval, color = speed, size = changed lanes
+def create_cars_plot1(num_cars = 10, num_ped = 10, patience=0.6):
+
+    return 
+
+
+#### Graph 2: heat map of speed vs num lanes and light int
+def create_cars_plot2(num_cars = 10, num_ped = 10, patience=0.6):
+
+    return 
+
+#### Graph 3: subplot of speed vs num lanes and speed vs light int
+def create_cars_plot3(num_cars = 10, num_ped = 10, patience=0.6):
+
+    return 
+
+#### Graph 4: heat map of change lanes vs num lanes and light int
+def create_cars_plot4(num_cars = 10, num_ped = 10, patience=0.6):
+
+    return 
+#### Graph 5: subplot of change lanes vs num lanes and change lanes vs light int
+def create_cars_plot5(num_cars = 10, num_ped = 10, patience=0.6):
+
+    return 
+
+'''
 def create_plot_car(num_cars = 10, num_ped = 10, patience=0.6):
     data = get_data(num_cars, num_ped, patience)
     
@@ -313,7 +341,7 @@ def create_plot_car(num_cars = 10, num_ped = 10, patience=0.6):
     
 
     return fig
-
+'''
 
 ### TAB 2-3 GRAPHS
 
@@ -351,7 +379,7 @@ content1 = dbc.Row([
                     scale={'start': 0, 'interval': 10, 'labelInterval': 3},
                     units="seconds",
                     id='test01',
-                    label='Avg Waiting Time (Cars)',
+                    label='Avg Waiting Time (Cars)',  #### to-do: need change to avg speed of cars/road congestion lvl
                     max=120,
                     min=0,
                     size = 200
@@ -363,7 +391,7 @@ content1 = dbc.Row([
                     scale={'start': 0, 'interval': 10, 'labelInterval': 3},
                     units="seconds",
                     value=75,
-                    label='Avg Waiting Time (Pedestrians)',
+                    label='Avg Waiting Time (Pedestrians)', ## to-do: need change to speed/crowd size of pedestrians
                     max=120,
                     min=0,
                     size = 200
@@ -379,14 +407,24 @@ content1 = dbc.Row([
 content2 = dcc.Tabs(id="graph-tabs", children=[
             dcc.Tab([dcc.Graph(id = "graph_crowd", figure=create_plot_crowd())],label='Pedestrians'),
             dcc.Tab([
-                dbc.Row([]), #overall graph, num_change_lanes and speed vs num_lanes and light int
+                dbc.Row([ 
+                    ## create_cars_plot1()
+                ]), #overall graph, num_change_lanes and speed vs num_lanes and light int
                 dbc.Row([
-                    dbc.Col([], width = 6), #heatmap of speed vs num_lanes and light int
-                    dbc.Col([], width = 6) #subplots of speed
+                    dbc.Col([
+                        ## create_cars_plot2()
+                    ], width = 6), #heatmap of speed vs num_lanes and light int
+                    dbc.Col([
+                        ## create_cars_plot3()
+                    ], width = 6) #subplots of speed
                 ]),
                 dbc.Row([
-                    dbc.Col([], width = 6), #heatmap of num_change_lanes vs num_lanes and light int
-                    dbc.Col([], width = 6) #subplots of num_change_lanes
+                    dbc.Col([
+                        ## create_cars_plot4()
+                    ], width = 6), #heatmap of num_change_lanes vs num_lanes and light int
+                    dbc.Col([
+                        ## create_cars_plot5()
+                    ], width = 6) #subplots of num_change_lanes
                 ])
             ], label = 'Cars'),
             #dcc.Tab([dcc.Graph(id = "graph_car", figure=create_plot_car())],label='Cars'),
