@@ -193,6 +193,11 @@ def create_cars_plot2(num_cars = 10, num_ped = 10, patience=0.6):
             z =  car_heat_df1["avg_speed_cars"]),
         row=1, col=1,
     )    
+    fig.update_layout(
+        height = 600,
+        width = 600,
+        showlegend=True
+    )
     return fig
 
 #### Graph 3: subplot of speed vs num lanes and speed vs light int
@@ -300,8 +305,8 @@ def create_cars_plot3(num_cars = 10, num_ped = 10, patience=0.6):
     fig.update_yaxes(title_text="Average Speed of Cars", row=2, col=1)
 
     fig.update_layout(
-        height = 500,
-        width = 800,
+        height = 600,
+        width = 700,
         showlegend=True
     )
     return fig
@@ -319,11 +324,122 @@ def create_cars_plot4(num_cars = 10, num_ped = 10, patience=0.6):
             z =  car_heat_df2["changed_lanes"]),
         row=1, col=1,
     )    
+    fig.update_layout(
+        height = 600,
+        width = 600,
+        showlegend=True
+    )
     return fig
 #### Graph 5: subplot of change lanes vs num lanes and change lanes vs light int
 def create_cars_plot5(num_cars = 10, num_ped = 10, patience=0.6):
+    data = get_data(num_cars, num_ped, patience)
 
-    return 
+    #for speed vs light int graph
+    line1 = data[data['num_lanes'] ==1]
+    line2 = data[data['num_lanes'] ==2]
+    line3 = data[data['num_lanes'] ==3]
+    line4 = data[data['num_lanes'] ==4]
+
+    car_interval1 = line1[["light_interval", "changed_lanes"]]
+    car_interval2 = line2[["light_interval", "changed_lanes"]]
+    car_interval3 = line3[["light_interval", "changed_lanes"]]
+    car_interval4 = line4[["light_interval", "changed_lanes"]]
+
+    #for speed vs lanes graph
+    interval1 = data[data['light_interval'] ==0.5]
+    interval2 = data[data['light_interval'] ==1.0]
+    interval3 = data[data['light_interval'] ==1.5]
+    interval4 = data[data['light_interval'] ==2.0]
+
+    car_lanes1 = interval1[["num_lanes","changed_lanes"]]
+    car_lanes2 = interval2[["num_lanes","changed_lanes"]]
+    car_lanes3 = interval3[["num_lanes","changed_lanes"]]
+    car_lanes4 = interval4[["num_lanes","changed_lanes"]]
+
+    #plotting the subplot
+    fig = make_subplots(
+        rows=2, cols=1,
+        vertical_spacing=0.3,
+        subplot_titles=("Number of cars changing lanes vs light interval",
+            "Number of cars changing lanes vs number of lanes"
+            ),
+        row_heights=[0.5,0.5])
+
+    #traces for subplot 1 (speed vs light int)
+    trace1 =go.Line(x = car_interval1["light_interval"],
+        y = car_interval1["changed_lanes"],
+        name = "number of lanes = 1",
+        legendgroup='1'
+        )
+
+    trace2 =go.Line(x = car_interval2["light_interval"],
+        y = car_interval2["changed_lanes"],
+        name = "number of lanes = 2",
+        )
+
+    trace3 =go.Line(x = car_interval3["light_interval"],
+        y = car_interval3["changed_lanes"],
+        name = "number of lanes = 3",
+        )
+
+    trace4 =go.Line(x = car_interval4["light_interval"],
+        y = car_interval4["changed_lanes"],
+        name = "number of lanes = 4",               
+        )
+    
+    # creating subplot 1
+    fig.add_trace(trace1, row=1, col=1,),
+    fig.add_trace(trace2, row=1, col=1,),
+    fig.add_trace(trace3, row=1, col=1,),
+    fig.add_trace(trace4, row=1, col=1,)
+
+    #traces for subplot 1 (speed vs num of lanes)
+    trace_1 = go.Line(x = car_lanes1["num_lanes"],
+                      y = car_lanes1["changed_lanes"],
+                      name = "light_interval = 0.5",
+                      legendgroup='2')
+    trace_2 = go.Line(x = car_lanes2["num_lanes"],
+                      y = car_lanes2["changed_lanes"],
+                      name = "light_interval = 1.0",
+                      #legendgroup='1'
+                      )
+    trace_3 = go.Line(x = car_lanes3["num_lanes"],
+                      y = car_lanes3["changed_lanes"],
+                      name = "light_interval = 1.5",
+                      #legendgroup='1'
+                      )
+    trace_4 = go.Line(x = car_lanes4["num_lanes"],
+                      y = car_lanes4["changed_lanes"],
+                      name = "light_interval = 2.0",
+                      #legendgroup='1'
+                      )
+    
+    fig.add_trace(trace_1,
+        row=2, col=1,
+        )
+    fig.add_trace(trace_2,
+        row=2, col=1,
+        )
+    fig.add_trace(trace_3,
+        row=2, col=1,
+        )
+    fig.add_trace(trace_4,
+        row=2, col=1,
+        )
+
+    # axis titles
+    fig.update_xaxes(title_text="Light Interval", row=1, col=1)
+    fig.update_xaxes(title_text="Number of Lanes", row=2, col=1)
+
+    fig.update_yaxes(title_text="Number of cars changing lanes", row=1, col=1)
+    fig.update_yaxes(title_text="Number of cars changing lanes", row=2, col=1)
+
+    fig.update_layout(
+        height = 600,
+        width = 700,
+        showlegend=True
+    )
+    return fig
 
 '''
 def create_plot_car(num_cars = 10, num_ped = 10, patience=0.6):
@@ -552,6 +668,7 @@ content2 = dcc.Tabs(id="graph-tabs", children=[
                     ], width = 6), #heatmap of num_change_lanes vs num_lanes and light int
                     dbc.Col([
                         ## create_cars_plot5()
+                        dcc.Graph(id = "cars_plot5", figure=create_cars_plot5())
                     ], width = 6) #subplots of num_change_lanes
                 ])
             ], label = 'Cars'),
