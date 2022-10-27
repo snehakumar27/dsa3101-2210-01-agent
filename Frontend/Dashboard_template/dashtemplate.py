@@ -9,6 +9,7 @@ import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import dash_daq as daq
+import plotly.express as px
 
 data = pd.read_excel("permsnewdata.xlsx", header=0)
 
@@ -70,7 +71,8 @@ def create_plot_crowd(num_cars = 10, num_ped = 10, patience=0.6):
     go.Heatmap(x = crowd_heat_df["num_lanes"],
         y =  crowd_heat_df["light_interval"],
         z =  crowd_heat_df["avg_crowd_size"],
-               colorbar=dict(y=0.16,len=.3)
+        colorbar=dict(y=0.16,len=.3),
+        hovertemplate='Number of Lanes: %{x}<br>Green Light Interval: %{y}<br>Avg Crowd Size at Traffic Light: %{z}'
         ),
     row=3, col=1,
     )
@@ -151,8 +153,6 @@ def create_plot_crowd(num_cars = 10, num_ped = 10, patience=0.6):
     row=2, col=1,
     )
     
-
-    
     
     fig.update_xaxes(title_text="Traffic light interval", row=2, col=1)
     fig.update_xaxes(title_text="Number of Lanes", row=1, col=1)
@@ -178,32 +178,14 @@ def create_cars_plot1(num_cars = 10, num_ped = 10, patience=0.6):
     data = get_data(num_cars, num_ped, patience)
     car_marker_df = data[["num_lanes", "light_interval", "avg_speed_cars", "changed_lanes"]]
     #car_marker_df = car_marker_df.groupby(["num_lanes", "light_interval"])["avg_speed_cars", "changed_lanes"].mean().reset_index()
-    fig = make_subplots(
-        rows=1, cols=1,
-        #subplot_titles=("Marker map of Speed & Changed lines vs Num lanes & Light int")
-        )
-    fig.add_trace(
-    go.Scatter(
-        mode='markers',
-        x=car_marker_df["num_lanes"],
-        y=car_marker_df["light_interval"],
-        marker=dict(
-            color=car_marker_df["changed_lanes"],
-            size=car_marker_df["avg_speed_cars"]/2,
-            colorscale='sunset',
-            showscale=True
-        )
-    ),
-    row=1, col=1,
-    ) 
-    fig.update_xaxes(title_text="Number of Lanes", row=1, col=1)
-    fig.update_yaxes(title_text="Light Interval", row=1, col=1)
-    fig.update_layout(
-        height = 500,
-        width = 1000,
-        title_text = "Map of Speed & Changed lines vs Num lanes & Light int",
-        showlegend=False
+    fig = px.scatter(car_marker_df, x="num_lanes", 
+        y="light_interval", 
+        color="changed_lanes", 
+        size = "avg_speed_cars", 
+        title="Map of Speed & Lane changing vs Num lanes & Light int",
+        labels=dict(light_interval="Green light interval for cars", num_lanes="Number of Lanes", changed_lanes="Amount of lane changing", avg_speed_cars = "Average speed of cars")
     )
+    fig.update_traces(mode="markers")
     return fig
 
 
@@ -212,14 +194,18 @@ def create_cars_plot1(num_cars = 10, num_ped = 10, patience=0.6):
 def create_cars_plot2(num_cars = 10, num_ped = 10, patience=0.6):
     data = get_data(num_cars, num_ped, patience)
     car_heat_df1 = data[["num_lanes", "light_interval", "avg_speed_cars"]]
+    
     fig = make_subplots(
         rows=1, cols=1,
         #subplot_titles=("Speed vs Num lanes & Light int")
         )
+
     fig.add_trace(
         go.Heatmap(x = car_heat_df1["num_lanes"],
             y =  car_heat_df1["light_interval"],
-            z =  car_heat_df1["avg_speed_cars"]),
+            z =  car_heat_df1["avg_speed_cars"],
+            hovertemplate='Number of Lanes: %{x}<br>Green Light Interval: %{y}<br>Avg Speed of Cars: %{z}'
+        ),
         row=1, col=1,
     )    
     fig.update_xaxes(title_text="Number of Lanes", row=1, col=1)
@@ -230,6 +216,7 @@ def create_cars_plot2(num_cars = 10, num_ped = 10, patience=0.6):
         title_text = "Speed vs Num lanes & Light int",
         showlegend=True
     )
+
     return fig
 
 #### Graph 3: subplot of speed vs num lanes and speed vs light int
@@ -354,7 +341,8 @@ def create_cars_plot4(num_cars = 10, num_ped = 10, patience=0.6):
     fig.add_trace(
         go.Heatmap(x = car_heat_df2["num_lanes"],
             y =  car_heat_df2["light_interval"],
-            z =  car_heat_df2["changed_lanes"]),
+            z =  car_heat_df2["changed_lanes"],
+            hovertemplate='Number of Lanes: %{x}<br>Green Light Interval: %{y}<br>Count of Lane Changing: %{z}'),
         row=1, col=1,
     )    
     fig.update_xaxes(title_text="Number of Lanes", row=1, col=1)
