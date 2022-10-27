@@ -175,8 +175,32 @@ def create_plot_crowd(num_cars = 10, num_ped = 10, patience=0.6):
 
 #### Graph 1: plot with 2 output 2 inputs, x = num.lanes, y=light interval, color = speed, size = changed lanes
 def create_cars_plot1(num_cars = 10, num_ped = 10, patience=0.6):
-
-    return 
+    data = get_data(num_cars, num_ped, patience)
+    car_marker_df = data[["num_lanes", "light_interval", "avg_speed_cars", "changed_lanes"]]
+    car_marker_df = car_marker_df.groupby(["num_lanes", "light_interval"])["avg_speed_cars", "changed_lanes"].mean().reset_index()
+    fig = make_subplots(
+        rows=1, cols=1,
+        subplot_titles=("Marker map of Speed & Changed lines vs Num lanes & Light int"))
+    fig.add_trace(
+    go.Scatter(
+        mode='markers',
+        x=car_marker_df["num_lanes"],
+        y=car_marker_df["light_interval"],
+        marker=dict(
+            color=car_marker_df["avg_speed_cars"],
+            size=car_marker_df["changed_lanes"]**2,
+            colorscale='sunset',
+            showscale=True
+        )
+    ),
+    row=1, col=1,
+    ) 
+    fig.update_layout(
+        height = 500,
+        width = 1200,
+        showlegend=False
+    )
+    return fig
 
 
 #### Graph 2: heat map of speed vs num lanes and light int
@@ -193,6 +217,8 @@ def create_cars_plot2(num_cars = 10, num_ped = 10, patience=0.6):
             z =  car_heat_df1["avg_speed_cars"]),
         row=1, col=1,
     )    
+    fig.update_xaxes(title_text="Number of Lanes", row=1, col=1)
+    fig.update_yaxes(title_text="Light Interval", row=1, col=1)
     fig.update_layout(
         height = 600,
         width = 600,
@@ -324,6 +350,8 @@ def create_cars_plot4(num_cars = 10, num_ped = 10, patience=0.6):
             z =  car_heat_df2["changed_lanes"]),
         row=1, col=1,
     )    
+    fig.update_xaxes(title_text="Number of Lanes", row=1, col=1)
+    fig.update_yaxes(title_text="Light Interval", row=1, col=1)
     fig.update_layout(
         height = 600,
         width = 600,
@@ -650,7 +678,7 @@ content2 = dcc.Tabs(id="graph-tabs", children=[
             dcc.Tab([dcc.Graph(id = "graph_crowd", figure=create_plot_crowd())],label='Pedestrians'),
             dcc.Tab([
                 dbc.Row([ 
-                    ## create_cars_plot1()
+                    dcc.Graph(id = "cars_plot1", figure=create_cars_plot1())
                 ]), #overall graph, num_change_lanes and speed vs num_lanes and light int
                 dbc.Row([
                     dbc.Col([
