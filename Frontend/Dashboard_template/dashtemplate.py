@@ -195,6 +195,8 @@ def create_cars_plot1(num_cars = 10, num_ped = 10, patience=0.6):
     ),
     row=1, col=1,
     ) 
+    fig.update_xaxes(title_text="Number of Lanes", row=1, col=1)
+    fig.update_yaxes(title_text="Light Interval", row=1, col=1)
     fig.update_layout(
         height = 500,
         width = 1200,
