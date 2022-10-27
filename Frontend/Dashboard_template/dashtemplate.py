@@ -156,7 +156,7 @@ def create_plot_crowd(num_cars = 10, num_ped = 10, patience=0.6):
     
     fig.update_xaxes(title_text="Traffic light interval", row=2, col=1)
     fig.update_xaxes(title_text="Number of Lanes", row=1, col=1)
-    fig.update_xaxes(title_text="Number of lines", row=3, col=1)
+    fig.update_xaxes(title_text="Number of Lanes", row=3, col=1)
 
     fig.update_yaxes(title_text="Average Crowd Size", row=2, col=1)
     fig.update_yaxes(title_text="Average Crowd Size", row=1, col=1)
@@ -183,7 +183,7 @@ def create_cars_plot1(num_cars = 10, num_ped = 10, patience=0.6):
         color="changed_lanes", 
         size = "avg_speed_cars", 
         title="Map of Speed & Lane changing vs Num lanes & Light int",
-        labels=dict(light_interval="Green light interval for cars", num_lanes="Number of Lanes", changed_lanes="Amount of lane changing", avg_speed_cars = "Average speed of cars")
+        labels=dict(light_interval="Green light interval for cars", num_lanes="Number of Lanes", changed_lanes="Count of Lane Changing", avg_speed_cars = "Average speed of cars")
     )
     fig.update_traces(mode="markers")
     return fig
@@ -466,7 +466,62 @@ def create_cars_plot5(num_cars = 10, num_ped = 10, patience=0.6):
     return fig
 
 ### TAB 2-3 GRAPHS
+def create_ped_plot_compare(num_cars = 10, num_ped = 10, patience=0.6):
+    data = get_data(num_cars, num_ped, patience)
+    crowd_heat_df = data[["num_lanes", "light_interval", "avg_crowd_size"]]
+    fig = make_subplots(
+        rows=1, cols=1,
+        #subplot_titles=("Heatmap between traffic light interval and average crowd size"),
+    )
+    fig.add_trace(
+    go.Heatmap(x = crowd_heat_df["num_lanes"],
+        y =  crowd_heat_df["light_interval"],
+        z =  crowd_heat_df["avg_crowd_size"],
+        #colorbar=dict(y=0.16,len=.8),
+        hovertemplate='Number of Lanes: %{x}<br>Green Light Interval: %{y}<br>Avg Crowd Size at Traffic Light: %{z}'
+        ),
+    row=1, col=1,
+    )
+    fig.update_xaxes(title_text="Number of Lanes", row=1, col=1)
+    fig.update_yaxes(title_text="Traffic light interval", row=1, col=1)
+    fig.update_layout(
+        height = 500,
+        width = 500,
+        #legend_tracegroupgap = 180,
+        title_text = "Heatmap between traffic light interval,<br>number of lanes and average crowd size",
+        showlegend=True
+    )
+    return fig
 
+def create_cars_plot_compare(num_cars = 10, num_ped = 10, patience=0.6):
+    data = get_data(num_cars, num_ped, patience)
+    car_heat_df1 = data[["num_lanes", "light_interval", "avg_speed_cars"]]
+    
+    fig = make_subplots(
+        rows=1, cols=1,
+        #subplot_titles=("Speed vs Num lanes & Light int")
+        )
+
+    fig.add_trace(
+        go.Heatmap(x = car_heat_df1["num_lanes"],
+            y =  car_heat_df1["light_interval"],
+            z =  car_heat_df1["avg_speed_cars"],
+            hovertemplate='Number of Lanes: %{x}<br>Green Light Interval: %{y}<br>Avg Speed of Cars: %{z}'
+        ),
+        row=1, col=1,
+    )    
+    fig.update_xaxes(title_text="Number of Lanes", row=1, col=1)
+    fig.update_yaxes(title_text="Light Interval", row=1, col=1)
+    fig.update_layout(
+        height = 500,
+        width = 500,
+        title_text = "Speed vs Num lanes & Light int",
+        showlegend=True
+    )
+    return fig
+
+
+### THE APP
 
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP, 'https://codepen.io/chriddyp/pen/bWLwgP.css'])
@@ -550,7 +605,16 @@ content2 = dcc.Tabs(id="graph-tabs", children=[
             ])
                 
         ], label = 'Cars'),
-        dcc.Tab(label='Compare'),
+        dcc.Tab([
+            dbc.Row([
+                dbc.Col([
+                dcc.Graph(id = "compare_crowd", figure = create_ped_plot_compare())
+            ], width = 7),
+            dbc.Col([
+                dcc.Graph(id = "compare_car", figure = create_cars_plot_compare())
+            ], width = 5)
+            ])
+        ], label='Compare'),
     ],  vertical=True, parent_style={'float': 'left'})
 
 
