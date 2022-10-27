@@ -186,7 +186,8 @@ def create_cars_plot2(num_cars = 10, num_ped = 10, patience=0.6):
     car_heat_df1 = data[["num_lanes", "light_interval", "avg_speed_cars"]]
     fig = make_subplots(
         rows=1, cols=1,
-        subplot_titles=("Heat map of Speed vs Num lanes & Light int"))
+        #subplot_titles=("Speed vs Num lanes & Light int")
+        )
     fig.add_trace(
         go.Heatmap(x = car_heat_df1["num_lanes"],
             y =  car_heat_df1["light_interval"],
@@ -195,7 +196,8 @@ def create_cars_plot2(num_cars = 10, num_ped = 10, patience=0.6):
     )    
     fig.update_layout(
         height = 600,
-        width = 600,
+        width = 500,
+        title_text = "Speed vs Num lanes & Light int",
         showlegend=True
     )
     return fig
@@ -306,7 +308,7 @@ def create_cars_plot3(num_cars = 10, num_ped = 10, patience=0.6):
 
     fig.update_layout(
         height = 600,
-        width = 700,
+        width = 600,
         showlegend=True
     )
     return fig
@@ -317,7 +319,7 @@ def create_cars_plot4(num_cars = 10, num_ped = 10, patience=0.6):
     car_heat_df2 = data[["num_lanes", "light_interval", "changed_lanes"]]
     fig = make_subplots(
         rows=1, cols=1,
-        subplot_titles=("Heat map of Change lanes vs Num lanes & Light int"))
+        subplot_titles=("Change lanes vs Num lanes & Light int"))
     fig.add_trace(
         go.Heatmap(x = car_heat_df2["num_lanes"],
             y =  car_heat_df2["light_interval"],
@@ -326,7 +328,7 @@ def create_cars_plot4(num_cars = 10, num_ped = 10, patience=0.6):
     )    
     fig.update_layout(
         height = 600,
-        width = 600,
+        width = 500,
         showlegend=True
     )
     return fig
@@ -436,7 +438,7 @@ def create_cars_plot5(num_cars = 10, num_ped = 10, patience=0.6):
 
     fig.update_layout(
         height = 600,
-        width = 700,
+        width = 600,
         showlegend=True
     )
     return fig
@@ -659,7 +661,7 @@ content2 = dcc.Tabs(id="graph-tabs", children=[
                     ], width = 6), #heatmap of speed vs num_lanes and light int
                     dbc.Col([
                         dcc.Graph(id = "cars_plot3", figure=create_cars_plot3())
-                    ], width = 6) #subplots of speed
+                    ], width = 4) #subplots of speed
                 ]),
                 dbc.Row([
                     dbc.Col([
@@ -669,7 +671,7 @@ content2 = dcc.Tabs(id="graph-tabs", children=[
                     dbc.Col([
                         ## create_cars_plot5()
                         dcc.Graph(id = "cars_plot5", figure=create_cars_plot5())
-                    ], width = 6) #subplots of num_change_lanes
+                    ], width = 4) #subplots of num_change_lanes
                 ])
             ], label = 'Cars'),
             #dcc.Tab([dcc.Graph(id = "graph_car", figure=create_plot_car())],label='Cars'),
