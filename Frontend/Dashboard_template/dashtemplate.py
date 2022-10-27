@@ -778,7 +778,7 @@ def get_value(nc, np, mp, nl, li):
     Input("number-of-pedestrians", "value"),
     Input("max-patience", "value")
 )
-def get_num_car(nc, np, mp):
+def update_crowd(nc, np, mp):
     if nc:
         default["num_cars"] = nc
     if np:
@@ -786,6 +786,75 @@ def get_num_car(nc, np, mp):
     if mp:
         default["patience"] = mp
     crowd_fig = create_plot_crowd(default["num_cars"], default["num_pedestrians"], default["patience"])
+    return crowd_fig
+
+# Callback from sidebar to tab-2-2
+# plot 2
+@app.callback(
+    Output("cars_plot2", "figure"),
+    Input("number-of-cars", "value"),
+    Input("number-of-pedestrians", "value"),
+    Input("max-patience", "value")
+)
+def update_cars2(nc, np, mp):
+    if nc:
+        default["num_cars"] = nc
+    if np:
+        default["num_pedestrians"] = np
+    if mp:
+        default["patience"] = mp
+    crowd_fig = create_cars_plot2(default["num_cars"], default["num_pedestrians"], default["patience"])
+    return crowd_fig
+
+# plot 3
+@app.callback(
+    Output("cars_plot3", "figure"),
+    Input("number-of-cars", "value"),
+    Input("number-of-pedestrians", "value"),
+    Input("max-patience", "value")
+)
+def update_cars3(nc, np, mp):
+    if nc:
+        default["num_cars"] = nc
+    if np:
+        default["num_pedestrians"] = np
+    if mp:
+        default["patience"] = mp
+    crowd_fig = create_cars_plot3(default["num_cars"], default["num_pedestrians"], default["patience"])
+    return crowd_fig
+
+# plot 4
+@app.callback(
+    Output("cars_plot4", "figure"),
+    Input("number-of-cars", "value"),
+    Input("number-of-pedestrians", "value"),
+    Input("max-patience", "value")
+)
+def update_cars4(nc, np, mp):
+    if nc:
+        default["num_cars"] = nc
+    if np:
+        default["num_pedestrians"] = np
+    if mp:
+        default["patience"] = mp
+    crowd_fig = create_cars_plot4(default["num_cars"], default["num_pedestrians"], default["patience"])
+    return crowd_fig
+
+# plot 5
+@app.callback(
+    Output("cars_plot5", "figure"),
+    Input("number-of-cars", "value"),
+    Input("number-of-pedestrians", "value"),
+    Input("max-patience", "value")
+)
+def update_cars5(nc, np, mp):
+    if nc:
+        default["num_cars"] = nc
+    if np:
+        default["num_pedestrians"] = np
+    if mp:
+        default["patience"] = mp
+    crowd_fig = create_cars_plot5(default["num_cars"], default["num_pedestrians"], default["patience"])
     return crowd_fig
 
 
