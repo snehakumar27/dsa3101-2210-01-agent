@@ -475,5 +475,17 @@ def get_value(nc, np, mp, nl, li):
     return_value = data4['avg_speed_cars'].iloc[0]
     return return_value
 
+@app.callback(
+    Output("graph_crowd", "figure"),
+    Output("graph_car", "figure"),
+    Input("number-of-cars", "value")
+)
+def get_num_car(nc):
+    if nc:
+        default["num_cars"] = nc
+        crowd_fig = create_plot_crowd(default["num_cars"], default["num_pedestrians"], default["patience"])
+        car_fig = create_plot_car(default["num_cars"], default["num_pedestrians"], default["patience"])
+    return crowd_fig, car_fig
+
 if __name__ == '__main__':
     app.run_server(debug=True, port = 8055)
