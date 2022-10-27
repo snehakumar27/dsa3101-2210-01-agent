@@ -378,7 +378,18 @@ content1 = dbc.Row([
 ### TAB 2 CONTENT
 content2 = dcc.Tabs(id="graph-tabs", children=[
             dcc.Tab([dcc.Graph(id = "graph_crowd", figure=create_plot_crowd())],label='Pedestrians'),
-            dcc.Tab([dcc.Graph(id = "graph_car", figure=create_plot_car())],label='Cars'),
+            dcc.Tab([
+                dbc.Row([]), #overall graph, num_change_lanes and speed vs num_lanes and light int
+                dbc.Row([
+                    dbc.Col([], width = 6), #heatmap of speed vs num_lanes and light int
+                    dbc.Col([], width = 6) #subplots of speed
+                ]),
+                dbc.Row([
+                    dbc.Col([], width = 6), #heatmap of num_change_lanes vs num_lanes and light int
+                    dbc.Col([], width = 6) #subplots of num_change_lanes
+                ])
+            ], label = 'Cars'),
+            #dcc.Tab([dcc.Graph(id = "graph_car", figure=create_plot_car())],label='Cars'),
             dcc.Tab(label='Compare'),
         ],  vertical=True, parent_style={'float': 'left'})
 
