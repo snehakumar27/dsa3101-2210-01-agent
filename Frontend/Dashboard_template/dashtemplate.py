@@ -177,18 +177,19 @@ def create_plot_crowd(num_cars = 10, num_ped = 10, patience=0.6):
 def create_cars_plot1(num_cars = 10, num_ped = 10, patience=0.6):
     data = get_data(num_cars, num_ped, patience)
     car_marker_df = data[["num_lanes", "light_interval", "avg_speed_cars", "changed_lanes"]]
-    car_marker_df = car_marker_df.groupby(["num_lanes", "light_interval"])["avg_speed_cars", "changed_lanes"].mean().reset_index()
+    #car_marker_df = car_marker_df.groupby(["num_lanes", "light_interval"])["avg_speed_cars", "changed_lanes"].mean().reset_index()
     fig = make_subplots(
         rows=1, cols=1,
-        subplot_titles=("Marker map of Speed & Changed lines vs Num lanes & Light int"))
+        #subplot_titles=("Marker map of Speed & Changed lines vs Num lanes & Light int")
+        )
     fig.add_trace(
     go.Scatter(
         mode='markers',
         x=car_marker_df["num_lanes"],
         y=car_marker_df["light_interval"],
         marker=dict(
-            color=car_marker_df["avg_speed_cars"],
-            size=car_marker_df["changed_lanes"]**2,
+            color=car_marker_df["changed_lanes"],
+            size=car_marker_df["avg_speed_cars"]/2,
             colorscale='sunset',
             showscale=True
         )
@@ -197,7 +198,8 @@ def create_cars_plot1(num_cars = 10, num_ped = 10, patience=0.6):
     ) 
     fig.update_layout(
         height = 500,
-        width = 1200,
+        width = 1000,
+        title_text = "Map of Speed & Changed lines vs Num lanes & Light int",
         showlegend=False
     )
     return fig
@@ -345,7 +347,8 @@ def create_cars_plot4(num_cars = 10, num_ped = 10, patience=0.6):
     car_heat_df2 = data[["num_lanes", "light_interval", "changed_lanes"]]
     fig = make_subplots(
         rows=1, cols=1,
-        subplot_titles=("Change lanes vs Num lanes & Light int"))
+        #subplot_titles=("Change lanes vs Num lanes & Light int")
+        )
     fig.add_trace(
         go.Heatmap(x = car_heat_df2["num_lanes"],
             y =  car_heat_df2["light_interval"],
@@ -357,6 +360,7 @@ def create_cars_plot4(num_cars = 10, num_ped = 10, patience=0.6):
     fig.update_layout(
         height = 600,
         width = 500,
+        title_text = "Change lanes vs Num lanes & Light int",
         showlegend=True
     )
     return fig
@@ -471,150 +475,6 @@ def create_cars_plot5(num_cars = 10, num_ped = 10, patience=0.6):
     )
     return fig
 
-'''
-def create_plot_car(num_cars = 10, num_ped = 10, patience=0.6):
-    data = get_data(num_cars, num_ped, patience)
-    
-    line1 = data[data['num_lanes'] ==1]
-    line2 = data[data['num_lanes'] ==2]
-    line3 = data[data['num_lanes'] ==3]
-    line4 = data[data['num_lanes'] ==4]
-    
-    car_marker_df = data[["num_lanes", "light_interval", "avg_waiting_cars", "no._stopped_cars"]]
-    car_marker_df = car_marker_df.groupby(["num_lanes", "light_interval"])["avg_waiting_cars", "no._stopped_cars"].mean().reset_index()
-    car_heat_df = data[["num_lanes", "light_interval", "avg_speed_cars"]]
-    
-    interval1 = data[data['light_interval'] ==0.5]
-    interval2 = data[data['light_interval'] ==1.0]
-    interval3 = data[data['light_interval'] ==1.5]
-    interval4 = data[data['light_interval'] ==2.0]
-  
-    car_interval1 = line1[["light_interval", "avg_waiting_cars"]].groupby("light_interval").mean()
-    car_interval2 = line2[["light_interval", "avg_waiting_cars"]].groupby("light_interval").mean()
-    car_interval3 = line3[["light_interval", "avg_waiting_cars"]].groupby("light_interval").mean()
-    car_interval4 = line4[["light_interval", "avg_waiting_cars"]].groupby("light_interval").mean()
-    
-    car_lanes1 = interval1[["num_lanes", "light_interval","avg_waiting_cars"]].groupby("num_lanes").mean()
-    car_lanes2 = interval2[["num_lanes","light_interval", "avg_waiting_cars"]].groupby("num_lanes").mean()
-    car_lanes3 = interval3[["num_lanes","light_interval", "avg_waiting_cars"]].groupby("num_lanes").mean()
-    car_lanes4 = interval4[["num_lanes","light_interval", "avg_waiting_cars"]].groupby("num_lanes").mean()
-    
-
-    fig = make_subplots(
-        rows=4, cols=1,
-        vertical_spacing=0.08,
-        subplot_titles=("No.of lanes VS Average waiting time",
-            "Traffic light interval VS Average waiting time",
-            "Heatmap on Average speed of the car"),
-        row_heights=[0.6,0.6,0.95,0.95])
-
-    fig.add_trace(
-    go.Scatter(
-        mode='markers',
-        x=car_marker_df["num_lanes"],
-        y=car_marker_df["light_interval"],
-        marker=dict(
-            color=car_marker_df["no._stopped_cars"],
-            size=car_marker_df["avg_waiting_cars"]**3/20000,
-            colorscale='sunset',
-            showscale=False
-        )
-    ),
-    row=4, col=1,
-    )
-
-    fig.add_trace(
-    go.Heatmap(x = car_heat_df["num_lanes"],
-        y =  car_heat_df["light_interval"],
-        z =  car_heat_df["avg_speed_cars"],
-        colorbar=dict(y=0.45,len=0.25)),
-    row=3, col=1,
-    )
-
-    trace1 =go.Line(x = car_interval1.index,
-        y = car_interval1["avg_waiting_cars"],
-        name = "number of lanes = 1",
-        legendgroup='2'
-        )
-
-    trace2 =go.Line(x = car_interval2.index,
-        y = car_interval2["avg_waiting_cars"],
-        name = "number of lanes = 2",
-        )
-
-    trace3 =go.Line(x = car_interval3.index,
-        y = car_interval3["avg_waiting_cars"],
-        name = "number of lanes = 3",
-        )
-
-    trace4 =go.Line(x = car_interval4.index,
-        y = car_interval4["avg_waiting_cars"],
-        name = "number of lanes = 4",               
-        )
-
-    fig.add_trace(trace1, row=2, col=1,),
-    fig.add_trace(trace2, row=2, col=1,),
-    fig.add_trace(trace3, row=2, col=1,),
-    fig.add_trace(trace4, row=2, col=1,),
-
-
-
-    #first graph with four lines
-    trace_1 = go.Line(x = car_lanes1.index,
-                      y = car_lanes1["avg_waiting_cars"],
-                      name = "light_interval = 0.5",
-                      legendgroup='1')
-    trace_2 = go.Line(x = car_lanes2.index,
-                      y = car_lanes2["avg_waiting_cars"],
-                      name = "light_interval = 1.0",
-                      #legendgroup='1'
-                      )
-    trace_3 = go.Line(x = car_lanes3.index,
-                      y = car_lanes3["avg_waiting_cars"],
-                      name = "light_interval = 1.5",
-                      #legendgroup='1'
-                      )
-    trace_4 = go.Line(x = car_lanes4.index,
-                      y = car_lanes4["avg_waiting_cars"],
-                      name = "light_interval = 2.0",
-                      #legendgroup='1'
-                      )
-    
-    
-    fig.add_trace(trace_1,
-    row=1, col=1,
-    )
-    fig.add_trace(trace_2,
-    row=1, col=1,
-    )
-    fig.add_trace(trace_3,
-    row=1, col=1,
-    )
-    fig.add_trace(trace_4,
-    row=1, col=1,
-    )
-
-
-    fig.update_xaxes(title_text="Number of Lanes", row=1, col=1)
-    fig.update_xaxes(title_text="Light Interval", row=2, col=1)
-    fig.update_xaxes(title_text="Number of Lanes", row=3, col=1)
-    fig.update_xaxes(title_text="Number of Lanes", row=4, col=1)
-    
-    fig.update_yaxes(title_text="Average Waiting Time", row=1, col=1)
-    fig.update_yaxes(title_text="Average Waiting Time", row=2, col=1)
-    fig.update_yaxes(title_text="Light Interval", row=3, col=1)
-    fig.update_yaxes(title_text="Light Interval", row=4, col=1)
-    fig.update_layout(
-        height = 1200,
-        width = 800,
-        showlegend=True
-    )
-
-    
-
-    return fig
-'''
-
 ### TAB 2-3 GRAPHS
 
 
@@ -680,31 +540,28 @@ content2 = dcc.Tabs(id="graph-tabs", children=[
             dcc.Tab([dcc.Graph(id = "graph_crowd", figure=create_plot_crowd())],label='Pedestrians'),
             dcc.Tab([
                 dbc.Row([ 
-                    dcc.Graph(id = "cars_plot1", figure=create_cars_plot1())
-                ]), #overall graph, num_change_lanes and speed vs num_lanes and light int
-                dbc.Row([
-                    dbc.Col([
-                        dcc.Graph(id = "cars_plot2", figure=create_cars_plot2())
-                        ## create_cars_plot2()
+                dcc.Graph(id = "cars_plot1", figure=create_cars_plot1())
+            ]), #overall graph, num_change_lanes and speed vs num_lanes and light int
+            dbc.Row([
+                dbc.Col([
+                    dcc.Graph(id = "cars_plot2", figure=create_cars_plot2())
                     ], width = 6), #heatmap of speed vs num_lanes and light int
-                    dbc.Col([
-                        dcc.Graph(id = "cars_plot3", figure=create_cars_plot3())
-                    ], width = 4) #subplots of speed
-                ]),
-                dbc.Row([
-                    dbc.Col([
-                        dcc.Graph(id = "cars_plot4", figure=create_cars_plot4())
-                        ## create_cars_plot4()
-                    ], width = 6), #heatmap of num_change_lanes vs num_lanes and light int
-                    dbc.Col([
-                        ## create_cars_plot5()
-                        dcc.Graph(id = "cars_plot5", figure=create_cars_plot5())
-                    ], width = 4) #subplots of num_change_lanes
-                ])
-            ], label = 'Cars'),
-            #dcc.Tab([dcc.Graph(id = "graph_car", figure=create_plot_car())],label='Cars'),
-            dcc.Tab(label='Compare'),
-        ],  vertical=True, parent_style={'float': 'left'})
+                dbc.Col([
+                    dcc.Graph(id = "cars_plot3", figure=create_cars_plot3())
+                ], width = 4) #subplots of speed
+            ]),
+            dbc.Row([
+                dbc.Col([
+                    dcc.Graph(id = "cars_plot4", figure=create_cars_plot4())
+                ], width = 6), #heatmap of num_change_lanes vs num_lanes and light int
+                dbc.Col([
+                    dcc.Graph(id = "cars_plot5", figure=create_cars_plot5())
+                ], width = 4) #subplots of num_change_lanes
+            ])
+                
+        ], label = 'Cars'),
+        dcc.Tab(label='Compare'),
+    ],  vertical=True, parent_style={'float': 'left'})
 
 
 
@@ -819,6 +676,24 @@ def update_crowd(nc, np, mp):
     return crowd_fig
 
 # Callback from sidebar to tab-2-2
+# plot 1
+
+@app.callback(
+    Output("cars_plot1", "figure"),
+    Input("number-of-cars", "value"),
+    Input("number-of-pedestrians", "value"),
+    Input("max-patience", "value")
+)
+def update_cars1(nc, np, mp):
+    if nc:
+        default["num_cars"] = nc
+    if np:
+        default["num_pedestrians"] = np
+    if mp:
+        default["patience"] = mp
+    car_fig = create_cars_plot1(default["num_cars"], default["num_pedestrians"], default["patience"])
+    return car_fig
+
 # plot 2
 @app.callback(
     Output("cars_plot2", "figure"),
@@ -833,8 +708,8 @@ def update_cars2(nc, np, mp):
         default["num_pedestrians"] = np
     if mp:
         default["patience"] = mp
-    crowd_fig = create_cars_plot2(default["num_cars"], default["num_pedestrians"], default["patience"])
-    return crowd_fig
+    car_fig = create_cars_plot2(default["num_cars"], default["num_pedestrians"], default["patience"])
+    return car_fig
 
 # plot 3
 @app.callback(
@@ -850,8 +725,8 @@ def update_cars3(nc, np, mp):
         default["num_pedestrians"] = np
     if mp:
         default["patience"] = mp
-    crowd_fig = create_cars_plot3(default["num_cars"], default["num_pedestrians"], default["patience"])
-    return crowd_fig
+    car_fig = create_cars_plot3(default["num_cars"], default["num_pedestrians"], default["patience"])
+    return car_fig
 
 # plot 4
 @app.callback(
@@ -867,8 +742,8 @@ def update_cars4(nc, np, mp):
         default["num_pedestrians"] = np
     if mp:
         default["patience"] = mp
-    crowd_fig = create_cars_plot4(default["num_cars"], default["num_pedestrians"], default["patience"])
-    return crowd_fig
+    car_fig = create_cars_plot4(default["num_cars"], default["num_pedestrians"], default["patience"])
+    return car_fig
 
 # plot 5
 @app.callback(
@@ -884,8 +759,8 @@ def update_cars5(nc, np, mp):
         default["num_pedestrians"] = np
     if mp:
         default["patience"] = mp
-    crowd_fig = create_cars_plot5(default["num_cars"], default["num_pedestrians"], default["patience"])
-    return crowd_fig
+    car_fig = create_cars_plot5(default["num_cars"], default["num_pedestrians"], default["patience"])
+    return car_fig
 
 
 
