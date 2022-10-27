@@ -11,7 +11,6 @@ from plotly.subplots import make_subplots
 import dash_daq as daq
 
 data = pd.read_excel("permsnewdata.xlsx", header=0)
-data.head()
 
 default = {"num_cars": 10, "patience":0.6, "num_pedestrians":10}
 
@@ -187,8 +186,114 @@ def create_cars_plot2(num_cars = 10, num_ped = 10, patience=0.6):
 
 #### Graph 3: subplot of speed vs num lanes and speed vs light int
 def create_cars_plot3(num_cars = 10, num_ped = 10, patience=0.6):
+    data = get_data(num_cars, num_ped, patience)
 
-    return 
+    #for speed vs light int graph
+    line1 = data[data['num_lanes'] ==1]
+    line2 = data[data['num_lanes'] ==2]
+    line3 = data[data['num_lanes'] ==3]
+    line4 = data[data['num_lanes'] ==4]
+
+    car_interval1 = line1[["light_interval", "avg_speed_cars"]]
+    car_interval2 = line2[["light_interval", "avg_speed_cars"]]
+    car_interval3 = line3[["light_interval", "avg_speed_cars"]]
+    car_interval4 = line4[["light_interval", "avg_speed_cars"]]
+
+    #for speed vs lanes graph
+    interval1 = data[data['light_interval'] ==0.5]
+    interval2 = data[data['light_interval'] ==1.0]
+    interval3 = data[data['light_interval'] ==1.5]
+    interval4 = data[data['light_interval'] ==2.0]
+
+    car_lanes1 = interval1[["num_lanes","avg_speed_cars"]]
+    car_lanes2 = interval2[["num_lanes","avg_speed_cars"]]
+    car_lanes3 = interval3[["num_lanes","avg_speed_cars"]]
+    car_lanes4 = interval4[["num_lanes","avg_speed_cars"]]
+
+    #plotting the subplot
+    fig = make_subplots(
+        rows=2, cols=1,
+        vertical_spacing=0.3,
+        subplot_titles=("Avg speed of cars vs light interval",
+            "Avg speed of cars vs number of lanes"
+            ),
+        row_heights=[0.5,0.5])
+
+    #traces for subplot 1 (speed vs light int)
+    trace1 =go.Line(x = car_interval1["light_interval"],
+        y = car_interval1["avg_speed_cars"],
+        name = "number of lanes = 1",
+        legendgroup='1'
+        )
+
+    trace2 =go.Line(x = car_interval2["light_interval"],
+        y = car_interval2["avg_speed_cars"],
+        name = "number of lanes = 2",
+        )
+
+    trace3 =go.Line(x = car_interval3["light_interval"],
+        y = car_interval3["avg_speed_cars"],
+        name = "number of lanes = 3",
+        )
+
+    trace4 =go.Line(x = car_interval4["light_interval"],
+        y = car_interval4["avg_speed_cars"],
+        name = "number of lanes = 4",               
+        )
+    
+    # creating subplot 1
+    fig.add_trace(trace1, row=1, col=1,),
+    fig.add_trace(trace2, row=1, col=1,),
+    fig.add_trace(trace3, row=1, col=1,),
+    fig.add_trace(trace4, row=1, col=1,)
+
+    #traces for subplot 1 (speed vs num of lanes)
+    trace_1 = go.Line(x = car_lanes1["num_lanes"],
+                      y = car_lanes1["avg_speed_cars"],
+                      name = "light_interval = 0.5",
+                      legendgroup='2')
+    trace_2 = go.Line(x = car_lanes2["num_lanes"],
+                      y = car_lanes2["avg_speed_cars"],
+                      name = "light_interval = 1.0",
+                      #legendgroup='1'
+                      )
+    trace_3 = go.Line(x = car_lanes3["num_lanes"],
+                      y = car_lanes3["avg_speed_cars"],
+                      name = "light_interval = 1.5",
+                      #legendgroup='1'
+                      )
+    trace_4 = go.Line(x = car_lanes4["num_lanes"],
+                      y = car_lanes4["avg_speed_cars"],
+                      name = "light_interval = 2.0",
+                      #legendgroup='1'
+                      )
+    
+    fig.add_trace(trace_1,
+        row=2, col=1,
+        )
+    fig.add_trace(trace_2,
+        row=2, col=1,
+        )
+    fig.add_trace(trace_3,
+        row=2, col=1,
+        )
+    fig.add_trace(trace_4,
+        row=2, col=1,
+        )
+
+    # axis titles
+    fig.update_xaxes(title_text="Light Interval", row=1, col=1)
+    fig.update_xaxes(title_text="Number of Lanes", row=2, col=1)
+
+    fig.update_yaxes(title_text="Average Speed of Cars", row=1, col=1)
+    fig.update_yaxes(title_text="Average Speed of Cars", row=2, col=1)
+
+    fig.update_layout(
+        height = 500,
+        width = 800,
+        showlegend=True
+    )
+    return fig
 
 #### Graph 4: heat map of change lanes vs num lanes and light int
 def create_cars_plot4(num_cars = 10, num_ped = 10, patience=0.6):
@@ -415,7 +520,7 @@ content2 = dcc.Tabs(id="graph-tabs", children=[
                         ## create_cars_plot2()
                     ], width = 6), #heatmap of speed vs num_lanes and light int
                     dbc.Col([
-                        ## create_cars_plot3()
+                        dcc.Graph(id = "cars_plot3", figure=create_cars_plot3())
                     ], width = 6) #subplots of speed
                 ]),
                 dbc.Row([
@@ -524,6 +629,9 @@ def get_value(nc, np, mp, nl, li):
     return_value = data4['avg_speed_cars'].iloc[0]
     return return_value
 
+
+
+# Callback from sidebar to tab-2-1
 @app.callback(
     Output("graph_crowd", "figure"),
     Input("number-of-cars", "value"),
