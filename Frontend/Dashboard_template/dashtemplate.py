@@ -182,6 +182,7 @@ def create_cars_plot1(num_cars = 10, num_ped = 10, patience=0.6):
 #### Graph 2: heat map of speed vs num lanes and light int
 
 def create_cars_plot2(num_cars = 10, num_ped = 10, patience=0.6):
+    data = get_data(num_cars, num_ped, patience)
     car_heat_df1 = data[["num_lanes", "light_interval", "avg_speed_cars"]]
     fig = make_subplots(
         rows=1, cols=1,
@@ -307,6 +308,7 @@ def create_cars_plot3(num_cars = 10, num_ped = 10, patience=0.6):
 
 #### Graph 4: heat map of change lanes vs num lanes and light int
 def create_cars_plot4(num_cars = 10, num_ped = 10, patience=0.6):
+    data = get_data(num_cars, num_ped, patience)
     car_heat_df2 = data[["num_lanes", "light_interval", "changed_lanes"]]
     fig = make_subplots(
         rows=1, cols=1,
@@ -317,7 +319,7 @@ def create_cars_plot4(num_cars = 10, num_ped = 10, patience=0.6):
             z =  car_heat_df2["changed_lanes"]),
         row=1, col=1,
     )    
-    return 
+    return fig
 #### Graph 5: subplot of change lanes vs num lanes and change lanes vs light int
 def create_cars_plot5(num_cars = 10, num_ped = 10, patience=0.6):
 
@@ -536,6 +538,7 @@ content2 = dcc.Tabs(id="graph-tabs", children=[
                 ]), #overall graph, num_change_lanes and speed vs num_lanes and light int
                 dbc.Row([
                     dbc.Col([
+                        dcc.Graph(id = "cars_plot2", figure=create_cars_plot2())
                         ## create_cars_plot2()
                     ], width = 6), #heatmap of speed vs num_lanes and light int
                     dbc.Col([
@@ -544,6 +547,7 @@ content2 = dcc.Tabs(id="graph-tabs", children=[
                 ]),
                 dbc.Row([
                     dbc.Col([
+                        dcc.Graph(id = "cars_plot4", figure=create_cars_plot4())
                         ## create_cars_plot4()
                     ], width = 6), #heatmap of num_change_lanes vs num_lanes and light int
                     dbc.Col([
