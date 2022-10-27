@@ -181,9 +181,19 @@ def create_cars_plot1(num_cars = 10, num_ped = 10, patience=0.6):
 
 
 #### Graph 2: heat map of speed vs num lanes and light int
-def create_cars_plot2(num_cars = 10, num_ped = 10, patience=0.6):
 
-    return 
+def create_cars_plot2(num_cars = 10, num_ped = 10, patience=0.6):
+    car_heat_df1 = data[["num_lanes", "light_interval", "avg_speed_cars"]]
+    fig = make_subplots(
+        rows=1, cols=1,
+        subplot_titles=("Heat map of Speed vs Num lanes & Light int"))
+    fig.add_trace(
+        go.Heatmap(x = car_heat_df1["num_lanes"],
+            y =  car_heat_df1["light_interval"],
+            z =  car_heat_df1["avg_speed_cars"]),
+        row=1, col=1,
+    )    
+    return fig
 
 #### Graph 3: subplot of speed vs num lanes and speed vs light int
 def create_cars_plot3(num_cars = 10, num_ped = 10, patience=0.6):
@@ -192,7 +202,16 @@ def create_cars_plot3(num_cars = 10, num_ped = 10, patience=0.6):
 
 #### Graph 4: heat map of change lanes vs num lanes and light int
 def create_cars_plot4(num_cars = 10, num_ped = 10, patience=0.6):
-
+    car_heat_df2 = data[["num_lanes", "light_interval", "changed_lanes"]]
+    fig = make_subplots(
+        rows=1, cols=1,
+        subplot_titles=("Heat map of Change lanes vs Num lanes & Light int"))
+    fig.add_trace(
+        go.Heatmap(x = car_heat_df2["num_lanes"],
+            y =  car_heat_df2["light_interval"],
+            z =  car_heat_df2["changed_lanes"]),
+        row=1, col=1,
+    )    
     return 
 #### Graph 5: subplot of change lanes vs num lanes and change lanes vs light int
 def create_cars_plot5(num_cars = 10, num_ped = 10, patience=0.6):
