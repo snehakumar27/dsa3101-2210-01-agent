@@ -59,7 +59,7 @@ def create_plot_crowd(num_cars = 10, num_ped = 10, patience=0.6):
     
     fig = make_subplots(
         rows=3, cols=1,
-        vertical_spacing=0.20,
+        vertical_spacing=0.15,
         subplot_titles=("no.of lanes VS average crowd size",
                         "traffic light interval VS average crowd size",
                         "Heatmap between traffic light interval and average crowd size"),
@@ -162,8 +162,8 @@ def create_plot_crowd(num_cars = 10, num_ped = 10, patience=0.6):
     fig.update_yaxes(title_text="Average Crowd Size", row=1, col=1)
     fig.update_yaxes(title_text="Traffic light interval", row=3, col=1)
     fig.update_layout(
-        height = 800,
-        width = 800,
+        height = 1200,
+        width = 1000,
         #legend_tracegroupgap = 180,
         showlegend=True
     )
