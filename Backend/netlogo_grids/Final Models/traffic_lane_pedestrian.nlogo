@@ -158,15 +158,13 @@ end
 
 to make-cars
   ;create cars on left lane
-  let max-road-cap (number-of-lanes * 15)
+  let max-road-cap (number-of-lanes * 31)
   if number-of-cars > max-road-cap [
     set number-of-cars max-road-cap]
 
   ask n-of (number-of-cars ) patches with [meaning = "road-up"] [
     ;check if it's a pedestrian crossing: cars 2 patches away from the crossing
-    if not any? cars-on patch (pxcor + 1) pycor and
-    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
-    not any? patches with [meaning = "crossing"] in-radius 2 [
+    if not any? cars-here and not any? patches with [meaning = "crossing"] in-radius 2 [
      sprout-cars 1 [
         set shape "car top"
         set color car-color
@@ -192,9 +190,7 @@ to make-cars
   ;create cars on right lane
   ask n-of (number-of-cars ) patches with [meaning = "road-down"] [
     ;check if it's a pedestrian crossing: cars 2 patches away from the crossing
-    if not any? cars-on patch (pxcor + 1) pycor and
-    not any? cars-here and not any? cars-on patch (pxcor - 1) pycor and
-    not any? patches with [meaning = "crossing"] in-radius 2 [
+    if not any? cars-here and not any? patches with [meaning = "crossing"] in-radius 2 [
      sprout-cars 1 [
         set shape "car top"
         set color car-color
@@ -950,8 +946,8 @@ SLIDER
 number-of-cars
 number-of-cars
 0
-60
-45.0
+124
+93.0
 1
 1
 NIL
@@ -965,8 +961,8 @@ SLIDER
 number-of-pedestrians
 number-of-pedestrians
 0
-60
-31.0
+44
+44.0
 1
 1
 NIL
