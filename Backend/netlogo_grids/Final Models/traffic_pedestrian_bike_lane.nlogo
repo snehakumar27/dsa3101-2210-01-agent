@@ -48,7 +48,6 @@ cars-own [
   maxSpeed
   patience
   targetLane     ;:the desired lane of the car
-  politeness     ;;how politeness cars are, that means how often they will stop and let people cross the road
   will-stop?     ;;whether the car will stop and let pedestrian(s) to cross the road
   stopTime
 ]
@@ -179,7 +178,7 @@ to make-cars
         set color car-color
         set size 1.05
         set patience max-patience + random (50 - max-patience)
-        if random 50 > max-patience [set patience random 21]
+        if patience > max-patience [set patience random 70]
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
         set targetLane pxcor               ;starting lane is the targetLane
         set heading 0
@@ -206,7 +205,7 @@ to make-cars
         set color car-color
         set size 1.05
         set patience max-patience + random (50 - max-patience)
-        if random 50 > max-patience [set patience random 21]
+        if patience > max-patience [set patience random 70]
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
         set targetLane pxcor                  ;starting lane is the targetLane
         set heading 180
@@ -240,8 +239,8 @@ to make-bike
         set color car-color
         set size 1.2
         set will-stop? "maybe"
-        set politeness basic-politeness + random (101 - basic-politeness)
-        if random 100 > basic-politeness [set politeness random 21]
+        set patience max-patience + random (50 - max-patience)
+        if patience > max-patience [set patience random 70]
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
         set targetLane pxcor               ;starting lane is the targetLane
         set patience random max-patience     ;max-patience in beginning
@@ -267,8 +266,8 @@ to make-bike
         set shape "bike top"
         set color car-color
         set size 1.2
-        set politeness basic-politeness + random (101 - basic-politeness)
-        if random 100 > basic-politeness [set politeness random 21]
+        set patience max-patience + random (50 - max-patience)
+        if patience > max-patience [set patience random 70]
         ;move-to one-of free road-patches ; no need the above check should already take into account for this?
         set targetLane pxcor                  ;starting lane is the targetLane
         set patience random max-patience      ;max-patience in beginning
@@ -861,9 +860,9 @@ to write-to-csv
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-235
+295
 10
-811
+871
 587
 -1
 -1
@@ -921,14 +920,14 @@ HORIZONTAL
 
 SLIDER
 12
-141
+181
 184
-174
+214
 number-of-cars
 number-of-cars
 0
 70
-56.0
+70.0
 1
 1
 NIL
@@ -936,14 +935,14 @@ HORIZONTAL
 
 SLIDER
 12
-180
+142
 184
-213
+175
 number-of-pedestrians
 number-of-pedestrians
 0
 60
-37.0
+60.0
 1
 1
 NIL
@@ -958,7 +957,7 @@ max-patience
 max-patience
 0
 50
-50.0
+49.0
 1
 1
 NIL
@@ -981,9 +980,9 @@ HORIZONTAL
 
 SLIDER
 13
-301
+299
 185
-334
+332
 bike-lanes
 bike-lanes
 0
@@ -1013,9 +1012,9 @@ NIL
 
 SLIDER
 13
-341
+339
 185
-374
+372
 acceleration
 acceleration
 0
@@ -1027,10 +1026,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-14
-422
-186
-455
+13
+379
+185
+412
 decelaration
 decelaration
 0
@@ -1042,25 +1041,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-14
-382
-186
-415
-basic-politeness
-basic-politeness
-0
-100
-70.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-14
-465
-186
-498
+12
+102
+184
+135
 number-of-bike
 number-of-bike
 0
@@ -1072,10 +1056,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-10
-101
-230
-134
+12
+417
+232
+450
 car-lights-interval
 car-lights-interval
 0
@@ -1087,10 +1071,10 @@ minutes
 HORIZONTAL
 
 SLIDER
-14
-600
-283
-633
+11
+454
+280
+487
 pedestrian-lights-interval
 pedestrian-lights-interval
 0
@@ -1102,10 +1086,10 @@ seconds
 HORIZONTAL
 
 PLOT
-14
-650
-214
-800
+880
+331
+1080
+481
 Average Speed of Cars
 Time
 Avg Speed
@@ -1120,10 +1104,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot mean [speed] of cars"
 
 PLOT
-235
-644
-600
-794
+506
+597
+871
+747
 Average Speed of People
 Time
 Avg Speed
@@ -1138,10 +1122,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot mean [walk-time] of persons"
 
 PLOT
-621
-637
-821
-787
+880
+494
+1080
+644
 Average Stoptime of Cars
 Time
 Stoptime
@@ -1156,10 +1140,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot mean [stopTime] of cars"
 
 PLOT
-819
-323
-1019
-473
+879
+171
+1079
+321
 No. of Cars Stopped
 Time
 Number
@@ -1174,10 +1158,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot stoppedCars"
 
 PLOT
-840
-105
-1040
-255
+878
+12
+1078
+162
 No. of Cars Changing Lanes
 Time
 Number
