@@ -404,13 +404,11 @@ app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP, 'https://codepen.io/
 content1 = dbc.Row([
     dbc.Col([
         html.H6("Number of Lanes"),
-        html.Div(
-            [
-                dbc.Button("Decrease Lane", id = "decrease_lane", color = "danger", className = "me-1", n_clicks = 0),
-                html.Span(id="number-of-lanes", style={"verticalAlign": "middle"}),
-                dbc.Button("Increase Line", id = "increase_lane", color = "success", className = "me-1", n_clicks = 1),
-            ]
-        ),
+        dbc.Button("Decrease Lane", id = "decrease_lane", color = "danger", className = "me-1", n_clicks = 0),
+        html.Br(),
+        html.Span(id="number-of-lanes", style={"verticalAlign": "middle"}),
+        html.Br(),
+        dbc.Button("Increase Lane", id = "increase_lane", color = "success", className = "me-1", n_clicks = 1),
         html.H6("Green to Red Ratio"),
         html.Div(
             [
@@ -421,37 +419,49 @@ content1 = dbc.Row([
         ),
     ], width = 3),
     dbc.Col([
-        html.H6("Average Waiting Time"),
+        html.H6("Junction Statistics"),
         dbc.Row([
             dbc.Col([daq.Gauge(
                     showCurrentValue=True,
                     color={"gradient":True, 
-                            "ranges":{"green":[0,60], "yellow":[60,80],"red":[80,100],"purple": [100, 120]}},
+                            "ranges":{"green": [45, 120], "yellow": [30, 45], "red":[15, 30], "purple": [0, 15]}},
                     scale={'start': 0, 'interval': 10, 'labelInterval': 3},
-                    units="seconds",
+                    units="km/h",
                     id='test01',
-                    label='Avg Waiting Time (Cars)',  #### to-do: need change to avg speed of cars/road congestion lvl
-                    max=120,
-                    min=0,
+                    label="Average Car Speed",  #### to-do: need change to avg speed of cars/road congestion lvl
+                    max= 120,
+                    min= 0,
                     size = 200
-                )], width = 6),
-            dbc.Col([daq.Gauge(
+                )], width = 5),
+            dbc.Col([daq.Tank(
                     showCurrentValue=True,
-                    color={"gradient":True, 
-                            "ranges":{"green":[0,60], "yellow":[60,80],"red":[80,100],"purple": [100, 120]}},
-                    scale={'start': 0, 'interval': 10, 'labelInterval': 3},
-                    units="seconds",
-                    value=75,
-                    label='Avg Waiting Time (Pedestrians)', ## to-do: need change to speed/crowd size of pedestrians
-                    max=120,
+                    scale={'interval': 5, 'labelInterval': 2},
+                    units="People",
+                    id = "test02",
+                    label='Average Crowd Size',
+                    max=50,
                     min=0,
-                    size = 200
-                )], width = 6)
-        ])
-        
-                
+                )], width = 3),
+            dbc.Col([daq.Thermometer(
+                    showCurrentValue=True,
+                    scale={'interval': 5, 'labelInterval': 2},
+                    units="Changes",
+                    id = "test03",
+                    label='No. of Lane Changes',
+                    max=30,
+                    min=0,
+                    height = 120,
+                )], width = 3),
+        ]) ,
+        dbc.Row([
+            dbc.Col([
+                html.H6("Explanation"),
+                html.Span(id = "paragraph")], width = 10)
+        ])   
             ]
         ),
+        #html.H6("Explanation"),
+        #html.Span(id = "paragraph")
     ])
 
 ### TAB 2 CONTENT
@@ -503,7 +513,10 @@ sidebar = html.Div([
     }, value=15, 
         tooltip={"placement": "bottom", "always_visible": True}),
 
-    html.Br(),
+    html.P(
+        "How many drivers are in the neighborhood"
+    ),
+
     html.Br(),
 
     html.H6("Number of Pedestrians"),
@@ -518,12 +531,19 @@ sidebar = html.Div([
     value=15, 
         tooltip={"placement": "bottom", "always_visible": True}),
 
-    html.Br(),
+    html.P(
+        "How many pedestrians are in the neighborhood"
+    ),
+
     html.Br(),
 
     html.H6("Max patience"),
-    dcc.Slider(id = "max-patience", min = 0, max = 1, step = 0.2, value=1, 
+    dcc.Slider(id = "max-patience", min = 0.2, max = 1, step = 0.2, value=1, 
         tooltip={"placement": "bottom", "always_visible": True}),
+
+    html.P(
+        "How patient the drivers are"
+    ),
 ])
 
 ### TABS
@@ -564,14 +584,20 @@ app.layout = html.Div(
     Output("number-of-lanes", "children"), [Input("increase_lane", "n_clicks"), Input("decrease_lane", "n_clicks")]
 )
 def on_button_click(n, m):
-    return f"{n - m} lanes"
+    lanes = n - m
+    lanes = max(min(lanes, 4), 1)
+    if lanes == 1:
+        return "1 lane"
+    return f"{lanes} lanes"
 
 # callback for light interval buttons
 @app.callback(
     Output("light-interval", "children"), [Input("increase_light", "n_clicks"), Input("decrease_light", "n_clicks")]
 )
 def on_button_click(n, m):
-    return format((n - m) / 2, '.1f')
+    value = (n - m) / 2
+    value = max(min(value, 2), 0.5)
+    return format(value, '.1f')
 
 # callback from sidebar to tab 1
 @app.callback(
@@ -588,6 +614,109 @@ def get_value(nc, np, mp, nl, li):
     data4 = data3[data3['light_interval'] == float(li)]
     return_value = data4['avg_speed_cars'].iloc[0]
     return return_value
+
+@app.callback(
+    Output("test02", "value"), 
+    [Input("number-of-cars", "value"),
+    Input("number-of-pedestrians", "value"),
+    Input("max-patience", "value"),
+    Input("number-of-lanes", "children"),
+    Input("light-interval", "children"),]
+)
+def get_value(nc, np, mp, nl, li):
+    datause = get_data(nc, np, mp)
+    data3 = datause[datause['num_lanes'] == int(nl[0])]
+    data4 = data3[data3['light_interval'] == float(li)]
+    return_value = data4['avg_crowd_size'].iloc[0]
+    return round(return_value, 1)
+
+@app.callback(
+    Output("test03", "value"), 
+    [Input("number-of-cars", "value"),
+    Input("number-of-pedestrians", "value"),
+    Input("max-patience", "value"),
+    Input("number-of-lanes", "children"),
+    Input("light-interval", "children"),]
+)
+def get_value(nc, np, mp, nl, li):
+    datause = get_data(nc, np, mp)
+    data3 = datause[datause['num_lanes'] == int(nl[0])]
+    data4 = data3[data3['light_interval'] == float(li)]
+    return_value = data4['changed_lanes'].iloc[0]
+    return round(return_value)
+
+@app.callback(
+    Output("paragraph", "children"), 
+    [Input("test01", "value"),
+    Input("test02", "value"),
+    Input("test03", "value"),]
+)
+def get_description(o1, o2, o3):
+    cutoff = (30, 20, 20)
+    bad = (o1 < cutoff[0], o2 > cutoff[1], o3 > cutoff[2])
+    output = ""
+    if bad == (False, False, False):
+        output += f"The average car speed is {o1} kilometers per hour, \
+            meaning that traffic flows considerably freely near the junction. \n\
+            The average crowd size is {o2} people, indicating that the pedestrians are able to walk around effortlessly. \n\
+            The number of lane changes is {o3}, suggesting that accidents are less likely to happen. \n"
+    
+    elif bad == (False, False, True):
+        output += f"The average car speed is {o1} kilometers per hour, \
+            meaning that traffic flows considerably freely near the junction. \
+            The average crowd size is {o2} people, indicating that the pedestrians are able to walk around effortlessly. \
+            However, the number of lane changes is {o3}, suggesting that there is a high risk of accidents. "
+
+    elif bad == (False, True, False):
+        output += f"The average car speed is {o1} kilometers per hour, \
+            meaning that traffic flows considerably freely near the junction. \
+            The number of lane changes is {o3}, suggesting that accidents are less likely to happen. \
+            However, the average crowd size is {o2} people, indicating that the pedestrians may face difficulties walking around. "
+
+    elif bad == (False, True, True):
+        output += f"The average car speed is {o1} kilometers per hour, \
+            meaning that traffic flows considerably freely near the junction. \
+            However, the average crowd size is {o2} people, indicating that the pedestrians may face difficulties walking around. \
+            Moreover, the number of lane changes is {o3}, suggesting that there is a high risk of accidents. " 
+
+    elif bad == (True, False, False):
+        output += f"The average crowd size is {o2} people, indicating that the pedestrians are able to walk around effortlessly. \
+            The number of lane changes is {o3}, suggesting that accidents are less likely to happen. \
+            However, the average car speed is only {o1} kilometers per hour, \
+            meaning that congestion happens frequently near the junction. "
+
+    elif bad == (True, False, True):
+        output += f"The average crowd size is {o2} people, indicating that the pedestrians are able to walk around effortlessly. \
+            However, the average car speed is only {o1} kilometers per hour, \
+            meaning that congestion happens frequently near the junction. \
+            Moreover, the number of lane changes is {o3}, suggesting that there is a high risk of accidents. "
+
+    elif bad == (True, True, False):
+        output += f"The number of lane changes is {o3}, suggesting that accidents are less likely to happen. \
+            However, the average car speed is only {o1} kilometers per hour, \
+            meaning that congestion happens frequently near the junction. \
+            Moreover, the average crowd size is {o2} people, indicating that the pedestrians may face difficulties walking around. "
+
+    else:
+        output += f"The average car speed is only {o1} kilometers per hour, \
+            meaning that congestion happens frequently near the junction. \
+            Moreover, the average crowd size is {o2} people, indicating that the pedestrians may face difficulties walking around. \
+            On top of that, the number of lane changes is {o3}, suggesting that there is a high risk of accidents. "
+
+    bad_qualities = bad.count(True)
+    if bad_qualities == 0:
+        output += "Based on the three metrics, this is a very effective junction design!"
+
+    elif bad_qualities == 1:
+        output += "Based on the three metrics, this is a decent junction design!"
+
+    elif bad_qualities == 2:
+        output += "Based on the three metrics, this junction design has some room for improvement!"
+    
+    else:
+        output += "Based on the three metrics, this junction design is inadequate."
+
+    return output
 
 
 
