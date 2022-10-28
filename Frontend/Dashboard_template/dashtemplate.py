@@ -23,6 +23,7 @@ def get_data(num_cars, num_ped, patience):
 
 
 
+
 ### TAB 3 GRAPHS
 def create_plot_crowd_car(num_cars = 10, num_ped = 10, patience=0.6):
     data = get_data(num_cars, num_ped, patience)
@@ -39,53 +40,72 @@ def create_plot_crowd_car(num_cars = 10, num_ped = 10, patience=0.6):
     car_interval4 = line4[["light_interval", "avg_speed_cars"]]
 
     fig = go.Figure()
-    fig.add_trace(
-        go.Scatter(
-            x = crowds_line_df.index,
-            y = crowds_line_df["avg_crowd_size"],
-            line=dict(color='firebrick', width=4),
-            name = "avg crowd size of pedestrians"
-        )
-    )
+    
+    fig = make_subplots(
+        rows=2, cols=1,
+        vertical_spacing=0.2,
+        #subplot_titles=("ligth interval VS condition for cars and pedestrains"
+            #"light interval VS ..."
+            #),
+        row_heights=[0.5,0.5])
 
-    fig.add_trace(
-        go.Scatter(
+    #traces for subplot 1
+    trace1 =go.Scatter(
             x = car_interval1["light_interval"],
             y = car_interval1["avg_speed_cars"],
             line=dict(width=3, dash='dash'),
-            name = "number of lanes = 1"
+            name = "number of lanes = 1",
+            legendgroup='1'
         )
-    )
-    fig.add_trace(
-        go.Scatter(
+        
+        
+
+    trace2 =go.Scatter(
             x = car_interval2["light_interval"],
             y = car_interval2["avg_speed_cars"],
             line=dict(width=3, dash='dash'),
             name = "number of lanes = 2"
         )
-    )
 
-    fig.add_trace(
-        go.Scatter(
+    trace3 =go.Scatter(
             x = car_interval3["light_interval"],
             y = car_interval3["avg_speed_cars"],
             line=dict(width=3, dash='dash'),
             name = "number of lanes = 3"
         )
-    )
 
-    fig.add_trace(
-        go.Scatter(
+    trace4 =go.Scatter(
             x = car_interval4["light_interval"],
             y = car_interval4["avg_speed_cars"],
             line=dict(width=3, dash='dash'),
             name = "number of lanes = 4"
         )
-    )
+    
+    # creating subplot 1
+    fig.add_trace(trace1, row=1, col=1,),
+    fig.add_trace(trace2, row=1, col=1,),
+    fig.add_trace(trace3, row=1, col=1,),
+    fig.add_trace(trace4, row=1, col=1,)
 
-    fig.update_xaxes(title_text="Light Interval")
-    fig.update_yaxes(title_text="Condition for cars and pedestrians")
 
+    tracesub2 = go.Scatter(
+            x = crowds_line_df.index,
+            y = crowds_line_df["avg_crowd_size"],
+            line=dict(color='firebrick', width=4),
+            name = "avg crowd size of pedestrians",
+            legendgroup='2'
+        )
+    
+    fig.add_trace(tracesub2,row=2, col=1,)
+
+
+
+    fig.update_xaxes(title_text="Light Interval",row=1, col=1)
+    fig.update_yaxes(title_text="Condition for cars & pedestrians",row=1, col=1)
+    fig.update_xaxes(title_text="Light Interval",row=2, col=1)
+    fig.update_yaxes(title_text="Condition for cars & pedestrians",row=2, col=1)
+
+    
     fig.update_layout(
         height = 600,
         width = 1000,
