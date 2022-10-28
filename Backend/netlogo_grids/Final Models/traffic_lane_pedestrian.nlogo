@@ -535,63 +535,6 @@ to go
   tick
 end
 
-;to move-cars
-;;  speed-up-car ;
-;;  let blockingd-cars other cars in-cone (1 + ((speed / decelaration) * speed)) 180 with [ y-distance <= 2 ]
-;;  let blockingd-car min-one-of blockingd-cars [ distance myself ]
-;;  if blockingd-car != nobody [
-;;    ; match the speed of the car ahead of you and then slow
-;;    ; down so you are driving a bit slower than that car
-;;
-;;          set speed [ speed ] of blockingd-car
-;;          slow-down-car
-;;  ]
-;;
-;  let cstop? false
-;  ask traffic_lights with [cars-light?] [
-;    ifelse greenLight? [set cstop? false] [set cstop? true]
-;  ]
-;
-;  ;whether traffic lights show red or green
-;  ifelse ([meaning] of patch-ahead 1 = "crossing") [
-;      ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
-;      fd speed
-;      ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
-;    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0
-;      set stopTime stopTime + 1]
-;    ] [
-;      if [meaning] of patch-here = "crossing" [
-;        forward speed
-;        ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
-;    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0
-;        set stopTime stopTime + 1]
-;      ]
-;    ]
-;  ]
-;  [speed-up-car ;
-;
-;  let blocking-cars other cars in-cone (1 + ((speed / decelaration) * speed)) 180 with [ y-distance <= 1 ]
-;  let blocking-car min-one-of blocking-cars [ distance myself ]
-;  if blocking-car != nobody [
-;    ; match the speed of the car ahead of you and then slow
-;    ; down so you are driving a bit slower than that car
-;    set speed [ speed ] of blocking-car
-;    set speed 0
-;    slow-down-car
-;  ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
-;    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0
-;      set stopTime stopTime + 1]
-;  ]
-;  forward speed
-;  ]
-;  ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ] [
-;    if [meaning] of patch-here = "crossing" [if not cstop? [fd speed]]][set speed 0
-;      set stopTime stopTime + 1]
-;
-;
-;
-;end
-
 to move-cars
 
   let cstop? false
@@ -619,33 +562,20 @@ to move-cars
       fd speed
   ]
 
-;  ; if patch ahead is crossing & not red light, then speed up else
-;  if ([meaning] of patch-ahead 1 = "crossing")[
-;    ifelse (not cstop?) [
-;      if speed = 0 [set stoppedCars stoppedCars - 1]
-;;      speed-up-car
-;;      fd speed
-;      ifelse not any? persons in-cone 1 90[
-;        speed-up-car
-;        fd speed] [set speed 0]
-;    ][
-;      ifelse ([meaning] of patch-here = "crossing")[  ; if cstop and crossing
-;        if [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"][
-;          speed-up-car
-;          fd speed
-;      ]][
-;        if speed > 0 [
-;          set stoppedCars stoppedCars + 1
-;        ]
-;        set speed 0
-;        set stopTime stopTime + 1
-;    ]]
-;    ]
  if ([meaning] of patch-ahead 1 = "crossing")[
     ifelse (not cstop?) [
       if speed = 0 [set stoppedCars stoppedCars - 1]
       speed-up-car
       fd speed
+      ; Addition of cars avoid pedestrains
+;      ifelse not any? persons in-cone 1 180[
+;        speed-up-car
+;        fd speed
+;        ;set stoppedCars stoppedCars - 1
+;      ] [
+;        set speed 0
+;        ;set stoppedCars stoppedCars + 1
+;      ]
     ][
       ifelse ([meaning] of patch-here = "crossing")[  ; if cstop and crossing
         if [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"][
@@ -657,66 +587,8 @@ to move-cars
         set stoppedCars stoppedCars + 1]
     ]
   ]
-;  ifelse not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ][
-;    speed-up-car
-;    fd speed
-;  ][ ifelse [meaning] of patch-here = "crossing" or [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"]   [
-;      speed-up-car
-;      fd speed][
-;      set speed 0]
-;  ]
-;
-
-
-;  ifelse ((not any? (traffic_lights in-cone (number-of-lanes) 180) with [cars-light? and color = red ])) [
-;    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0]
-
 end
 
-;to move-cars
-;  speed-up-car ;
-;
-;  let blocking-cars other cars in-cone (1 + (speed * 5)) 180 with [ y-distance <= 2  ]
-;  let blocking-car min-one-of blocking-cars [ distance myself ]
-;  if blocking-car != nobody [
-;    ; match the speed of the car ahead of you and then slow
-;    ; down so you are driving a bit slower than that car
-;    set speed [ speed ] of blocking-car
-;    ;slow-down-car
-;  ]
-;  forward speed
-;
-;  ;whether traffic lights show red or green
-;
-;;  let stop? true
-;;  ask traffic_lights with [not cars-light?] [
-;;    ifelse greenLight? [set stop? false] [set stop? true]
-;;  ]
-;;
-;;  ifelse [meaning] of patch-ahead 1 = "crossing" [
-;;    ifelse (stop?) [forward speed] [
-;;      if [meaning] of patch-here = "crossing" [forward speed]
-;;    ]
-;;  ]
-;;  [forward speed]
-;
-;
-;;
-;;  if not any? (traffic_lights in-cone 2 180) with [cars-light? and color = red ] [
-;;    if [meaning] of patch-here = "crossing" [fd speed]]
-;
-;  ifelse not any? (traffic_lights in-cone 2 180) with [cars-light? and color = red ] [
-;    if [meaning] of patch-here = "crossing" [fd speed]][set speed 0]
-;;
-;;  ifelse [meaning] of patch-ahead 1 = "crossing" [
-;;    ifelse (speed = 0) [fd speed][
-;;      if [meaning] of patch-here = "crossing" [fd speed]
-;;    ]
-;;  ]
-;;  [fd speed]
-;
-;
-;end
 
 to choose-new-lane ; car procedure
   ; Choose a new lane among those with the minimum
@@ -1057,9 +929,9 @@ HORIZONTAL
 
 SLIDER
 11
-421
+413
 272
-454
+446
 pedestrian-lights-interval
 pedestrian-lights-interval
 0
@@ -1087,9 +959,9 @@ HORIZONTAL
 
 SLIDER
 12
-180
+102
 184
-213
+135
 number-of-pedestrians
 number-of-pedestrians
 0
@@ -1102,9 +974,9 @@ HORIZONTAL
 
 SLIDER
 12
-220
+179
 184
-253
+212
 max-patience
 max-patience
 0
@@ -1116,25 +988,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-13
-259
-185
-292
-time-to-cross
-time-to-cross
-0
-40
-25.0
-1
-1
-seconds
-HORIZONTAL
-
-SLIDER
-13
-301
-185
-334
+12
+219
+184
+252
 number-of-lanes
 number-of-lanes
 0
@@ -1163,30 +1020,30 @@ NIL
 0
 
 SLIDER
-13
-341
-185
-374
+12
+259
+184
+292
 acceleration
 acceleration
 0
 0.01
-0.002
+0.01
 0.002
 1
 NIL
 HORIZONTAL
 
 SLIDER
-13
-382
-185
-415
+12
+297
+184
+330
 decelaration
 decelaration
 0
 0.1
-0.08
+0.1
 0.02
 1
 NIL
@@ -1194,9 +1051,9 @@ HORIZONTAL
 
 SLIDER
 12
-101
+374
 206
-134
+407
 car-lights-interval
 car-lights-interval
 0
@@ -1208,24 +1065,24 @@ min
 HORIZONTAL
 
 SLIDER
-13
-459
-193
-492
+12
+336
+192
+369
 buffer-time
 buffer-time
 0
 5
-3.0
+5.0
 1
 1
 seconds
 HORIZONTAL
 
 PLOT
-13
+5
 598
-213
+205
 748
 Average Speed of Cars
 Time
@@ -1241,9 +1098,9 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot mean [speed] of cars"
 
 PLOT
-214
+206
 598
-523
+515
 748
 Average Speed of People
 Time
@@ -1259,10 +1116,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot mean [walk-time] of persons"
 
 BUTTON
-14
-537
-123
-570
+11
+494
+120
+527
 NIL
 write-to-csv
 NIL
@@ -1276,10 +1133,10 @@ NIL
 1
 
 BUTTON
-14
-498
-173
-531
+11
+453
+170
+486
 NIL
 record-current-data
 NIL
@@ -1293,9 +1150,9 @@ NIL
 1
 
 PLOT
-524
+516
 598
-724
+716
 748
 Average Stoptime of Cars
 Time
@@ -1311,10 +1168,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot mean [stopTime] of cars"
 
 PLOT
-868
-10
-1068
-160
+718
+597
+918
+747
 No. of Cars Stopped
 Time
 Number
@@ -1329,10 +1186,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot stoppedCars"
 
 PLOT
-868
-170
-1068
-320
+919
+597
+1119
+747
 No. of Cars Changing Lanes
 Time
 Number
