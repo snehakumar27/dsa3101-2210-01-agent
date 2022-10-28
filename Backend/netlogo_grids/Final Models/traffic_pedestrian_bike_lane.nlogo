@@ -927,7 +927,7 @@ number-of-cars
 number-of-cars
 0
 70
-70.0
+15.0
 1
 1
 NIL
@@ -942,7 +942,7 @@ number-of-pedestrians
 number-of-pedestrians
 0
 60
-60.0
+40.0
 1
 1
 NIL
@@ -964,30 +964,15 @@ NIL
 HORIZONTAL
 
 SLIDER
-13
-259
-185
-292
-time-to-cross
-time-to-cross
-0
-40
-13.0
-1
-1
-seconds
-HORIZONTAL
-
-SLIDER
-13
-299
-185
-332
+14
+258
+186
+291
 bike-lanes
 bike-lanes
 0
 4
-3.0
+2.0
 1
 1
 NIL
@@ -1011,10 +996,10 @@ NIL
 0
 
 SLIDER
-13
-339
-185
-372
+14
+298
+186
+331
 acceleration
 acceleration
 0
@@ -1026,10 +1011,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-13
-379
-185
-412
+14
+338
+186
+371
 decelaration
 decelaration
 0
@@ -1056,10 +1041,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-12
-417
-232
-450
+13
+376
+233
+409
 car-lights-interval
 car-lights-interval
 0
@@ -1071,10 +1056,10 @@ minutes
 HORIZONTAL
 
 SLIDER
-11
-454
-280
-487
+12
+413
+281
+446
 pedestrian-lights-interval
 pedestrian-lights-interval
 0
@@ -1086,10 +1071,10 @@ seconds
 HORIZONTAL
 
 PLOT
-880
-331
-1080
-481
+14
+598
+214
+748
 Average Speed of Cars
 Time
 Avg Speed
@@ -1104,10 +1089,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot mean [speed] of cars"
 
 PLOT
-506
-597
-871
-747
+216
+598
+581
+748
 Average Speed of People
 Time
 Avg Speed
@@ -1122,10 +1107,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot mean [walk-time] of persons"
 
 PLOT
-880
-494
-1080
-644
+583
+598
+783
+748
 Average Stoptime of Cars
 Time
 Stoptime
@@ -1140,10 +1125,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot mean [stopTime] of cars"
 
 PLOT
-879
-171
-1079
-321
+785
+598
+985
+748
 No. of Cars Stopped
 Time
 Number
@@ -1158,10 +1143,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot stoppedCars"
 
 PLOT
-878
-12
-1078
-162
+986
+598
+1186
+748
 No. of Cars Changing Lanes
 Time
 Number
