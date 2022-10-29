@@ -435,8 +435,25 @@ content1 = dbc.Row([
                 dbc.Button("-", id = "decrease_light", color = "danger", className = "me-1", n_clicks = 0),
                 html.Span(id="light-interval", style={"verticalAlign": "middle"}),
                 dbc.Button("+", id = "increase_light", color = "success", className = "me-1", n_clicks = 1),
-            ]
+            ], style = {'align-items': 'center', 'justify-content': 'center'}
         ),
+        html.Br(),
+        html.H6("Options"),
+        dcc.Dropdown(
+            id = 'dropdown-to-show_or_hide-element',
+            options=[
+                {'label': 'Show explanation', 'value': 'on'},
+                {'label': 'Hide explanation', 'value': 'off'}
+            ],
+        value = 'off'
+        ),
+        html.Br(),
+        html.Br(),
+        html.Br(),
+        html.Div([
+            html.Button("Download CSV", id="btn_csv"),
+            dcc.Download(id="download-dataframe-csv"),
+        ])
     ], width = 3),
     dbc.Col([
         html.H6("Junction Statistics"),
@@ -448,7 +465,7 @@ content1 = dbc.Row([
                     scale={'start': 0, 'interval': 10, 'labelInterval': 3},
                     units="km/h",
                     id='test01',
-                    label="Average Car Speed",  #### to-do: need change to avg speed of cars/road congestion lvl
+                    label="Average Car Speed", 
                     max= 120,
                     min= 0,
                     size = 200
@@ -475,13 +492,15 @@ content1 = dbc.Row([
         ]) ,
         dbc.Row([
             dbc.Col([
-                html.H6("Explanation"),
-                html.Span(id = "paragraph")], width = 10)
+                html.Div(id = "element-to-hide",
+                children = [
+                    html.H6("Explanation"),
+                    html.Span(id = "paragraph")
+                ], style= {'display': 'block'})
+            ], width = 10)
         ])   
             ]
         ),
-        #html.H6("Explanation"),
-        #html.Span(id = "paragraph")
     ])
 
 ### TAB 2 CONTENT
@@ -738,7 +757,23 @@ def get_description(o1, o2, o3):
 
     return output
 
+@app.callback(
+   Output(component_id='element-to-hide', component_property='style'),
+   [Input(component_id='dropdown-to-show_or_hide-element', component_property='value')]
+)
+def show_hide_element(visibility_state):
+    if visibility_state == 'on':
+        return {'display': 'block'}
+    if visibility_state == 'off':
+        return {'display': 'none'}
 
+@app.callback(
+    Output("download-dataframe-csv", "data"),
+    Input("btn_csv", "n_clicks"),
+    prevent_initial_call=True,
+)
+def func(n_clicks):
+    return dcc.send_data_frame(data.to_csv, "data.csv")
 
 # Callback from sidebar to tab 3
 @app.callback(
