@@ -10,6 +10,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import dash_daq as daq
 import plotly.express as px
+from PIL import Image
 
 data = pd.read_excel("permsnewdata.xlsx", header=0)
 
@@ -540,6 +541,11 @@ content3 = html.Div([
 ## SIDEBAR
 
 sidebar = html.Div([
+    dbc.Row(children=[
+        html.H4(children=["Environmental Variables"],
+                style={"text-align": "left",
+                "color": "#4aa9d4"})
+    ]),
     html.H6("Number of Cars"),
     dcc.Slider(id = "number-of-cars", min = 5, max = 45, step = 10,
     marks={
@@ -598,10 +604,15 @@ tabs = dbc.Tabs([
     ], label = "How are cars and pedestrians affected")
 ])
 
+pil_image = Image.open("assets/background.jpg")
+pil_logo = Image.open("assets/logo.jpg")
+
 
 app.layout = html.Div(
     children=[
-        html.H1("Junction Simulation"),
+        dbc.Row([ html.Img(src = pil_image)
+        ]),
+        html.Br(),
         dbc.Row([ 
             dbc.Col([
                 sidebar
@@ -609,7 +620,14 @@ app.layout = html.Div(
             dbc.Col([
                 tabs
             ], width = 10)
-        ])
+        ]),
+        html.Br(),
+        html.Br(),
+        dbc.Row([
+            html.Div([ html.Img(src = pil_logo, style={'height':'100%', 'width':'20%'})
+            ])
+        ], style = {'textAlign': 'right'})
+           
     ],
     style={"margin-left": "20px", "margin-right": "20px", "margin-top": "15px"}
 )
