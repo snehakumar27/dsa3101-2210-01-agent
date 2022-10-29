@@ -100,9 +100,9 @@ def create_plot_crowd_car(num_cars = 15, num_ped = 15, patience=0.6):
 
 
 
-    fig.update_xaxes(title_text="Light Interval",row=1, col=1)
+    fig.update_xaxes(title_text="Green Light Duration (min)",row=1, col=1)
     fig.update_yaxes(title_text="Condition for cars & pedestrians",row=1, col=1)
-    fig.update_xaxes(title_text="Light Interval",row=2, col=1)
+    fig.update_xaxes(title_text="Green Light Duration (min)",row=2, col=1)
     fig.update_yaxes(title_text="Condition for cars & pedestrians",row=2, col=1)
 
     
@@ -110,7 +110,7 @@ def create_plot_crowd_car(num_cars = 15, num_ped = 15, patience=0.6):
         height = 600,
         width = 1000,
         showlegend=True,
-        title_text = "How the Green Light Interval of Cars affect Cars and Pedestrians"
+        title_text = "How the Green Light Duration of Cars affect Cars and Pedestrians"
     )
 
 
@@ -129,8 +129,8 @@ def create_cars_plot1(num_cars = 15, num_ped = 15, patience=0.6):
         y="light_interval", 
         color="changed_lanes", 
         size = "avg_speed_cars", 
-        title="Map of Speed & Lane changing per min VS no. of lanes & Light interval",
-        labels=dict(light_interval="Green light interval for cars", num_lanes="Number of Lanes", changed_lanes="Lane changing per min", avg_speed_cars = "Average speed of cars")
+        title="Map of Speed & Lane changing per min VS No. of lanes & Green Light Duration",
+        labels=dict(light_interval="Green light duration for cars", num_lanes="Number of Lanes", changed_lanes="Lane changing per min", avg_speed_cars = "Average speed of cars")
     )
     fig.update_traces(mode="markers")
     return fig
@@ -151,16 +151,16 @@ def create_cars_plot2(num_cars = 15, num_ped = 15, patience=0.6):
         go.Heatmap(x = car_heat_df1["num_lanes"],
             y =  car_heat_df1["light_interval"],
             z =  car_heat_df1["avg_speed_cars"],
-            hovertemplate='Number of Lanes: %{x}<br>Green Light Interval: %{y}<br>Avg Speed of Cars: %{z}'
+            hovertemplate='Number of Lanes: %{x}<br>Green Light Duration: %{y}<br>Avg Speed of Cars: %{z}'
         ),
         row=1, col=1,
     )    
     fig.update_xaxes(title_text="Number of Lanes", row=1, col=1)
-    fig.update_yaxes(title_text="Light Interval", row=1, col=1)
+    fig.update_yaxes(title_text="Green Light Duration (min)", row=1, col=1)
     fig.update_layout(
         height = 600,
         width = 500,
-        title_text = "Speed VS no. of lanes & Light int",
+        title_text = "Speed VS No. of lanes & Green Light Duration",
         showlegend=True
     )
 
@@ -232,21 +232,21 @@ def create_cars_plot3(num_cars = 10, num_ped = 10, patience=0.6):
     #traces for subplot 1 (speed vs num of lanes)
     trace_1 = go.Line(x = car_lanes1["num_lanes"],
                       y = car_lanes1["avg_speed_cars"],
-                      name = "plot2: light_interval = 0.5",
+                      name = "plot2: green_light_duration (min) = 0.5",
                       legendgroup='2')
     trace_2 = go.Line(x = car_lanes2["num_lanes"],
                       y = car_lanes2["avg_speed_cars"],
-                      name = "plot2: light_interval = 1.0",
+                      name = "plot2: green_light_duration (min) = 1.0",
                       #legendgroup='1'
                       )
     trace_3 = go.Line(x = car_lanes3["num_lanes"],
                       y = car_lanes3["avg_speed_cars"],
-                      name = "plot2: light_interval = 1.5",
+                      name = "plot2: green_light_duration (min) = 1.5",
                       #legendgroup='1'
                       )
     trace_4 = go.Line(x = car_lanes4["num_lanes"],
                       y = car_lanes4["avg_speed_cars"],
-                      name = "plot2: light_interval = 2.0",
+                      name = "plot2: green_light_duration (min) = 2.0",
                       #legendgroup='1'
                       )
     
@@ -264,7 +264,7 @@ def create_cars_plot3(num_cars = 10, num_ped = 10, patience=0.6):
         )
 
     # axis titles
-    fig.update_xaxes(title_text="Light Interval", row=1, col=1)
+    fig.update_xaxes(title_text="Green Light Duration (min)", row=1, col=1)
     fig.update_xaxes(title_text="Number of Lanes", row=2, col=1)
 
     fig.update_yaxes(title_text="Average Speed of Cars", row=1, col=1)
@@ -272,7 +272,7 @@ def create_cars_plot3(num_cars = 10, num_ped = 10, patience=0.6):
 
     fig.update_layout(
         height = 600,
-        width = 600,
+        width = 700,
         showlegend=True
     )
     return fig
@@ -289,15 +289,15 @@ def create_cars_plot4(num_cars = 15, num_ped = 15, patience=0.6):
         go.Heatmap(x = car_heat_df2["num_lanes"],
             y =  car_heat_df2["light_interval"],
             z =  car_heat_df2["changed_lanes"],
-            hovertemplate='Number of Lanes: %{x}<br>Green Light Interval: %{y}<br>Lane changing per min: %{z}'),
+            hovertemplate='Number of Lanes: %{x}<br>Green Light Duration: %{y}<br>Lane changing per min: %{z}'),
         row=1, col=1,
     )    
     fig.update_xaxes(title_text="Number of Lanes", row=1, col=1)
-    fig.update_yaxes(title_text="Light Interval", row=1, col=1)
+    fig.update_yaxes(title_text="Green Light Duration (min)", row=1, col=1)
     fig.update_layout(
         height = 600,
         width = 500,
-        title_text = "Lane changing per min VS no. of lanes & Light interval",
+        title_text = "Lane changing per min <br>VS <br>No. of lanes & Green Light Duration",
         showlegend=True
     )
     return fig
@@ -368,21 +368,21 @@ def create_cars_plot5(num_cars = 15, num_ped = 15, patience=0.6):
     #traces for subplot 1 (speed vs num of lanes)
     trace_1 = go.Line(x = car_lanes1["num_lanes"],
                       y = car_lanes1["changed_lanes"],
-                      name = "plot2: light_interval = 0.5",
+                      name = "plot2: green_light_duration (min) = 0.5",
                       legendgroup='2')
     trace_2 = go.Line(x = car_lanes2["num_lanes"],
                       y = car_lanes2["changed_lanes"],
-                      name = "plot2: light_interval = 1.0",
+                      name = "plot2: green_light_duration (min) = 1.0",
                       #legendgroup='1'
                       )
     trace_3 = go.Line(x = car_lanes3["num_lanes"],
                       y = car_lanes3["changed_lanes"],
-                      name = "plot2: light_interval = 1.5",
+                      name = "plot2: green_light_duration (min) = 1.5",
                       #legendgroup='1'
                       )
     trace_4 = go.Line(x = car_lanes4["num_lanes"],
                       y = car_lanes4["changed_lanes"],
-                      name = "plot2: light_interval = 2.0",
+                      name = "plot2: green_light_duration (min) = 2.0",
                       #legendgroup='1'
                       )
     
@@ -400,7 +400,7 @@ def create_cars_plot5(num_cars = 15, num_ped = 15, patience=0.6):
         )
 
     # axis titles
-    fig.update_xaxes(title_text="Light Interval", row=1, col=1)
+    fig.update_xaxes(title_text="Green Light Duration (min) ", row=1, col=1)
     fig.update_xaxes(title_text="Number of Lanes", row=2, col=1)
 
     fig.update_yaxes(title_text="Number of cars changing lanes", row=1, col=1)
@@ -408,7 +408,7 @@ def create_cars_plot5(num_cars = 15, num_ped = 15, patience=0.6):
 
     fig.update_layout(
         height = 600,
-        width = 600,
+        width = 700,
         showlegend=True
     )
     return fig
@@ -512,20 +512,20 @@ content2 = dcc.Tabs(id = "car-graph-tabs", children = [
         dbc.Row([
                 dbc.Col([
                     dcc.Graph(id = "cars_plot4", figure=create_cars_plot4())
-                ], width = 6), #heatmap of num_change_lanes vs num_lanes and light int
+                ], width = 5), #heatmap of num_change_lanes vs num_lanes and light int
                 dbc.Col([
                     dcc.Graph(id = "cars_plot5", figure=create_cars_plot5())
-                ], width = 4) #subplots of num_change_lanes
+                ], width = 7) #subplots of num_change_lanes
             ])
     ], label = "Rate of lane changing"),
     dcc.Tab([
         dbc.Row([
                 dbc.Col([
                     dcc.Graph(id = "cars_plot2", figure=create_cars_plot2())
-                    ], width = 6), #heatmap of speed vs num_lanes and light int
+                    ], width = 5), #heatmap of speed vs num_lanes and light int
                 dbc.Col([
                     dcc.Graph(id = "cars_plot3", figure=create_cars_plot3())
-                ], width = 4) #subplots of speed
+                ], width = 7) #subplots of speed
             ])
     ], label = "Car speed")
 ])
