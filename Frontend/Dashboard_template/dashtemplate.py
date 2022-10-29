@@ -13,7 +13,7 @@ import plotly.express as px
 
 data = pd.read_excel("permsnewdata.xlsx", header=0)
 
-default = {"num_cars": 10, "patience":0.6, "num_pedestrians":10}
+default = {"num_cars": 15, "patience":0.6, "num_pedestrians":15}
 
 def get_data(num_cars, num_ped, patience):
     data1 = data[data['num_cars'] == num_cars]
@@ -25,7 +25,7 @@ def get_data(num_cars, num_ped, patience):
 
 
 ### TAB 3 GRAPHS
-def create_plot_crowd_car(num_cars = 10, num_ped = 10, patience=0.6):
+def create_plot_crowd_car(num_cars = 15, num_ped = 15, patience=0.6):
     data = get_data(num_cars, num_ped, patience)
     crowds_line_df = data.groupby("light_interval").mean()[["avg_crowd_size"]]
 
@@ -120,7 +120,7 @@ def create_plot_crowd_car(num_cars = 10, num_ped = 10, patience=0.6):
 ### TAB 2 GRAPHS
 
 #### Graph 1: plot with 2 output 2 inputs, x = num.lanes, y=light interval, color = speed, size = changed lanes
-def create_cars_plot1(num_cars = 10, num_ped = 10, patience=0.6):
+def create_cars_plot1(num_cars = 15, num_ped = 15, patience=0.6):
     data = get_data(num_cars, num_ped, patience)
     car_marker_df = data[["num_lanes", "light_interval", "avg_speed_cars", "changed_lanes"]]
     #car_marker_df = car_marker_df.groupby(["num_lanes", "light_interval"])["avg_speed_cars", "changed_lanes"].mean().reset_index()
@@ -137,7 +137,7 @@ def create_cars_plot1(num_cars = 10, num_ped = 10, patience=0.6):
 
 #### Graph 2: heat map of speed vs num lanes and light int
 
-def create_cars_plot2(num_cars = 10, num_ped = 10, patience=0.6):
+def create_cars_plot2(num_cars = 15, num_ped = 15, patience=0.6):
     data = get_data(num_cars, num_ped, patience)
     car_heat_df1 = data[["num_lanes", "light_interval", "avg_speed_cars"]]
     
@@ -277,7 +277,7 @@ def create_cars_plot3(num_cars = 10, num_ped = 10, patience=0.6):
     return fig
 
 #### Graph 4: heat map of change lanes vs num lanes and light int
-def create_cars_plot4(num_cars = 10, num_ped = 10, patience=0.6):
+def create_cars_plot4(num_cars = 15, num_ped = 15, patience=0.6):
     data = get_data(num_cars, num_ped, patience)
     car_heat_df2 = data[["num_lanes", "light_interval", "changed_lanes"]]
     fig = make_subplots(
@@ -302,7 +302,7 @@ def create_cars_plot4(num_cars = 10, num_ped = 10, patience=0.6):
     return fig
 
 #### Graph 5: subplot of change lanes vs num lanes and change lanes vs light int
-def create_cars_plot5(num_cars = 10, num_ped = 10, patience=0.6):
+def create_cars_plot5(num_cars = 15, num_ped = 15, patience=0.6):
     data = get_data(num_cars, num_ped, patience)
 
     #for speed vs light int graph
@@ -427,7 +427,7 @@ content1 = dbc.Row([
         html.Br(),
         html.Span(id="number-of-lanes", style={"verticalAlign": "middle"}),
         html.Br(),
-        dbc.Button("Increase Lane", id = "increase_lane", color = "success", className = "me-1", n_clicks = 1),
+        dbc.Button("Increase Lane", id = "increase_lane", color = "success", className = "me-1", n_clicks = 2),
         html.H6("Green to Red Ratio"),
         html.Div(
             [
@@ -576,7 +576,7 @@ sidebar = html.Div([
     html.Br(),
 
     html.H6("Max patience"),
-    dcc.Slider(id = "max-patience", min = 0.2, max = 1, step = 0.2, value=1, 
+    dcc.Slider(id = "max-patience", min = 0.2, max = 1, step = 0.2, value=0.6, 
         tooltip={"placement": "bottom", "always_visible": True}),
 
     html.P(
