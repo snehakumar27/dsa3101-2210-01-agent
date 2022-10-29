@@ -101,9 +101,9 @@ def create_plot_crowd_car(num_cars = 15, num_ped = 15, patience=0.6):
 
 
     fig.update_xaxes(title_text="Green Light Duration (min)",row=1, col=1)
-    fig.update_yaxes(title_text="Condition for cars & pedestrians",row=1, col=1)
+    fig.update_yaxes(title_text="Average Speed of Cars",row=1, col=1)
     fig.update_xaxes(title_text="Green Light Duration (min)",row=2, col=1)
-    fig.update_yaxes(title_text="Condition for cars & pedestrians",row=2, col=1)
+    fig.update_yaxes(title_text="Average Crowd Size",row=2, col=1)
 
     
     fig.update_layout(
