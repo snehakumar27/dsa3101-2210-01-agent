@@ -232,21 +232,21 @@ def create_cars_plot3(num_cars = 10, num_ped = 10, patience=0.6):
     #traces for subplot 1 (speed vs num of lanes)
     trace_1 = go.Line(x = car_lanes1["num_lanes"],
                       y = car_lanes1["avg_speed_cars"],
-                      name = "plot2: green_light_duration (min) = 0.5",
+                      name = "plot2: green light duration (min) = 0.5",
                       legendgroup='2')
     trace_2 = go.Line(x = car_lanes2["num_lanes"],
                       y = car_lanes2["avg_speed_cars"],
-                      name = "plot2: green_light_duration (min) = 1.0",
+                      name = "plot2: green light duration (min) = 1.0",
                       #legendgroup='1'
                       )
     trace_3 = go.Line(x = car_lanes3["num_lanes"],
                       y = car_lanes3["avg_speed_cars"],
-                      name = "plot2: green_light_duration (min) = 1.5",
+                      name = "plot2: green light duration (min) = 1.5",
                       #legendgroup='1'
                       )
     trace_4 = go.Line(x = car_lanes4["num_lanes"],
                       y = car_lanes4["avg_speed_cars"],
-                      name = "plot2: green_light_duration (min) = 2.0",
+                      name = "plot2: green light duration (min) = 2.0",
                       #legendgroup='1'
                       )
     
@@ -368,21 +368,21 @@ def create_cars_plot5(num_cars = 15, num_ped = 15, patience=0.6):
     #traces for subplot 1 (speed vs num of lanes)
     trace_1 = go.Line(x = car_lanes1["num_lanes"],
                       y = car_lanes1["changed_lanes"],
-                      name = "plot2: green_light_duration (min) = 0.5",
+                      name = "plot2: green light duration (min) = 0.5",
                       legendgroup='2')
     trace_2 = go.Line(x = car_lanes2["num_lanes"],
                       y = car_lanes2["changed_lanes"],
-                      name = "plot2: green_light_duration (min) = 1.0",
+                      name = "plot2: green light duration (min) = 1.0",
                       #legendgroup='1'
                       )
     trace_3 = go.Line(x = car_lanes3["num_lanes"],
                       y = car_lanes3["changed_lanes"],
-                      name = "plot2: green_light_duration (min) = 1.5",
+                      name = "plot2: green light duration (min) = 1.5",
                       #legendgroup='1'
                       )
     trace_4 = go.Line(x = car_lanes4["num_lanes"],
                       y = car_lanes4["changed_lanes"],
-                      name = "plot2: green_light_duration (min) = 2.0",
+                      name = "plot2: green light duration (min) = 2.0",
                       #legendgroup='1'
                       )
     
@@ -403,8 +403,8 @@ def create_cars_plot5(num_cars = 15, num_ped = 15, patience=0.6):
     fig.update_xaxes(title_text="Green Light Duration (min) ", row=1, col=1)
     fig.update_xaxes(title_text="Number of Lanes", row=2, col=1)
 
-    fig.update_yaxes(title_text="Number of cars changing lanes", row=1, col=1)
-    fig.update_yaxes(title_text="Number of cars changing lanes", row=2, col=1)
+    fig.update_yaxes(title_text="Number of lane changes per min", row=1, col=1)
+    fig.update_yaxes(title_text="Number of lane changes per min", row=2, col=1)
 
     fig.update_layout(
         height = 600,
@@ -581,7 +581,7 @@ sidebar = html.Div([
 
     html.Br(),
 
-    html.H6("Max patience"),
+    html.H6("Driver patience"),
     dcc.Slider(id = "max-patience", min = 0.2, max = 1, step = 0.2, value=0.6, 
         tooltip={"placement": "bottom", "always_visible": True}),
 
