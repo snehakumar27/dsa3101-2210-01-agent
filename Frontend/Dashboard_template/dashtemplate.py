@@ -44,9 +44,8 @@ def create_plot_crowd_car(num_cars = 10, num_ped = 10, patience=0.6):
     fig = make_subplots(
         rows=2, cols=1,
         vertical_spacing=0.2,
-        #subplot_titles=("ligth interval VS condition for cars and pedestrains"
-            #"light interval VS ..."
-            #),
+        subplot_titles=("Plot 1", 
+            "Plot 2"),
         row_heights=[0.5,0.5])
 
     #traces for subplot 1
@@ -54,7 +53,7 @@ def create_plot_crowd_car(num_cars = 10, num_ped = 10, patience=0.6):
             x = car_interval1["light_interval"],
             y = car_interval1["avg_speed_cars"],
             line=dict(width=3, dash='dash'),
-            name = "number of lanes = 1",
+            name = "plot1: number of lanes = 1",
             legendgroup='1'
         )
         
@@ -64,21 +63,21 @@ def create_plot_crowd_car(num_cars = 10, num_ped = 10, patience=0.6):
             x = car_interval2["light_interval"],
             y = car_interval2["avg_speed_cars"],
             line=dict(width=3, dash='dash'),
-            name = "number of lanes = 2"
+            name = "plot1: number of lanes = 2"
         )
 
     trace3 =go.Scatter(
             x = car_interval3["light_interval"],
             y = car_interval3["avg_speed_cars"],
             line=dict(width=3, dash='dash'),
-            name = "number of lanes = 3"
+            name = "plot1: number of lanes = 3"
         )
 
     trace4 =go.Scatter(
             x = car_interval4["light_interval"],
             y = car_interval4["avg_speed_cars"],
             line=dict(width=3, dash='dash'),
-            name = "number of lanes = 4"
+            name = "plot1: number of lanes = 4"
         )
     
     # creating subplot 1
@@ -92,7 +91,7 @@ def create_plot_crowd_car(num_cars = 10, num_ped = 10, patience=0.6):
             x = crowds_line_df.index,
             y = crowds_line_df["avg_crowd_size"],
             line=dict(color='firebrick', width=4),
-            name = "avg crowd size of pedestrians",
+            name = "plot2: avg crowd size of pedestrians",
             legendgroup='2'
         )
     
@@ -129,8 +128,8 @@ def create_cars_plot1(num_cars = 10, num_ped = 10, patience=0.6):
         y="light_interval", 
         color="changed_lanes", 
         size = "avg_speed_cars", 
-        title="Map of Speed & Lane changing vs Num lanes & Light int",
-        labels=dict(light_interval="Green light interval for cars", num_lanes="Number of Lanes", changed_lanes="Count of Lane Changing", avg_speed_cars = "Average speed of cars")
+        title="Map of Speed & Lane changing per min VS no. of lanes & Light interval",
+        labels=dict(light_interval="Green light interval for cars", num_lanes="Number of Lanes", changed_lanes="Lane changing per min", avg_speed_cars = "Average speed of cars")
     )
     fig.update_traces(mode="markers")
     return fig
@@ -160,7 +159,7 @@ def create_cars_plot2(num_cars = 10, num_ped = 10, patience=0.6):
     fig.update_layout(
         height = 600,
         width = 500,
-        title_text = "Speed vs Num lanes & Light int",
+        title_text = "Speed VS no. of lanes & Light int",
         showlegend=True
     )
 
@@ -196,31 +195,31 @@ def create_cars_plot3(num_cars = 10, num_ped = 10, patience=0.6):
     fig = make_subplots(
         rows=2, cols=1,
         vertical_spacing=0.3,
-        subplot_titles=("Avg speed of cars vs light interval",
-            "Avg speed of cars vs number of lanes"
+        subplot_titles=("Plot 1",
+            "Plot 2"
             ),
         row_heights=[0.5,0.5])
 
     #traces for subplot 1 (speed vs light int)
     trace1 =go.Line(x = car_interval1["light_interval"],
         y = car_interval1["avg_speed_cars"],
-        name = "number of lanes = 1",
+        name = "plot1: number of lanes = 1",
         legendgroup='1'
         )
 
     trace2 =go.Line(x = car_interval2["light_interval"],
         y = car_interval2["avg_speed_cars"],
-        name = "number of lanes = 2",
+        name = "plot1: number of lanes = 2",
         )
 
     trace3 =go.Line(x = car_interval3["light_interval"],
         y = car_interval3["avg_speed_cars"],
-        name = "number of lanes = 3",
+        name = "plot1: number of lanes = 3",
         )
 
     trace4 =go.Line(x = car_interval4["light_interval"],
         y = car_interval4["avg_speed_cars"],
-        name = "number of lanes = 4",               
+        name = "plot1: number of lanes = 4",               
         )
     
     # creating subplot 1
@@ -232,21 +231,21 @@ def create_cars_plot3(num_cars = 10, num_ped = 10, patience=0.6):
     #traces for subplot 1 (speed vs num of lanes)
     trace_1 = go.Line(x = car_lanes1["num_lanes"],
                       y = car_lanes1["avg_speed_cars"],
-                      name = "light_interval = 0.5",
+                      name = "plot2: light_interval = 0.5",
                       legendgroup='2')
     trace_2 = go.Line(x = car_lanes2["num_lanes"],
                       y = car_lanes2["avg_speed_cars"],
-                      name = "light_interval = 1.0",
+                      name = "plot2: light_interval = 1.0",
                       #legendgroup='1'
                       )
     trace_3 = go.Line(x = car_lanes3["num_lanes"],
                       y = car_lanes3["avg_speed_cars"],
-                      name = "light_interval = 1.5",
+                      name = "plot2: light_interval = 1.5",
                       #legendgroup='1'
                       )
     trace_4 = go.Line(x = car_lanes4["num_lanes"],
                       y = car_lanes4["avg_speed_cars"],
-                      name = "light_interval = 2.0",
+                      name = "plot2: light_interval = 2.0",
                       #legendgroup='1'
                       )
     
@@ -289,7 +288,7 @@ def create_cars_plot4(num_cars = 10, num_ped = 10, patience=0.6):
         go.Heatmap(x = car_heat_df2["num_lanes"],
             y =  car_heat_df2["light_interval"],
             z =  car_heat_df2["changed_lanes"],
-            hovertemplate='Number of Lanes: %{x}<br>Green Light Interval: %{y}<br>Count of Lane Changing: %{z}'),
+            hovertemplate='Number of Lanes: %{x}<br>Green Light Interval: %{y}<br>Lane changing per min: %{z}'),
         row=1, col=1,
     )    
     fig.update_xaxes(title_text="Number of Lanes", row=1, col=1)
@@ -297,7 +296,7 @@ def create_cars_plot4(num_cars = 10, num_ped = 10, patience=0.6):
     fig.update_layout(
         height = 600,
         width = 500,
-        title_text = "Change lanes vs Num lanes & Light int",
+        title_text = "Lane changing per min VS no. of lanes & Light interval",
         showlegend=True
     )
     return fig
@@ -332,31 +331,31 @@ def create_cars_plot5(num_cars = 10, num_ped = 10, patience=0.6):
     fig = make_subplots(
         rows=2, cols=1,
         vertical_spacing=0.3,
-        subplot_titles=("Number of cars changing lanes vs light interval",
-            "Number of cars changing lanes vs number of lanes"
+        subplot_titles=("Plot 1",
+            "Plot 2"
             ),
         row_heights=[0.5,0.5])
 
     #traces for subplot 1 (speed vs light int)
     trace1 =go.Line(x = car_interval1["light_interval"],
         y = car_interval1["changed_lanes"],
-        name = "number of lanes = 1",
+        name = "plot1: number of lanes = 1",
         legendgroup='1'
         )
-
+ 
     trace2 =go.Line(x = car_interval2["light_interval"],
         y = car_interval2["changed_lanes"],
-        name = "number of lanes = 2",
+        name = "plot1: number of lanes = 2",
         )
 
     trace3 =go.Line(x = car_interval3["light_interval"],
         y = car_interval3["changed_lanes"],
-        name = "number of lanes = 3",
+        name = "plot1: number of lanes = 3",
         )
 
     trace4 =go.Line(x = car_interval4["light_interval"],
         y = car_interval4["changed_lanes"],
-        name = "number of lanes = 4",               
+        name = "plot1: number of lanes = 4",               
         )
     
     # creating subplot 1
@@ -368,21 +367,21 @@ def create_cars_plot5(num_cars = 10, num_ped = 10, patience=0.6):
     #traces for subplot 1 (speed vs num of lanes)
     trace_1 = go.Line(x = car_lanes1["num_lanes"],
                       y = car_lanes1["changed_lanes"],
-                      name = "light_interval = 0.5",
+                      name = "plot2: light_interval = 0.5",
                       legendgroup='2')
     trace_2 = go.Line(x = car_lanes2["num_lanes"],
                       y = car_lanes2["changed_lanes"],
-                      name = "light_interval = 1.0",
+                      name = "plot2: light_interval = 1.0",
                       #legendgroup='1'
                       )
     trace_3 = go.Line(x = car_lanes3["num_lanes"],
                       y = car_lanes3["changed_lanes"],
-                      name = "light_interval = 1.5",
+                      name = "plot2: light_interval = 1.5",
                       #legendgroup='1'
                       )
     trace_4 = go.Line(x = car_lanes4["num_lanes"],
                       y = car_lanes4["changed_lanes"],
-                      name = "light_interval = 2.0",
+                      name = "plot2: light_interval = 2.0",
                       #legendgroup='1'
                       )
     
@@ -484,7 +483,7 @@ content1 = dbc.Row([
                     scale={'interval': 5, 'labelInterval': 2},
                     units="Changes",
                     id = "test03",
-                    label='No. of Lane Changes',
+                    label='Lane changing per min',
                     max=30,
                     min=0,
                     height = 120,
@@ -517,7 +516,7 @@ content2 = dcc.Tabs(id = "car-graph-tabs", children = [
                     dcc.Graph(id = "cars_plot5", figure=create_cars_plot5())
                 ], width = 4) #subplots of num_change_lanes
             ])
-    ], label = "Lane changing count"),
+    ], label = "Rate of lane changing"),
     dcc.Tab([
         dbc.Row([
                 dbc.Col([
@@ -698,29 +697,29 @@ def get_description(o1, o2, o3):
         output += f"The average car speed is {o1} kilometers per hour, \
             meaning that traffic flows considerably freely near the junction. \n\
             The average crowd size is {o2} people, indicating that the pedestrians are able to walk around effortlessly. \n\
-            The number of lane changes is {o3}, suggesting that accidents are less likely to happen. \n"
+            The number of lane changes per min is {o3}, suggesting that accidents are less likely to happen. \n"
     
     elif bad == (False, False, True):
         output += f"The average car speed is {o1} kilometers per hour, \
             meaning that traffic flows considerably freely near the junction. \
             The average crowd size is {o2} people, indicating that the pedestrians are able to walk around effortlessly. \
-            However, the number of lane changes is {o3}, suggesting that there is a high risk of accidents. "
+            However, the number of lane changes per min is {o3}, suggesting that there is a high risk of accidents. "
 
     elif bad == (False, True, False):
         output += f"The average car speed is {o1} kilometers per hour, \
             meaning that traffic flows considerably freely near the junction. \
-            The number of lane changes is {o3}, suggesting that accidents are less likely to happen. \
+            The number of lane changes per min is {o3}, suggesting that accidents are less likely to happen. \
             However, the average crowd size is {o2} people, indicating that the pedestrians may face difficulties walking around. "
 
     elif bad == (False, True, True):
         output += f"The average car speed is {o1} kilometers per hour, \
             meaning that traffic flows considerably freely near the junction. \
             However, the average crowd size is {o2} people, indicating that the pedestrians may face difficulties walking around. \
-            Moreover, the number of lane changes is {o3}, suggesting that there is a high risk of accidents. " 
+            Moreover, the number of lane changes per min is {o3}, suggesting that there is a high risk of accidents. " 
 
     elif bad == (True, False, False):
         output += f"The average crowd size is {o2} people, indicating that the pedestrians are able to walk around effortlessly. \
-            The number of lane changes is {o3}, suggesting that accidents are less likely to happen. \
+            The number of lane changes per min is {o3}, suggesting that accidents are less likely to happen. \
             However, the average car speed is only {o1} kilometers per hour, \
             meaning that congestion happens frequently near the junction. "
 
@@ -728,10 +727,10 @@ def get_description(o1, o2, o3):
         output += f"The average crowd size is {o2} people, indicating that the pedestrians are able to walk around effortlessly. \
             However, the average car speed is only {o1} kilometers per hour, \
             meaning that congestion happens frequently near the junction. \
-            Moreover, the number of lane changes is {o3}, suggesting that there is a high risk of accidents. "
+            Moreover, the number of lane changes per min is {o3}, suggesting that there is a high risk of accidents. "
 
     elif bad == (True, True, False):
-        output += f"The number of lane changes is {o3}, suggesting that accidents are less likely to happen. \
+        output += f"The number of lane changes per min is {o3}, suggesting that accidents are less likely to happen. \
             However, the average car speed is only {o1} kilometers per hour, \
             meaning that congestion happens frequently near the junction. \
             Moreover, the average crowd size is {o2} people, indicating that the pedestrians may face difficulties walking around. "
@@ -740,7 +739,7 @@ def get_description(o1, o2, o3):
         output += f"The average car speed is only {o1} kilometers per hour, \
             meaning that congestion happens frequently near the junction. \
             Moreover, the average crowd size is {o2} people, indicating that the pedestrians may face difficulties walking around. \
-            On top of that, the number of lane changes is {o3}, suggesting that there is a high risk of accidents. "
+            On top of that, the number of lane changes per min is {o3}, suggesting that there is a high risk of accidents. "
 
     bad_qualities = bad.count(True)
     if bad_qualities == 0:
