@@ -53,7 +53,7 @@ def create_plot_crowd_car(num_cars = 15, num_ped = 15, patience=0.6):
     trace1 =go.Scatter(
             x = car_interval1["light_interval"],
             y = car_interval1["avg_speed_cars"],
-            line=dict(width=3, dash='dash'),
+            line=dict(width=3),
             name = "plot1: number of lanes = 1",
             legendgroup='1'
         )
@@ -63,21 +63,21 @@ def create_plot_crowd_car(num_cars = 15, num_ped = 15, patience=0.6):
     trace2 =go.Scatter(
             x = car_interval2["light_interval"],
             y = car_interval2["avg_speed_cars"],
-            line=dict(width=3, dash='dash'),
+            line=dict(width=3),
             name = "plot1: number of lanes = 2"
         )
 
     trace3 =go.Scatter(
             x = car_interval3["light_interval"],
             y = car_interval3["avg_speed_cars"],
-            line=dict(width=3, dash='dash'),
+            line=dict(width=3),
             name = "plot1: number of lanes = 3"
         )
 
     trace4 =go.Scatter(
             x = car_interval4["light_interval"],
             y = car_interval4["avg_speed_cars"],
-            line=dict(width=3, dash='dash'),
+            line=dict(width=3),
             name = "plot1: number of lanes = 4"
         )
     
@@ -423,13 +423,13 @@ app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP, 'https://codepen.io/
 #### TAB 1 CONTENT
 content1 = dbc.Row([
     dbc.Col([
-        html.H6("Number of Lanes"),
+        html.H6("Number of Lanes (1 - 4)"),
         dbc.Button("Decrease Lane", id = "decrease_lane", color = "secondary", className = "me-1", n_clicks = 0),
         html.Br(),
         html.Span(id="number-of-lanes", style={"verticalAlign": "middle"}),
         html.Br(),
         dbc.Button("Increase Lane", id = "increase_lane", color = "secondary", className = "me-1", n_clicks = 2),
-        html.H6("Green to Red Ratio"),
+        html.H6("Green Light Duration of Cars (0.5 - 2 mins)"),
         html.Div(
             [
                 dbc.Button("-", id = "decrease_light", color = "danger", className = "me-1", n_clicks = 0),
