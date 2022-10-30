@@ -424,12 +424,12 @@ app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP, 'https://codepen.io/
 content1 = dbc.Row([
     dbc.Col([
         html.H6("Number of Lanes"),
-        dbc.Button("Decrease Lane", id = "decrease_lane", color = "danger", className = "me-1", n_clicks = 0),
+        dbc.Button("Decrease Lane", id = "decrease_lane", color = "secondary", className = "me-1", n_clicks = 0),
         html.Br(),
         html.Span(id="number-of-lanes", style={"verticalAlign": "middle"}),
         html.Br(),
-        dbc.Button("Increase Lane", id = "increase_lane", color = "success", className = "me-1", n_clicks = 2),
-        html.H6("Green to Red Ratio"),
+        dbc.Button("Increase Lane", id = "increase_lane", color = "secondary", className = "me-1", n_clicks = 2),
+        html.H6("Green Light Duration for Cars"),
         html.Div(
             [
                 dbc.Button("-", id = "decrease_light", color = "danger", className = "me-1", n_clicks = 0),
@@ -546,6 +546,23 @@ sidebar = html.Div([
                 style={"text-align": "left",
                 "color": "#4aa9d4"})
     ]),
+    html.H6("Speed Limit"),
+    dcc.Slider(id = "speed-limit", min = 40, max = 90, step = 10,
+    marks={
+        40: "40",
+        50: "50",
+        60: "60",
+        70: "70",
+        80: "80"
+    }, value=50, 
+        tooltip={"placement": "bottom", "always_visible": True}),
+
+    html.P(
+        "The speed limit at the junction"
+    ),
+    
+    html.Br(),
+
     html.H6("Number of Cars"),
     dcc.Slider(id = "number-of-cars", min = 5, max = 45, step = 10,
     marks={
@@ -899,4 +916,4 @@ def update_cars5(nc, np, mp):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port = 8055)
+    app.run_server(debug=False, port = 8055)
