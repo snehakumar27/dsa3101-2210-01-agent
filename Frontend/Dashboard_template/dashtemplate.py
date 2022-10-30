@@ -428,8 +428,8 @@ content1 = dbc.Row([
         html.Br(),
         html.Span(id="number-of-lanes", style={"verticalAlign": "middle"}),
         html.Br(),
-        dbc.Button("Increase Lane", id = "increase_lane", color = "success", className = "me-1", n_clicks = 2),
-        html.H6("Green Light Duration for Cars (0.5-2 mins)"),
+        dbc.Button("Increase Lane", id = "increase_lane", color = "secondary", className = "me-1", n_clicks = 2),
+        html.H6("Green to Red Ratio"),
         html.Div(
             [
                 dbc.Button("-", id = "decrease_light", color = "danger", className = "me-1", n_clicks = 0),
@@ -916,4 +916,4 @@ def update_cars5(nc, np, mp):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False, port = 8055)
+    app.run_server(host = '0.0.0.0', debug=False, port = 8055)
