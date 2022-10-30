@@ -528,18 +528,11 @@ to go
   ;ask traffic_lights [check-switch-lights]
   ask traffic_lights with [cars-light?] [check-car-switch-lights]
   ask traffic_lights with [not cars-light?] [check-pedestrian-switch-lights]
+  set stoppedCars (count cars with [speed = 0])
   tick
 end
 
 to move-cars
-
-  let cstop? false
-  ask traffic_lights with [cars-light?] [
-    ifelse redLight? [set cstop? true] [set cstop? false]
-  ]
-
-  if not cstop?[
-    speed-up-car ]
 
   let blocking-cars other cars in-cone (1 + ((speed / decelaration) * speed)) 120 with [ y-distance <= 2  ]
   let blocking-car min-one-of blocking-cars [ distance myself ]
@@ -548,41 +541,107 @@ to move-cars
     ; down so you are driving a bit slower than that car
     slow-down-car
     set speed [ speed ] of blocking-car
-
-  ]
-  forward speed
-
-  ;whether traffic lights show red or green
-  if [meaning] of patch-here = "crossing" [
-      speed-up-car
-      fd speed
   ]
 
- if ([meaning] of patch-ahead 1 = "crossing")[
-    ifelse (not cstop?) [
-      if speed = 0 [set stoppedCars stoppedCars - 1]
+  let cstop? false
+  ask traffic_lights with [cars-light?] [
+    ifelse redLight? [set cstop? true] [set cstop? false]
+  ]
+
+  ifelse [meaning] of patch-here = "crossing"
+  [
+    ifelse any? persons in-cone 1 180
+    [
+      set speed 0
+      set stopTime stopTime + 1
+    ]
+    [
       speed-up-car
       fd speed
-      ; Addition of cars avoid pedestrains
-;      ifelse not any? persons in-cone 1 180[
-;        speed-up-car
-;        fd speed
-;        ;set stoppedCars stoppedCars - 1
-;      ] [
-;        set speed 0
-;        ;set stoppedCars stoppedCars + 1
-;      ]
-    ][
-      ifelse ([meaning] of patch-here = "crossing")[  ; if cstop and crossing
-        if [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"][
-          speed-up-car
-          fd speed
-      ]][
-        set speed 0
-        set stopTime stopTime + 1
-        set stoppedCars stoppedCars + 1]
     ]
   ]
+  [
+    ifelse [meaning] of patch-ahead 1 = "crossing"
+    [
+      ifelse cstop?
+      [
+        set speed 0
+        set stopTime stopTime + 1
+      ]
+      [
+        ifelse speed = 0
+        [
+          ifelse any? persons in-cone 1 180
+          [
+            set speed 0
+            set stopTime stopTime + 1
+          ]
+          [
+            speed-up-car
+            fd speed
+          ]
+        ]
+        [
+          speed-up-car
+          fd speed
+        ]
+      ]
+    ]
+    [
+      ifelse blocking-car != nobody
+      [
+        slow-down-car
+        set speed [ speed ] of blocking-car
+      ]
+      [
+        speed-up-car
+        fd speed
+      ]
+    ]
+  ]
+
+  ;whether traffic lights show red or green
+;  if [meaning] of patch-here = "crossing" [
+;      speed-up-car
+;      fd speed
+;  ]
+;
+;  if ([meaning] of patch-ahead 1 = "crossing") [
+;    if ((not any? persons with [isCrossing? = true]) and (speed = 0)) [
+;      if (stoppedCars > 0) [
+;        set stoppedCars stoppedCars - 1]
+;      speed-up-car
+;      fd speed
+;    ]
+;  ]
+
+;  if (([meaning] of patch-ahead 1 = "crossing") and (not any? persons with [isCrossing? = true])) [
+;    ifelse (not cstop?) [
+;      if (speed = 0) and (stoppedCars > 0) [
+;        set stoppedCars stoppedCars - 1]
+;      speed-up-car
+;      fd speed
+;      ;Addition of cars avoid pedestrains
+;      ifelse not any? persons in-cone 1 180 [
+;        speed-up-car
+;        fd speed
+;        if stoppedCars > 0 [
+;          set stoppedCars stoppedCars - 1]
+;      ] [
+;        set speed 0
+;        set stoppedCars stoppedCars + 1
+;      ]
+;    ][
+;      ifelse ([meaning] of patch-here = "crossing")[  ; if cstop and crossing
+;        if [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"][
+;          speed-up-car
+;          fd speed
+;      ]][
+;        set speed 0
+;        set stopTime stopTime + 1
+;        set stoppedCars stoppedCars + 1]
+;    ]
+;  ]
 end
 
 
@@ -653,6 +712,60 @@ to move-to-targetLane ; car procedure
 
 end
 
+;to move-cars
+;
+;  let cstop? false
+;  ask traffic_lights with [cars-light?] [
+;    ifelse redLight? [set cstop? true] [set cstop? false]
+;  ]
+;
+;  if not cstop?[
+;    speed-up-car ]
+;
+;  let blocking-cars other cars in-cone (1 + ((speed / decelaration) * speed)) 120 with [ y-distance <= 2  ]
+;  let blocking-car min-one-of blocking-cars [ distance myself ]
+;  if blocking-car != nobody [
+;    ; match the speed of the car ahead of you and then slow
+;    ; down so you are driving a bit slower than that car
+;    slow-down-car
+;    set speed [ speed ] of blocking-car
+;
+;  ]
+;  forward speed
+;
+;  ;whether traffic lights show red or green
+;  if [meaning] of patch-here = "crossing" [
+;      speed-up-car
+;      fd speed
+;  ]
+;
+; if ([meaning] of patch-ahead 1 = "crossing")[
+;    ifelse (not cstop?) [
+;      if speed = 0 [set stoppedCars stoppedCars - 1]
+;      speed-up-car
+;      fd speed
+;      ; Addition of cars avoid pedestrains
+;;      ifelse not any? persons in-cone 1 180[
+;;        speed-up-car
+;;        fd speed
+;;        ;set stoppedCars stoppedCars - 1
+;;      ] [
+;;        set speed 0
+;;        ;set stoppedCars stoppedCars + 1
+;;      ]
+;    ][
+;      ifelse ([meaning] of patch-here = "crossing")[  ; if cstop and crossing
+;        if [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"][
+;          speed-up-car
+;          fd speed
+;      ]][
+;        set speed 0
+;        set stopTime stopTime + 1
+;        set stoppedCars stoppedCars + 1]
+;    ]
+;  ]
+;end
+
 to slow-down-car ; turtle procedure
   set speed (speed - decelaration) ; deceleration
   if speed < 0 [ set speed decelaration ]
@@ -684,7 +797,9 @@ to move-pedestrians
   ifelse [meaning] of patch-ahead 1 = "crossing" [
       ifelse (stop?) [set walk-time 0.01 + random-float (0.06 - 0.01)
       forward walk-time] [
-      ifelse [meaning] of patch-here = "crossing" [forward walk-time] [set walk-time 0]
+      ifelse [meaning] of patch-here = "crossing" [
+        forward walk-time
+      ] [set walk-time 0]
   ]]
   [forward walk-time]
   ;change-heading
@@ -947,7 +1062,7 @@ number-of-cars
 number-of-cars
 0
 124
-93.0
+40.0
 1
 1
 NIL
