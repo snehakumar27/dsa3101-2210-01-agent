@@ -429,7 +429,7 @@ content1 = dbc.Row([
         html.Span(id="number-of-lanes", style={"verticalAlign": "middle"}),
         html.Br(),
         dbc.Button("Increase Lane", id = "increase_lane", color = "success", className = "me-1", n_clicks = 2),
-        html.H6("Green to Red Ratio"),
+        html.H6("Green Light Duration for Cars (0.5-2 mins)"),
         html.Div(
             [
                 dbc.Button("-", id = "decrease_light", color = "danger", className = "me-1", n_clicks = 0),
