@@ -712,6 +712,60 @@ to move-to-targetLane ; car procedure
 
 end
 
+;to move-cars
+;
+;  let cstop? false
+;  ask traffic_lights with [cars-light?] [
+;    ifelse redLight? [set cstop? true] [set cstop? false]
+;  ]
+;
+;  if not cstop?[
+;    speed-up-car ]
+;
+;  let blocking-cars other cars in-cone (1 + ((speed / decelaration) * speed)) 120 with [ y-distance <= 2  ]
+;  let blocking-car min-one-of blocking-cars [ distance myself ]
+;  if blocking-car != nobody [
+;    ; match the speed of the car ahead of you and then slow
+;    ; down so you are driving a bit slower than that car
+;    slow-down-car
+;    set speed [ speed ] of blocking-car
+;
+;  ]
+;  forward speed
+;
+;  ;whether traffic lights show red or green
+;  if [meaning] of patch-here = "crossing" [
+;      speed-up-car
+;      fd speed
+;  ]
+;
+; if ([meaning] of patch-ahead 1 = "crossing")[
+;    ifelse (not cstop?) [
+;      if speed = 0 [set stoppedCars stoppedCars - 1]
+;      speed-up-car
+;      fd speed
+;      ; Addition of cars avoid pedestrains
+;;      ifelse not any? persons in-cone 1 180[
+;;        speed-up-car
+;;        fd speed
+;;        ;set stoppedCars stoppedCars - 1
+;;      ] [
+;;        set speed 0
+;;        ;set stoppedCars stoppedCars + 1
+;;      ]
+;    ][
+;      ifelse ([meaning] of patch-here = "crossing")[  ; if cstop and crossing
+;        if [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"][
+;          speed-up-car
+;          fd speed
+;      ]][
+;        set speed 0
+;        set stopTime stopTime + 1
+;        set stoppedCars stoppedCars + 1]
+;    ]
+;  ]
+;end
+
 to slow-down-car ; turtle procedure
   set speed (speed - decelaration) ; deceleration
   if speed < 0 [ set speed decelaration ]
@@ -993,7 +1047,7 @@ pedestrian-lights-interval
 pedestrian-lights-interval
 0
 45
-15.0
+45.0
 15
 1
 seconds
