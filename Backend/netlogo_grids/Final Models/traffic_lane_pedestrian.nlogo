@@ -237,7 +237,7 @@ ask n-of (sidewalk-left-people) patches with [meaning = "sidewalk-left"] [
       set size 0.8
       set start-head 90
       set heading start-head
-      set walk-time 0.01 + random-float (0.06 - 0.01)
+      set walk-time 0.023 + random-float (0.004)
       set will-turn? one-of [true false]
       set start-on-stone? false
       set want-change? false
@@ -252,7 +252,7 @@ ask n-of (sidewalk-right-people) patches with [meaning = "sidewalk-right"] [
       set size 0.8
       set start-head 270
       set heading start-head
-      set walk-time 0.01 + random-float (0.06 - 0.01)
+      set walk-time 0.023 + random-float (0.004)
       set start-on-stone? false
       set will-turn? one-of [true false]
       set want-change? false
@@ -268,7 +268,7 @@ ask n-of (sidewalk-right-people) patches with [meaning = "sidewalk-right"] [
       set start-head one-of [0 180]
       set heading start-head
       set start-on-stone? false
-      set walk-time 0.01 + random-float (0.06 - 0.01)
+      set walk-time 0.023 + random-float (0.004)
       set will-turn? one-of [true false]
       set want-change? false
       ]
@@ -281,7 +281,7 @@ ask n-of (sidewalk-right-people) patches with [meaning = "sidewalk-right"] [
       set color pedestrian-color
       set size 0.8
         ;randomly set car speed
-      set walk-time 0.01 + random-float (0.06 - 0.01)
+      set walk-time 0.023 + random-float (0.004)
       set start-on-stone? true
       set start-head random (360)
       set heading start-head
