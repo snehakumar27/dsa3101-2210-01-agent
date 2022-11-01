@@ -22,13 +22,12 @@ globals [
   recordData
   dataLength
   changeLane
-  totalTicks
+  ;totalTicks
 ]
 
 
 patches-own [
   meaning
-  will-cross?   ;may not be needed
   used
   traffic
   limit
@@ -78,7 +77,7 @@ to setup
   set dataLength 0
   set changeLane 0
   set recordData (list)
-  set totalTicks (car-lights-interval + pedestrian-lights-interval)
+  ;set totalTicks (car-lights-interval + pedestrian-lights-interval)
   draw-roads
   draw-sidewalk
   draw-crossing
@@ -143,8 +142,6 @@ to draw-sidewalk
     set pcolor 36 + random-float 0.3
     set meaning "sidewalk-roadside"
   ]
-
-  ; may add sidewalk next to the road here, with different meanings to distinguish when creating personss
 end
 
 to draw-crossing
@@ -193,7 +190,6 @@ to make-cars
         set targetLane pxcor               ;starting lane is the targetLane
         set heading 0
         ;randomly set car speed
-        ;set speed 0.5
         let s random 14
         if s < 7 [set maxSpeed speedLimit - 0.0005 + random-float 0.003]
         if s = 7 [set maxSpeed speedLimit - 0.0005 + random-float 0.002]
@@ -222,7 +218,6 @@ to make-cars
         set targetLane pxcor                  ;starting lane is the targetLane
         set heading 180
         ;randomly set car speed
-        ;set speed 0.5
         let s random 14
         if s < 7
         [
@@ -604,7 +599,6 @@ to go
     ask cars with [ xcor != targetLane ] [ move-to-targetLane ]
   ]
   ask persons [move-pedestrians]
-  ;ask traffic_lights [check-switch-lights]
   ask traffic_lights with [ cars-light? ] [ check-car-switch-lights ]
   ask traffic_lights with [ not cars-light? ] [ check-pedestrian-switch-lights ]
   set stoppedCars (count cars with [ speed = 0 ])
@@ -1048,7 +1042,7 @@ speed-limit
 speed-limit
 40
 80
-50.0
+60.0
 10
 1
 km/h
@@ -1155,7 +1149,7 @@ acceleration
 acceleration
 1
 5
-3.0
+4.0
 1
 1
 km/h
