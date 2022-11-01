@@ -22,6 +22,7 @@ globals [
   recordData
   dataLength
   changeLane
+  numWaiting
   ;totalTicks
 ]
 
@@ -76,6 +77,7 @@ to setup
   set stoppedCars 0
   set dataLength 0
   set changeLane 0
+  set numWaiting 0
   set recordData (list)
   ;set totalTicks (car-lights-interval + pedestrian-lights-interval)
   draw-roads
@@ -602,6 +604,7 @@ to go
   ask traffic_lights with [ cars-light? ] [ check-car-switch-lights ]
   ask traffic_lights with [ not cars-light? ] [ check-pedestrian-switch-lights ]
   set stoppedCars (count cars with [ speed = 0 ])
+  set numWaiting round((count persons with [ [meaning] of patch-here = "waitpoint" ]))
   tick
 end
 
@@ -746,6 +749,7 @@ to move-to-targetLane ; car procedure
         ;slow down if the car blocking us is behind, otherwise speed up
         ifelse towards blocking-car <= 90 [ slow-down-car ] [ speed-up-car ]
         set heading 0
+        set changeLane changeLane + 1
       ]
     ]
   ]
@@ -762,11 +766,13 @@ to move-to-targetLane ; car procedure
         forward 0.1
         set xcor precision xcor 1 ; to avoid floating point errors
         set heading 180
+        set changeLane changeLane + 1
       ]
       [
         ; slow down if the car blocking us is behind, otherwise speed up
         ifelse towards blocking-car <= 90 [ slow-down-car ] [ speed-up-car ]
         set heading 180
+        set changeLane changeLane + 1
       ]
     ]
   ]
@@ -819,8 +825,6 @@ to move-pedestrians
     ]
   ]
   [forward walk-time]
-  ;change-heading
-
   if start-on-stone? [get-to-sidewalk]
 end
 
@@ -1179,7 +1183,7 @@ car-lights-interval
 car-lights-interval
 0
 2
-2.0
+1.5
 0.5
 1
 min
@@ -1211,12 +1215,12 @@ Avg Speed
 0.0
 5.0
 0.0
-10.0
+0.001
 true
 false
-"set-plot-y-range 0 speed-limit" ""
+";set-plot-y-range 0 speed-limit" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot mean [speed] of cars"
+"default" 1.0 0 -16777216 true "" "plot (mean [speed] of cars) * 250"
 
 PLOT
 206
@@ -1289,10 +1293,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot mean [stopTime] of cars"
 
 PLOT
-718
-597
-918
-747
+717
+598
+917
+748
 No. of Cars Stopped
 Time
 Number
@@ -1304,13 +1308,13 @@ true
 false
 "set-plot-y-range 0 number-of-cars" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot stoppedCars"
+"default" 1.0 0 -16777216 true "" "plot round(stoppedCars)"
 
 PLOT
-919
-597
-1119
-747
+918
+598
+1118
+748
 No. of Cars Changing Lanes
 Time
 Number
@@ -1322,7 +1326,25 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot changeLane"
+"default" 1.0 0 -16777216 true "" "plot round(changeLane / 200)"
+
+PLOT
+918
+447
+1118
+597
+No. of Pedestrians Waiting
+Time
+Number
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot round(numWaiting)"
 
 @#$#@#$#@
 ## WHAT IS IT?
