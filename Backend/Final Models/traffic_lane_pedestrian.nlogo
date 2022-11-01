@@ -8,6 +8,8 @@ breed[datas data]
 
 globals [
   speedLimit
+  accel
+  decel
   lanes
   c-lanes
   car-ticks
@@ -69,7 +71,9 @@ extensions [ csv ]
 ;;;;;;; Setup the Simulation ;;;;;;;
 to setup
   clear-all
-  set speedLimit speed-limit
+  set speedLimit  ((((speed-limit * 1000) / 3600) / 3.5) / 20)
+  set accel ((((acceleration * 1000) / 3600) / 3.5) / 20)
+  set decel ((((deceleration * 1000) / 3600) / 3.5) / 20)
   set stoppedCars 0
   set dataLength 0
   set changeLane 0
@@ -189,12 +193,12 @@ to make-cars
         set targetLane pxcor               ;starting lane is the targetLane
         set heading 0
         ;randomly set car speed
-        set speed 0.5
+        ;set speed 0.5
         let s random 14
-        if s < 7 [set maxSpeed speed-limit - 0.0005 + random-float 0.003]
-        if s = 7 [set maxSpeed speed-limit - 0.0005 + random-float 0.002]
-        if s > 7 [set maxSpeed speed-limit + random-float 0.001]
-        set speed maxSpeed - random-float 0.002
+        if s < 7 [set maxSpeed speedLimit - 0.0005 + random-float 0.003]
+        if s = 7 [set maxSpeed speedLimit - 0.0005 + random-float 0.002]
+        if s > 7 [set maxSpeed speedLimit + random-float 0.001]
+        set speed maxSpeed - random-float 0.04
         set stopTime 0
         set stopped? false
       ]
@@ -218,21 +222,21 @@ to make-cars
         set targetLane pxcor                  ;starting lane is the targetLane
         set heading 180
         ;randomly set car speed
-        set speed 0.5
+        ;set speed 0.5
         let s random 14
         if s < 7
         [
-          set maxSpeed speed-limit - 0.001 + random-float 0.005
+          set maxSpeed speedLimit - 0.001 + random-float 0.005
         ]
         if s = 7
         [
-          set maxSpeed speed-limit - 0.0005 + random-float 0.003
+          set maxSpeed speedLimit - 0.0005 + random-float 0.003
         ]
         if s > 7
         [
-          set maxSpeed speed-limit + random-float 0.002
+          set maxSpeed speedLimit + random-float 0.002
         ]
-        set speed maxSpeed - random-float 0.002
+        set speed maxSpeed - random-float 0.04
       ]
     ]
   ]
@@ -609,7 +613,7 @@ end
 
 to move-cars
 
-  let blocking-cars other cars in-cone (1 + ((speed / decelaration) * speed)) 120 with [ y-distance <= 2  ]
+  let blocking-cars other cars in-cone (1 + ((speed / decel) * speed)) 120 with [ y-distance <= 2  ]
   let blocking-car min-one-of blocking-cars [ distance myself ]
   if blocking-car != nobody
   [
@@ -634,7 +638,7 @@ to move-cars
       set stopTime stopTime + 1
     ]
     [
-      set blocking-cars other cars in-cone (1 + ((speed / decelaration) * speed)) 120 with [ y-distance <= 2  ]
+      set blocking-cars other cars in-cone (1 + ((speed / deceleration) * speed)) 120 with [ y-distance <= 2  ]
       set blocking-car min-one-of blocking-cars [ distance myself ]
       ifelse blocking-car != nobody
       [
@@ -664,7 +668,7 @@ to move-cars
             set stopTime stopTime + 1
           ]
           [
-             set blocking-cars other cars in-cone (1 + ((speed / decelaration) * speed)) 120 with [ y-distance <= 2  ]
+             set blocking-cars other cars in-cone (1 + ((speed / deceleration) * speed)) 120 with [ y-distance <= 2  ]
              set blocking-car min-one-of blocking-cars [ distance myself ]
              ifelse blocking-car != nobody
             [
@@ -678,7 +682,7 @@ to move-cars
           ]
         ]
         [
-          set blocking-cars other cars in-cone (1 + ((speed / decelaration) * speed)) 120 with [ y-distance <= 2  ]
+          set blocking-cars other cars in-cone (1 + ((speed / deceleration) * speed)) 120 with [ y-distance <= 2  ]
           set blocking-car min-one-of blocking-cars [ distance myself ]
           ifelse blocking-car != nobody
           [
@@ -693,7 +697,7 @@ to move-cars
       ]
     ]
     [
-      set blocking-cars other cars in-cone (1 + ((speed / decelaration) * speed)) 120 with [ y-distance <= 2  ]
+      set blocking-cars other cars in-cone (1 + ((speed / deceleration) * speed)) 120 with [ y-distance <= 2  ]
       set blocking-car min-one-of blocking-cars [ distance myself ]
       ifelse blocking-car != nobody
       [
@@ -777,8 +781,8 @@ end
 
 
 to slow-down-car ; turtle procedure
-  set speed (speed - decelaration) ; deceleration
-  if speed < 0 [ set speed decelaration ]
+  set speed (speed - decel) ; deceleration
+  if speed < 0 [ set speed decel ]
   ; every time you hit the brakes, you loose a little patience
   set patience patience - 1
 end
@@ -792,7 +796,7 @@ to-report y-distance
 end
 
 to speed-up-car ; car procedure
-  set speed (speed + acceleration + random-float 0.005)
+  set speed (speed + accel + random-float 0.005)
   if speed > maxSpeed [ set speed (maxSpeed - 0.001) ]
 end
 
@@ -1042,12 +1046,12 @@ SLIDER
 96
 speed-limit
 speed-limit
-0
-0.2
-0.1
-0.01
+40
+80
+50.0
+10
 1
-NIL
+km/h
 HORIZONTAL
 
 SLIDER
@@ -1074,7 +1078,7 @@ number-of-cars
 number-of-cars
 0
 124
-62.0
+30.0
 1
 1
 NIL
@@ -1119,7 +1123,7 @@ number-of-lanes
 number-of-lanes
 0
 4
-4.0
+2.0
 1
 1
 NIL
@@ -1145,16 +1149,16 @@ NIL
 SLIDER
 12
 259
-184
+189
 292
 acceleration
 acceleration
-0
-0.01
-0.01
-0.002
 1
-NIL
+5
+3.0
+1
+1
+km/h
 HORIZONTAL
 
 SLIDER
@@ -1162,14 +1166,14 @@ SLIDER
 297
 184
 330
-decelaration
-decelaration
-0
-0.1
-0.1
-0.02
+deceleration
+deceleration
 1
-NIL
+5
+3.0
+1
+1
+km/h
 HORIZONTAL
 
 SLIDER
