@@ -1153,10 +1153,10 @@ acceleration
 acceleration
 1
 5
-4.0
+3.0
 1
 1
-km/h
+km/h^2
 HORIZONTAL
 
 SLIDER
@@ -1168,10 +1168,10 @@ deceleration
 deceleration
 1
 5
-3.0
+5.0
 1
 1
-km/h
+km/h^2
 HORIZONTAL
 
 SLIDER
@@ -1183,7 +1183,7 @@ car-lights-interval
 car-lights-interval
 0
 2
-1.5
+0.0
 0.5
 1
 min
