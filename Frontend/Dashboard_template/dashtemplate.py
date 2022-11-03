@@ -14,25 +14,26 @@ from PIL import Image
 
 data = pd.read_excel("permsnewdata.xlsx", header=0)
 
-default = {"num_cars": 15, "patience":0.6, "num_pedestrians":15}
+default = {"speed_limit": 60, "num_cars": 15, "patience":0.6, "num_pedestrians":15}
 
-def get_data(num_cars, num_ped, patience):
-    data1 = data[data['num_cars'] == num_cars]
-    data2 = data1[data1['num_pedestrians'] == num_ped]
-    datause = data2[data2['patience'] == patience]
+def get_data(speed_limit, num_cars, num_ped, patience):
+    data1=data[data['speed_limit'] == speed_limit]
+    data2 = data1[data1['num_cars'] == num_cars]
+    data3 = data2[data2['num_pedestrians'] == num_ped]
+    datause = data3[data3['patience'] == patience]
     return datause
 
 
 
 
 ### TAB 3 GRAPHS
-def create_plot_crowd_car(num_cars = 15, num_ped = 15, patience=0.6):
-    data = get_data(num_cars, num_ped, patience)
+def create_plot_crowd_car(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6):
+    data = get_data(speed_limit, num_cars, num_ped, patience)
     crowds_line_df = data.groupby("light_interval").mean()[["avg_crowd_size"]]
 
     line1 = data[data['num_lanes'] ==1]
     line2 = data[data['num_lanes'] ==2]
-    line3 = data[data['num_lanes'] ==3]
+    line3 = data[data['num_lanes'] ==3] 
     line4 = data[data['num_lanes'] ==4]
 
     car_interval1 = line1[["light_interval", "avg_speed_cars"]]
@@ -121,8 +122,8 @@ def create_plot_crowd_car(num_cars = 15, num_ped = 15, patience=0.6):
 ### TAB 2 GRAPHS
 
 #### Graph 1: plot with 2 output 2 inputs, x = num.lanes, y=light interval, color = speed, size = changed lanes
-def create_cars_plot1(num_cars = 15, num_ped = 15, patience=0.6):
-    data = get_data(num_cars, num_ped, patience)
+def create_cars_plot1(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6):
+    data = get_data(speed_limit, num_cars, num_ped, patience)
     car_marker_df = data[["num_lanes", "light_interval", "avg_speed_cars", "changed_lanes"]]
     #car_marker_df = car_marker_df.groupby(["num_lanes", "light_interval"])["avg_speed_cars", "changed_lanes"].mean().reset_index()
     fig = px.scatter(car_marker_df, x="num_lanes", 
@@ -138,8 +139,8 @@ def create_cars_plot1(num_cars = 15, num_ped = 15, patience=0.6):
 
 #### Graph 2: heat map of speed vs num lanes and light int
 
-def create_cars_plot2(num_cars = 15, num_ped = 15, patience=0.6):
-    data = get_data(num_cars, num_ped, patience)
+def create_cars_plot2(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6):
+    data = get_data(speed_limit, num_cars, num_ped, patience)
     car_heat_df1 = data[["num_lanes", "light_interval", "avg_speed_cars"]]
     
     fig = make_subplots(
@@ -167,8 +168,8 @@ def create_cars_plot2(num_cars = 15, num_ped = 15, patience=0.6):
     return fig
 
 #### Graph 3: subplot of speed vs num lanes and speed vs light int
-def create_cars_plot3(num_cars = 10, num_ped = 10, patience=0.6):
-    data = get_data(num_cars, num_ped, patience)
+def create_cars_plot3(speed_limit=60, num_cars = 10, num_ped = 10, patience=0.6):
+    data = get_data(speed_limit, num_cars, num_ped, patience)
 
     #for speed vs light int graph
     line1 = data[data['num_lanes'] ==1]
@@ -278,8 +279,8 @@ def create_cars_plot3(num_cars = 10, num_ped = 10, patience=0.6):
     return fig
 
 #### Graph 4: heat map of change lanes vs num lanes and light int
-def create_cars_plot4(num_cars = 15, num_ped = 15, patience=0.6):
-    data = get_data(num_cars, num_ped, patience)
+def create_cars_plot4(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6):
+    data = get_data(speed_limit, num_cars, num_ped, patience)
     car_heat_df2 = data[["num_lanes", "light_interval", "changed_lanes"]]
     fig = make_subplots(
         rows=1, cols=1,
@@ -303,8 +304,8 @@ def create_cars_plot4(num_cars = 15, num_ped = 15, patience=0.6):
     return fig
 
 #### Graph 5: subplot of change lanes vs num lanes and change lanes vs light int
-def create_cars_plot5(num_cars = 15, num_ped = 15, patience=0.6):
-    data = get_data(num_cars, num_ped, patience)
+def create_cars_plot5(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6):
+    data = get_data(speed_limit, num_cars, num_ped, patience)
 
     #for speed vs light int graph
     line1 = data[data['num_lanes'] ==1]
@@ -675,14 +676,15 @@ def on_button_click(n, m):
 # callback from sidebar to tab 1
 @app.callback(
     Output("test01", "value"), 
-    [Input("number-of-cars", "value"),
+    [Input("speed-limit", "value"),
+    Input("number-of-cars", "value"),
     Input("number-of-pedestrians", "value"),
     Input("max-patience", "value"),
     Input("number-of-lanes", "children"),
     Input("light-interval", "children"),]
 )
-def get_value(nc, np, mp, nl, li):
-    datause = get_data(nc, np, mp)
+def get_value(sl, nc, np, mp, nl, li):
+    datause = get_data(sl, nc, np, mp)
     data3 = datause[datause['num_lanes'] == int(nl[0])]
     data4 = data3[data3['light_interval'] == float(li)]
     return_value = data4['avg_speed_cars'].iloc[0]
@@ -690,14 +692,15 @@ def get_value(nc, np, mp, nl, li):
 
 @app.callback(
     Output("test02", "value"), 
-    [Input("number-of-cars", "value"),
+    [Input("speed-limit", "value"),
+    Input("number-of-cars", "value"),
     Input("number-of-pedestrians", "value"),
     Input("max-patience", "value"),
     Input("number-of-lanes", "children"),
     Input("light-interval", "children"),]
 )
-def get_value(nc, np, mp, nl, li):
-    datause = get_data(nc, np, mp)
+def get_value(sl, nc, np, mp, nl, li):
+    datause = get_data(sl, nc, np, mp)
     data3 = datause[datause['num_lanes'] == int(nl[0])]
     data4 = data3[data3['light_interval'] == float(li)]
     return_value = data4['avg_crowd_size'].iloc[0]
@@ -705,14 +708,15 @@ def get_value(nc, np, mp, nl, li):
 
 @app.callback(
     Output("test03", "value"), 
-    [Input("number-of-cars", "value"),
+    [Input("speed-limit", "value"),
+    Input("number-of-cars", "value"),
     Input("number-of-pedestrians", "value"),
     Input("max-patience", "value"),
     Input("number-of-lanes", "children"),
     Input("light-interval", "children"),]
 )
-def get_value(nc, np, mp, nl, li):
-    datause = get_data(nc, np, mp)
+def get_value(sl, nc, np, mp, nl, li):
+    datause = get_data(sl, nc, np, mp)
     data3 = datause[datause['num_lanes'] == int(nl[0])]
     data4 = data3[data3['light_interval'] == float(li)]
     return_value = data4['changed_lanes'].iloc[0]
@@ -812,18 +816,21 @@ def func(n_clicks):
 # Callback from sidebar to tab 3
 @app.callback(
     Output("comparing-graph", "figure"),
+    Input("speed-limit", "value"),
     Input("number-of-cars", "value"),
     Input("number-of-pedestrians", "value"),
     Input("max-patience", "value")
 )
-def update_crowd(nc, np, mp):
+def update_crowd(sp, nc, np, mp):
+    if sp:
+        default["speed_limit"]=sp
     if nc:
         default["num_cars"] = nc
     if np:
         default["num_pedestrians"] = np
     if mp:
         default["patience"] = mp
-    crowd_car_fig = create_plot_crowd_car(default["num_cars"], default["num_pedestrians"], default["patience"])
+    crowd_car_fig = create_plot_crowd_car(default["speed_limit"], default["num_cars"], default["num_pedestrians"], default["patience"])
     return crowd_car_fig
 
 # Callback from sidebar to tab-2-2
@@ -831,86 +838,101 @@ def update_crowd(nc, np, mp):
 
 @app.callback(
     Output("cars_plot1", "figure"),
+    Input("speed-limit", "value"),
     Input("number-of-cars", "value"),
     Input("number-of-pedestrians", "value"),
     Input("max-patience", "value")
 )
-def update_cars1(nc, np, mp):
+def update_cars1(sp, nc, np, mp):
+    if sp:
+        default["speed_limit"]=sp
     if nc:
         default["num_cars"] = nc
     if np:
         default["num_pedestrians"] = np
     if mp:
         default["patience"] = mp
-    car_fig = create_cars_plot1(default["num_cars"], default["num_pedestrians"], default["patience"])
+    car_fig = create_cars_plot1(default["speed_limit"], default["num_cars"], default["num_pedestrians"], default["patience"])
     return car_fig
 
 # plot 2
 @app.callback(
     Output("cars_plot2", "figure"),
+    Input("speed-limit", "value"),
     Input("number-of-cars", "value"),
     Input("number-of-pedestrians", "value"),
     Input("max-patience", "value")
 )
-def update_cars2(nc, np, mp):
+def update_cars2(sp, nc, np, mp):
+    if sp:
+        default["speed_limit"]=sp
     if nc:
         default["num_cars"] = nc
     if np:
         default["num_pedestrians"] = np
     if mp:
         default["patience"] = mp
-    car_fig = create_cars_plot2(default["num_cars"], default["num_pedestrians"], default["patience"])
+    car_fig = create_cars_plot2(default["speed_limit"], default["num_cars"], default["num_pedestrians"], default["patience"])
     return car_fig
 
 # plot 3
 @app.callback(
     Output("cars_plot3", "figure"),
+    Input("speed-limit", "value"),
     Input("number-of-cars", "value"),
     Input("number-of-pedestrians", "value"),
     Input("max-patience", "value")
 )
-def update_cars3(nc, np, mp):
+def update_cars3(sp, nc, np, mp):
+    if sp:
+        default["speed_limit"]=sp
     if nc:
         default["num_cars"] = nc
     if np:
         default["num_pedestrians"] = np
     if mp:
         default["patience"] = mp
-    car_fig = create_cars_plot3(default["num_cars"], default["num_pedestrians"], default["patience"])
+    car_fig = create_cars_plot3(default["speed_limit"], default["num_cars"], default["num_pedestrians"], default["patience"])
     return car_fig
 
 # plot 4
 @app.callback(
     Output("cars_plot4", "figure"),
+    Input("speed-limit", "value"),
     Input("number-of-cars", "value"),
     Input("number-of-pedestrians", "value"),
     Input("max-patience", "value")
 )
-def update_cars4(nc, np, mp):
+def update_cars4(sp, nc, np, mp):
+    if sp:
+        default["speed_limit"]=sp
     if nc:
         default["num_cars"] = nc
     if np:
         default["num_pedestrians"] = np
     if mp:
         default["patience"] = mp
-    car_fig = create_cars_plot4(default["num_cars"], default["num_pedestrians"], default["patience"])
+    car_fig = create_cars_plot4(default["speed_limit"], default["num_cars"], default["num_pedestrians"], default["patience"])
     return car_fig
 
 # plot 5
 @app.callback(
     Output("cars_plot5", "figure"),
+    Input("speed-limit", "value"),
     Input("number-of-cars", "value"),
     Input("number-of-pedestrians", "value"),
     Input("max-patience", "value")
 )
-def update_cars5(nc, np, mp):
+def update_cars5(sp, nc, np, mp):
+    if sp:
+        default["speed_limit"]=sp
     if nc:
         default["num_cars"] = nc
     if np:
         default["num_pedestrians"] = np
     if mp:
         default["patience"] = mp
-    car_fig = create_cars_plot5(default["num_cars"], default["num_pedestrians"], default["patience"])
+    car_fig = create_cars_plot5(default["speed_limit"], default["num_cars"], default["num_pedestrians"], default["patience"])
     return car_fig
 
 
