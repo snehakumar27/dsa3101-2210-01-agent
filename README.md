@@ -24,4 +24,25 @@ For the purpose of this project, we have decided to focus on a particular segmen
 
 ## Instructions for running the Netlogo simulation (backend) 
 1. Set your working directory to Backend/Final_Models 
-2. Build your docker containr by 
+
+2. Choose which simulation model you would like to run and choose one of the following commands accordinngly:
+For running the base traffic model: 
+`docker build --build-arg MODEL_NAME=traffic_lane_pedestrian.nlogo -t traffic_model .`
+For running the bike lane
+`docker build --build-arg MODEL_NAME=traffic_pedestrian_bike_lane.nlogo -t traffic_model .`
+
+3. Pull the x11 image to run GUI applications 
+`docker run -d --name x11-bridge -e MODE="tcp" -e XPRA_HTML="yes" -e DISPLAY=:14 -e XPRA_PASSWORD=111 -p 10000:10000 jare/x11-bridge`
+
+4. Run the netlogo model 
+`docker run -d --name netlogo --volumes-from x11-bridge -v results:/home/results traffic_model`
+
+5. View the simulation 
+`http://localhost:10000/index.html?encoding=rgb32&password=111`
+
+6. To stop the container 
+`docker stop netlogo`
+`docker stop x11-bridge`
+
+
+
