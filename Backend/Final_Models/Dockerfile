@@ -38,7 +38,7 @@ CMD ["/home/netlogo/netlogo-headw.sh", "/home/src/NLModel.nlogo"]
 ### Replace the path/to/folder in the code below with to the actual path of the results folder that is in the Backend Folder 
 #docker run -d --name netlogo --volumes-from x11-bridge -v ~/path/to/folder:/home/results traffic_model
 
-### To view model 
+### To view model paste this line in the URL of your web browser 
 #http://localhost:10000/index.html?encoding=rgb32&password=111
 
 ### Stop container 
