@@ -35,7 +35,7 @@ CMD ["/home/netlogo/netlogo-headw.sh", "/home/src/NLModel.nlogo"]
 #docker run -d --name x11-bridge -e MODE="tcp" -e XPRA_HTML="yes" -e DISPLAY=:14 -e XPRA_PASSWORD=111 -p 10000:10000 jare/x11-bridge
 
 ### Saving your experimental results
-### Replace the path/to/folder in the code below with to the actual path of the results folder that is in the Backend Folder 
+### Replace the path/to/folder in the code below with to your local path of the results folder that is in the Final_Model Folder starting the path with ~/
 #docker run -d --name netlogo --volumes-from x11-bridge -v ~/path/to/folder:/home/results traffic_model
 
 ### To view model paste this line in the URL of your web browser 
