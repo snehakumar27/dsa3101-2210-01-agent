@@ -1058,7 +1058,7 @@ speed-limit
 speed-limit
 40
 80
-60.0
+70.0
 10
 1
 km/h
@@ -1088,7 +1088,7 @@ number-of-cars
 number-of-cars
 0
 124
-30.0
+20.0
 1
 1
 NIL
@@ -1103,7 +1103,7 @@ number-of-pedestrians
 number-of-pedestrians
 0
 44
-40.0
+44.0
 1
 1
 NIL
@@ -1118,7 +1118,7 @@ max-patience
 max-patience
 0
 100
-25.0
+20.0
 1
 1
 NIL
@@ -1133,7 +1133,7 @@ number-of-lanes
 number-of-lanes
 0
 4
-2.0
+1.0
 1
 1
 NIL
@@ -1195,7 +1195,7 @@ car-lights-interval
 car-lights-interval
 0
 2
-0.5
+2.0
 0.5
 1
 min
@@ -2305,6 +2305,34 @@ NetLogo 6.3.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+<experiments>
+  <experiment name="Num_of_Lanes_output" repetitions="1" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="24000"/>
+    <metric>numWaiting</metric>
+    <metric>(mean [speed] of cars) * 250</metric>
+    <metric>changeLane / 200 / (20 * 60)</metric>
+    <steppedValueSet variable="number-of-lanes" first="1" step="1" last="4"/>
+    <enumeratedValueSet variable="buffer-time">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="number-of-pedestrians" first="5" step="10" last="40"/>
+    <enumeratedValueSet variable="acceleration">
+      <value value="3"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="max-patience" first="20" step="20" last="100"/>
+    <enumeratedValueSet variable="pedestrian-lights-interval">
+      <value value="45"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="number-of-cars" first="20" step="10" last="120"/>
+    <steppedValueSet variable="speed-limit" first="40" step="10" last="80"/>
+    <enumeratedValueSet variable="deceleration">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="car-lights-interval" first="0.5" step="0.5" last="2"/>
+  </experiment>
+</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default

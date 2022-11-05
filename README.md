@@ -35,7 +35,8 @@ For running the bike lane: <br />
 `docker run -d --name x11-bridge -e MODE="tcp" -e XPRA_HTML="yes" -e DISPLAY=:14 -e XPRA_PASSWORD=111 -p 10000:10000 jare/x11-bridge`
 
 4. Run the netlogo model <br />
-`docker run -d --name netlogo --volumes-from x11-bridge -v results:/home/results traffic_model`
+`docker run -d --name netlogo --volumes-from x11-bridge -v ~/path/to/results/folder:/home/results traffic_model`
+Replace `~/path/to/results/folder` with the path on your local computer starting from `~/`
 
 5. View the simulation <br />
 `http://localhost:10000/index.html?encoding=rgb32&password=111`
