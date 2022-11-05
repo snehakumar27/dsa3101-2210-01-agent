@@ -40,6 +40,8 @@ For running the bike lane: <br />
 5. View the simulation <br />
 `http://localhost:10000/index.html?encoding=rgb32&password=111`
 
+** If you would like to run both models simultaneously, name the images in steps 3 & 4 sepaarately and map it to separate port in step 3 
+
 6. To stop the container <br />
 `docker stop netlogo` <br />
 `docker stop x11-bridge`
