@@ -20,3 +20,8 @@ For the purpose of this project, we have decided to focus on a particular segmen
 2. `docker build -t dashboard .`
 3. `docker run -p 8055:8055 dashboard`
 4. dashboard should be up on `http://127.0.0.1:8055/`
+
+
+## Instructions for running the Netlogo simulation (backend) 
+1. Set your working directory to Backend/Final_Models 
+2. Build your docker containr by 
