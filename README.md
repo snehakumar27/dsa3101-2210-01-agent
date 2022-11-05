@@ -23,7 +23,7 @@ For the purpose of this project, we have decided to focus on a particular segmen
 
 
 ## Instructions for running the Netlogo simulation (backend) 
-1. Set your working directory to Backend/Final_Models 
+1. Set your working directory to `Backend/Final_Models` 
 
 2. Choose which simulation model you would like to run and choose one of the following commands accordingly: <br />
 For running the base traffic model: <br />
