@@ -25,10 +25,10 @@ For the purpose of this project, we have decided to focus on a particular segmen
 ## Instructions for running the Netlogo simulation (backend) 
 1. Set your working directory to Backend/Final_Models 
 
-2. Choose which simulation model you would like to run and choose one of the following commands accordingly:
-\For running the base traffic model: 
+2. Choose which simulation model you would like to run and choose one of the following commands accordingly: <br />
+For running the base traffic model: 
 `docker build --build-arg MODEL_NAME=traffic_lane_pedestrian.nlogo -t traffic_model .`
-\For running the bike lane
+For running the bike lane
 `docker build --build-arg MODEL_NAME=traffic_pedestrian_bike_lane.nlogo -t traffic_model .`
 
 3. Pull the x11 image to run GUI applications 
