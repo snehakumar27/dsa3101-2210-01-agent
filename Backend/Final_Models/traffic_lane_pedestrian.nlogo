@@ -23,7 +23,7 @@ globals [
   dataLength
   changeLane
   numWaiting
-  ;totalTicks
+  currCycleTick
 ]
 
 
@@ -605,6 +605,7 @@ to go
   ask traffic_lights with [ not cars-light? ] [ check-pedestrian-switch-lights ]
   set stoppedCars (count cars with [ speed = 0 ])
   set numWaiting round((count persons with [ [meaning] of patch-here = "waitpoint" ]))
+  set currCycleTick currCycleTick + 1
   tick
 end
 
@@ -804,22 +805,9 @@ to move-pedestrians
   change-heading
 
   let stop? false
-  ;ask traffic_lights with [not cars-light?]
-  ;[
-    ;ifelse greenLight?
-    ifelse( ((ticks - (cycle-length * trafficCycle) - car-ticks - amber-ticks - safety-buffer-ticks ) mod cycle-length >= 0)  and ((ticks - (cycle-length * trafficCycle) - car-ticks - amber-ticks - safety-buffer-ticks - pedestrian-ticks + 5 * 20) mod cycle-length >= 0 ))
-      [set stop? false] [set stop? true]
-  ;]
-;ticks >= (trafficCycle * cycleLength) * (car-ticks+ amber-ticks + safety-buffer-ticks) and ticks <= (trafficCycle * cycleLength) * (cycleLength - (cycleLength * (safety-buffer-ticks + 5 * 20)))
-;((ticks - (cycle-length * trafficCycle)  + safety-buffer-ticks + 5 * 20) mod cycle-length >= 0) and ((ticks - (cycle-length * trafficCycle)  + safety-buffer-ticks + 5 * 20) mod cycle-length <= 100)
-;(ticks - (cycle-length * trafficCycle) - car-ticks - amber-ticks - safety-buffer-ticks ) mod cycle-length >= 0)
-;(ticks - (cycle-length * trafficCycle) - car-ticks - amber-ticks - safety-buffer-ticks - pedestrian-ticks + 5 * 20) mod cycle-length >= 0)
-;(ticks - (cycle-length * trafficCycle) - car-ticks - amber-ticks - safety-buffer-ticks ) mod cycle-length >= 0)
-;ticks >= car ticks + amber light time and ticks <= car ticks + safety buffer time + pedestrian ticks - 5
-;ticks - (cycle-length * trafficCycle) - car-ticks - amber-ticks - safety-buffer-ticks - pedestrian-ticks
-;ticks >= car-ticks + amber-ticks and ticks <= car-ticks + amber-light-ticks + pedestrian-ticks  - 5
-;ticks >= (cycle-length * trafficCycle) (car-ticks + amber-ticks) and ticks <= trafficCycle * (car-ticks + amber-ticks + pedestrian-ticks - 5)
-;ticks >= trafficCycle * (car-ticks + amber-ticks + safety-buffer-ticks) and ticks <= trafficCycle * (car-ticks + amber-ticks + safety-buffer-ticks + pedestrian-ticks - 5)
+
+  ifelse ((currCycleTick >= car-ticks + amber-ticks + safety-buffer-ticks) and (currCycleTick <= car-ticks + amber-ticks + safety-buffer-ticks + pedestrian-ticks - (5 * 20)))
+    [set stop? false] [set stop? true]
 
   ifelse [meaning] of patch-ahead 1 = "crossing"
   [
@@ -949,10 +937,11 @@ end
 to check-car-switch-lights
     if ticks mod (cycle-length) = 1
   [
-      set trafficCycle trafficCycle + 1
-      set stoppedCars 0
-      set changeLane 0
-      ask cars [set stopTime 0]
+    set trafficCycle trafficCycle + 1
+    set stoppedCars 0
+    set changeLane 0
+    set currCycleTick 0
+    ask cars [set stopTime 0]
   ]
 
     if ((ticks - (cycle-length * trafficCycle)) mod cycle-length = 0)
@@ -1133,7 +1122,7 @@ number-of-lanes
 number-of-lanes
 0
 4
-1.0
+2.0
 1
 1
 NIL
@@ -1195,7 +1184,7 @@ car-lights-interval
 car-lights-interval
 0
 2
-2.0
+1.0
 0.5
 1
 min
