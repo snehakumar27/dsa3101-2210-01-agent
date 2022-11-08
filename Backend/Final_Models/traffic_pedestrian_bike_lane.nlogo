@@ -8,24 +8,28 @@ breed[datas data]
 
 globals [
   speedLimit
+  accel
+  decel
   number-of-lanes
   number-c-lanes
   c-lanes
   car-ticks
   pedestrian-ticks
-  buffer-ticks
+  amber-ticks
+  safety-buffer-ticks
   cycle-length
   trafficCycle
   stoppedCars
   recordData
   dataLength
   changeLane
+  numWaiting
+  currCycleTick
 ]
 
 
 patches-own [
   meaning
-  will-cross?   ;may not be needed
   used
   traffic
   limit
@@ -50,10 +54,13 @@ cars-own [
   targetLane     ;:the desired lane of the car
   will-stop?     ;;whether the car will stop and let pedestrian(s) to cross the road
   stopTime
+  stopped?
 ]
 
 traffic_lights-own [
   greenLight?
+  amberLight?
+  redLight?
   cars-light?
 ]
 
@@ -66,11 +73,14 @@ extensions [ csv ]
 ;;;;;;; Setup the Simulation ;;;;;;;
 to setup
   clear-all
-  set speedLimit speed-limit
+  set speedLimit ((((speed-limit * 1000) / 3600) / 3.5) / 20)
+  set accel ((((acceleration * 1000) / 3600) / 3.5) / 20)
+  set decel ((((decelaration * 1000) / 3600) / 3.5) / 20)
   set stoppedCars 0
   set recordData (list)
   set dataLength 0
   set changeLane 0
+  set numWaiting 0
   draw-roads
   draw-sidewalk
   draw-crossing
@@ -164,7 +174,7 @@ end
 
 to make-cars
   ;create cars on left lane
-  let max-road-cap (number-c-lanes * 15)
+  let max-road-cap (number-c-lanes * 31)
   if number-of-cars > max-road-cap [
     set number-of-cars max-road-cap]
 
@@ -225,7 +235,7 @@ end
 
 to make-bike
   ;create cars on left lane
-  let max-bike-cap (bike-lanes * 11)
+  let max-bike-cap (bike-lanes * 31)
   if number-of-bike > max-bike-cap [
     set number-of-bike max-bike-cap]
 
@@ -313,7 +323,7 @@ ask n-of (sidewalk-left-people) patches with [meaning = "sidewalk-left"] [
       set size 0.8
       set start-head 90
       set heading start-head
-      set walk-time 0.01 + random-float (0.06 - 0.01)
+      set walk-time 0.023 + random-float (0.004)
       set will-turn? one-of [true false]
       set start-on-stone? false
       set want-change? false
@@ -328,7 +338,7 @@ ask n-of (sidewalk-right-people) patches with [meaning = "sidewalk-right"] [
       set size 0.8
       set start-head 270
       set heading start-head
-      set walk-time 0.01 + random-float (0.06 - 0.01)
+      set walk-time 0.023 + random-float (0.004)
       set start-on-stone? false
       set will-turn? one-of [true false]
       set want-change? false
@@ -344,7 +354,7 @@ ask n-of (sidewalk-right-people) patches with [meaning = "sidewalk-right"] [
       set start-head one-of [0 180]
       set heading start-head
       set start-on-stone? false
-      set walk-time 0.01 + random-float (0.06 - 0.01)
+      set walk-time 0.023 + random-float (0.004)
       set will-turn? one-of [true false]
       set want-change? false
       ]
@@ -357,7 +367,7 @@ ask n-of (sidewalk-right-people) patches with [meaning = "sidewalk-right"] [
       set color pedestrian-color
       set size 0.8
         ;randomly set car speed
-      set walk-time 0.01 + random-float (0.06 - 0.01)
+      set walk-time 0.023 + random-float (0.004)
       set start-on-stone? true
       set start-head random (360)
       set heading start-head
@@ -382,6 +392,8 @@ to make-lights
       set shape "cylinder"
       set size 0.9
       set greenLight? true
+      set redLight? false
+      set amberLight? false
       set cars-light? true
     ]
   ]
@@ -391,6 +403,8 @@ to make-lights
       set shape "cylinder"
       set size 0.9
       set greenLight? true
+      set redLight? false
+      set amberLight? false
       set cars-light? true
     ]
   ]
@@ -400,6 +414,8 @@ to make-lights
       set shape "cylinder"
       set size 0.9
       set greenLight? true
+      set redLight? false
+      set amberLight? false
       set cars-light? true
     ]
   ]
@@ -409,6 +425,8 @@ to make-lights
       set shape "cylinder"
       set size 0.9
       set greenLight? true
+      set redLight? false
+      set amberLight? false
       set cars-light? true
     ]
   ]
@@ -420,6 +438,8 @@ to make-lights
       set shape "cylinder"
       set size 0.9
       set greenLight? false
+      set redLight? true
+      set amberLight? false
       set cars-light? false
     ]
   ]
@@ -429,6 +449,8 @@ to make-lights
       set shape "cylinder"
       set size 0.9
       set greenLight? false
+      set redLight? true
+      set amberLight? false
       set cars-light? false
     ]
   ]
@@ -438,6 +460,8 @@ to make-lights
       set shape "cylinder"
       set size 0.9
       set greenLight? false
+      set redLight? true
+      set amberLight? false
       set cars-light? false
     ]
   ]
@@ -447,11 +471,13 @@ to make-lights
       set shape "cylinder"
       set size 0.9
       set greenLight? false
+      set redLight? true
+      set amberLight? false
       set cars-light? false
     ]
   ]
   set car-ticks car-lights-interval * 20 * 60
-  set pedestrian-ticks pedestrian-lights-interval * 20
+  set pedestrian-ticks number-of-lanes * 2 * 7 * 20 ;pedestrian-lights-interval * 20
   set trafficCycle 0
   set cycle-length (car-ticks + pedestrian-ticks)
 end
@@ -578,13 +604,17 @@ to go
     ask cars with [ xcor != targetLane ] [ move-to-targetLane]
   ]
   ask persons [move-pedestrians]
-  ask traffic_lights [check-switch-lights]
+  ask traffic_lights with [ cars-light? ] [ check-car-switch-lights ]
+  ask traffic_lights with [ not cars-light? ] [ check-pedestrian-switch-lights ]
+  set stoppedCars (count cars with [ speed = 0 ])
+  set numWaiting round((count persons with [ [meaning] of patch-here = "waitpoint" ]))
+  set currCycleTick currCycleTick + 1
   tick
 end
 
 to move-cars
 
-  let cstop? false
+let cstop? false
   ask traffic_lights with [cars-light?] [
     ifelse greenLight? [set cstop? true] [set cstop? false]
   ]
@@ -627,6 +657,7 @@ to move-cars
     ]
   ]
   forward speed
+
 end
 
 to choose-new-lane ; car procedure
@@ -650,12 +681,6 @@ to move-to-targetLane ; car procedure
 
   if (meaning = "road-up")[ if (meaning != "crossing" and speed != 0)[
     set heading ifelse-value targetLane < xcor [ 270 ] [ 90 ]
-    ;let bx random 14
-    ;ifelse bx > 7 [
-     ; set heading ifelse-value targetLane < xcor [ 90 ] [ 270 ]
-    ;] [
-    ;  set heading ifelse-value targetLane <= xcor [ 270 ] [ 90 ]
-    ;]
     let blocking-cars other cars in-cone (abs(xcor - targetLane)) 120 with [ y-distance <= 1 and x-distance <= 1] ;
     let blocking-car min-one-of blocking-cars [ distance myself ]
     ifelse blocking-car = nobody [
@@ -671,12 +696,6 @@ to move-to-targetLane ; car procedure
   ]
 ]
   if (meaning = "road-down")[ if (meaning != "crossing" and speed != 0)[
-    ;let bx random 2
-    ;ifelse bx = 1 [
-    ;  set heading ifelse-value targetLane < xcor [ 90 ] [ 270 ]
-    ;] [
-    ;  set heading ifelse-value targetLane <= xcor [ 270 ] [ 90 ]
-    ;]
 
     set heading ifelse-value targetLane < xcor [ 270 ] [ 90 ]
     let blocking-cars other cars in-cone (  abs(xcor - targetLane)) 120 with [ y-distance <= 1 and x-distance <= 1 ]
@@ -696,8 +715,8 @@ to move-to-targetLane ; car procedure
 end
 
 to slow-down-car ; turtle procedure
-  set speed (speed - decelaration) ; deceleration
-  if speed < 0 [ set speed decelaration ]
+  set speed (speed - decel) ; deceleration
+  if speed < 0 [ set speed decel ]
   ; every time you hit the brakes, you loose a little patience
   set patience patience - 1
 end
@@ -711,26 +730,34 @@ to-report y-distance
 end
 
 to speed-up-car ; car procedure
-  set speed (speed + acceleration + random-float 0.005)
+  set speed (speed + accel + random-float 0.005)
   if speed > maxSpeed [ set speed (maxSpeed - 0.001) ]
 end
 
 to move-pedestrians
   change-heading
 
-  let stop? true
-  ask traffic_lights with [not cars-light?] [
-    ifelse greenLight? [set stop? false] [set stop? true]
+  let stop? false
+
+  ifelse ((currCycleTick >= car-ticks + amber-ticks + safety-buffer-ticks) and (currCycleTick <= car-ticks + amber-ticks + safety-buffer-ticks + pedestrian-ticks - (5 * 20)))
+    [set stop? false] [set stop? true]
+
+  ifelse [meaning] of patch-ahead 1 = "crossing"
+  [
+    ifelse (stop?)
+    [
+      ifelse [meaning] of patch-here = "crossing"
+      [
+        forward walk-time
+      ]
+      [set walk-time 0]
+    ]
+    [
+      set walk-time 0.023 + random-float (0.004)
+      forward walk-time
+    ]
   ]
-
-  ifelse [meaning] of patch-ahead 1 = "crossing" [
-      ifelse (stop?) [set walk-time 0.01 + random-float (0.06 - 0.01)
-      forward walk-time] [
-      ifelse [meaning] of patch-here = "crossing" [forward walk-time] [set walk-time 0]
-  ]]
   [forward walk-time]
-  ;change-heading
-
   if start-on-stone? [get-to-sidewalk]
 end
 
@@ -828,27 +855,78 @@ to change-heading
 
 end
 
-to check-switch-lights
-  if ticks mod (cycle-length) = 1 [
+to check-car-switch-lights
+    if ticks mod (cycle-length) = 1
+  [
     set trafficCycle trafficCycle + 1
-    switch-lights
     set stoppedCars 0
     set changeLane 0
+    set currCycleTick 0
     ask cars [set stopTime 0]
   ]
 
-  if ((ticks - (cycle-length * trafficCycle)) mod car-ticks = 0) or
-  ((ticks - (cycle-length * trafficCycle)) mod (car-ticks) = 0) or
-  ((ticks - (cycle-length * trafficCycle)) mod (car-ticks + pedestrian-ticks) = 0)
+    if ((ticks - (cycle-length * trafficCycle)) mod cycle-length = 0)
   [
-      switch-lights
+      set color green
+      set greenLight? not greenLight?
+      set redLight? not redLight?
   ]
+
+    if ((ticks - (cycle-length * trafficCycle) - car-ticks) mod cycle-length = 0)
+  [
+      set color 25.5
+      set greenLight? not greenLight?
+      set amberLight? not amberLight?
+  ]
+
+    if ((ticks - (cycle-length * trafficCycle) - car-ticks - safety-buffer-ticks) mod cycle-length = 0)
+  [
+      set color red
+      set amberLight? not amberLight?
+      set redLight? not redLight?
+  ]
+
 end
 
-to switch-lights
-  set greenLight? (not greenLight?)
-    ifelse greenLight? [set color red] [set color green]
+to check-pedestrian-switch-lights
+
+  if ((ticks - (cycle-length * trafficCycle) - car-ticks - amber-ticks - safety-buffer-ticks ) mod cycle-length = 0)
+  [
+     set color green
+     set redLight? not redLight?
+     set greenLight? not greenLight?
+  ]
+
+  if ((ticks - (cycle-length * trafficCycle)  + safety-buffer-ticks) mod cycle-length = 0)
+  [
+    set color red
+    set greenLight? not greenLight?
+    set redLight? not redLight?
+  ]
+
 end
+
+;to check-switch-lights
+;  if ticks mod (cycle-length) = 1 [
+;    set trafficCycle trafficCycle + 1
+;    switch-lights
+;    set stoppedCars 0
+;    set changeLane 0
+;    ask cars [set stopTime 0]
+;  ]
+;
+;  if ((ticks - (cycle-length * trafficCycle)) mod car-ticks = 0) or
+;  ((ticks - (cycle-length * trafficCycle)) mod (car-ticks) = 0) or
+;  ((ticks - (cycle-length * trafficCycle)) mod (car-ticks + pedestrian-ticks) = 0)
+;  [
+;      switch-lights
+;  ]
+;end
+
+;to switch-lights
+;  set greenLight? (not greenLight?)
+;    ifelse greenLight? [set color red] [set color green]
+;end
 
 to record-current-data
   set dataLength (length recordData)
@@ -910,12 +988,12 @@ SLIDER
 96
 speed-limit
 speed-limit
-0
-0.2
-0.1
-0.01
+40
+80
+60.0
+10
 1
-NIL
+km/h
 HORIZONTAL
 
 SLIDER
@@ -926,8 +1004,8 @@ SLIDER
 number-of-cars
 number-of-cars
 0
-70
-15.0
+62
+30.0
 1
 1
 NIL
@@ -956,8 +1034,8 @@ SLIDER
 max-patience
 max-patience
 0
-50
-49.0
+100
+50.0
 1
 1
 NIL
@@ -998,16 +1076,16 @@ NIL
 SLIDER
 14
 298
-186
+190
 331
 acceleration
 acceleration
-0
-0.01
-0.002
-0.001
 1
-NIL
+5
+2.0
+1
+1
+km/h^2
 HORIZONTAL
 
 SLIDER
@@ -1017,12 +1095,12 @@ SLIDER
 371
 decelaration
 decelaration
-0
-0.1
-0.07
-0.01
 1
-NIL
+5
+1.0
+1
+1
+km/h^2
 HORIZONTAL
 
 SLIDER
@@ -1033,8 +1111,8 @@ SLIDER
 number-of-bike
 number-of-bike
 0
-50
-11.0
+62
+12.0
 1
 1
 NIL
@@ -1159,6 +1237,58 @@ false
 "" ""
 PENS
 "default" 1.0 0 -16777216 true "" "plot changeLane"
+
+BUTTON
+13
+454
+172
+487
+NIL
+record-current-data\n
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+14
+497
+123
+530
+NIL
+write-to-csv
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+PLOT
+985
+427
+1185
+577
+No. of Pedestrians Waiting
+Time
+Number
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot round(numWaiting)"
 
 @#$#@#$#@
 ## WHAT IS IT?

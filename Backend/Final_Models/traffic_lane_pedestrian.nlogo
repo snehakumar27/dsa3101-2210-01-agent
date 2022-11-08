@@ -597,7 +597,7 @@ to go
   ask cars [move-cars]
   if number-of-lanes > 1
   [
-    ask cars with [ patience <= 0 and speed > 0.01 ] [ choose-new-lane ]
+    ask cars with [ patience <= 0 and speed > 0.23] [ choose-new-lane ]
     ask cars with [ xcor != targetLane ] [ move-to-targetLane ]
   ]
   ask persons [move-pedestrians]
