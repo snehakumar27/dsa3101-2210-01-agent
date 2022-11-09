@@ -54,7 +54,7 @@ def create_plot_crowd_car(speed_limit=60, num_cars = 15, num_ped = 15, patience=
             x = car_interval1["light_interval"],
             y = car_interval1["avg_speed_cars"],
             line=dict(width=3),
-            name = "plot1: number of lanes = 1",
+            name = "number of lanes = 1",
             legendgroup='1'
         )
         
@@ -64,21 +64,24 @@ def create_plot_crowd_car(speed_limit=60, num_cars = 15, num_ped = 15, patience=
             x = car_interval2["light_interval"],
             y = car_interval2["avg_speed_cars"],
             line=dict(width=3),
-            name = "plot1: number of lanes = 2"
+            name = "number of lanes = 2",
+            legendgroup='1'
         )
 
     trace3 =go.Scatter(
             x = car_interval3["light_interval"],
             y = car_interval3["avg_speed_cars"],
             line=dict(width=3),
-            name = "plot1: number of lanes = 3"
+            name = "number of lanes = 3",
+            legendgroup='1'
         )
 
     trace4 =go.Scatter(
             x = car_interval4["light_interval"],
             y = car_interval4["avg_speed_cars"],
             line=dict(width=3),
-            name = "plot1: number of lanes = 4"
+            name = "number of lanes = 4",
+            legendgroup='1'
         )
     
     # creating subplot 1
@@ -92,7 +95,7 @@ def create_plot_crowd_car(speed_limit=60, num_cars = 15, num_ped = 15, patience=
             x = crowds_line_df.index,
             y = crowds_line_df["avg_crowd_size"],
             line=dict(color='firebrick', width=4),
-            name = "plot2: avg crowd size of pedestrians",
+            name = "avg crowd size of pedestrians",
             legendgroup='2'
         )
     
@@ -110,6 +113,7 @@ def create_plot_crowd_car(speed_limit=60, num_cars = 15, num_ped = 15, patience=
         height = 600,
         width = 1000,
         showlegend=True,
+        legend_tracegroupgap = 180,
         title_text = "How the Green Light Duration of Cars affect Cars and Pedestrians",
         title_x=0.5
     )
@@ -206,23 +210,26 @@ def create_cars_plot3(speed_limit=60, num_cars = 10, num_ped = 10, patience=0.6)
     #traces for subplot 1 (speed vs light int)
     trace1 =go.Line(x = car_interval1["light_interval"],
         y = car_interval1["avg_speed_cars"],
-        name = "plot1: number of lanes = 1",
+        name = "number of lanes = 1",
         legendgroup='1'
         )
 
     trace2 =go.Line(x = car_interval2["light_interval"],
         y = car_interval2["avg_speed_cars"],
-        name = "plot1: number of lanes = 2",
+        name = "number of lanes = 2",
+        legendgroup='1'
         )
 
     trace3 =go.Line(x = car_interval3["light_interval"],
         y = car_interval3["avg_speed_cars"],
-        name = "plot1: number of lanes = 3",
+        name = "number of lanes = 3",
+        legendgroup='1'
         )
 
     trace4 =go.Line(x = car_interval4["light_interval"],
         y = car_interval4["avg_speed_cars"],
-        name = "plot1: number of lanes = 4",               
+        name = "number of lanes = 4",  
+        legendgroup='1'             
         )
     
     # creating subplot 1
@@ -234,22 +241,22 @@ def create_cars_plot3(speed_limit=60, num_cars = 10, num_ped = 10, patience=0.6)
     #traces for subplot 1 (speed vs num of lanes)
     trace_1 = go.Line(x = car_lanes1["num_lanes"],
                       y = car_lanes1["avg_speed_cars"],
-                      name = "plot2: green light duration (min) = 0.5",
+                      name = "green light duration (min) = 0.5",
                       legendgroup='2')
     trace_2 = go.Line(x = car_lanes2["num_lanes"],
                       y = car_lanes2["avg_speed_cars"],
-                      name = "plot2: green light duration (min) = 1.0",
-                      #legendgroup='1'
+                      name = "green light duration (min) = 1.0",
+                      legendgroup='2'
                       )
     trace_3 = go.Line(x = car_lanes3["num_lanes"],
                       y = car_lanes3["avg_speed_cars"],
-                      name = "plot2: green light duration (min) = 1.5",
-                      #legendgroup='1'
+                      name = "green light duration (min) = 1.5",
+                      legendgroup='2'
                       )
     trace_4 = go.Line(x = car_lanes4["num_lanes"],
                       y = car_lanes4["avg_speed_cars"],
-                      name = "plot2: green light duration (min) = 2.0",
-                      #legendgroup='1'
+                      name = "green light duration (min) = 2.0",
+                      legendgroup='2'
                       )
     
     fig.add_trace(trace_1,
@@ -275,7 +282,8 @@ def create_cars_plot3(speed_limit=60, num_cars = 10, num_ped = 10, patience=0.6)
     fig.update_layout(
         height = 600,
         width = 700,
-        showlegend=True
+        showlegend=True,
+        legend_tracegroupgap = 180
     )
     return fig
 
@@ -301,7 +309,8 @@ def create_cars_plot4(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6)
         width = 500,
         title_text = "Lane changing per min <br>VS <br>No. of lanes & Green Light Duration",
         title_x=0.5,
-        showlegend=True
+        showlegend=True,
+        legend_tracegroupgap = 180
     )
     return fig
 
@@ -343,23 +352,26 @@ def create_cars_plot5(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6)
     #traces for subplot 1 (speed vs light int)
     trace1 =go.Line(x = car_interval1["light_interval"],
         y = car_interval1["changed_lanes"],
-        name = "plot1: number of lanes = 1",
+        name = "number of lanes = 1",
         legendgroup='1'
         )
  
     trace2 =go.Line(x = car_interval2["light_interval"],
         y = car_interval2["changed_lanes"],
-        name = "plot1: number of lanes = 2",
+        name = "number of lanes = 2",
+        legendgroup='1'
         )
 
     trace3 =go.Line(x = car_interval3["light_interval"],
         y = car_interval3["changed_lanes"],
-        name = "plot1: number of lanes = 3",
+        name = "number of lanes = 3",
+        legendgroup='1'
         )
 
     trace4 =go.Line(x = car_interval4["light_interval"],
         y = car_interval4["changed_lanes"],
-        name = "plot1: number of lanes = 4",               
+        name = "number of lanes = 4",   
+        legendgroup='1'            
         )
     
     # creating subplot 1
@@ -371,22 +383,25 @@ def create_cars_plot5(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6)
     #traces for subplot 1 (speed vs num of lanes)
     trace_1 = go.Line(x = car_lanes1["num_lanes"],
                       y = car_lanes1["changed_lanes"],
-                      name = "plot2: green light duration (min) = 0.5",
+                      name = "green light duration (min) = 0.5",
                       legendgroup='2')
+
     trace_2 = go.Line(x = car_lanes2["num_lanes"],
                       y = car_lanes2["changed_lanes"],
-                      name = "plot2: green light duration (min) = 1.0",
-                      #legendgroup='1'
+                      name = "green light duration (min) = 1.0",
+                      legendgroup='2'
                       )
+
     trace_3 = go.Line(x = car_lanes3["num_lanes"],
                       y = car_lanes3["changed_lanes"],
-                      name = "plot2: green light duration (min) = 1.5",
-                      #legendgroup='1'
+                      name = "green light duration (min) = 1.5",
+                      legendgroup='2'
                       )
+
     trace_4 = go.Line(x = car_lanes4["num_lanes"],
                       y = car_lanes4["changed_lanes"],
-                      name = "plot2: green light duration (min) = 2.0",
-                      #legendgroup='1'
+                      name = "green light duration (min) = 2.0",
+                      legendgroup='2'
                       )
     
     fig.add_trace(trace_1,
@@ -412,7 +427,8 @@ def create_cars_plot5(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6)
     fig.update_layout(
         height = 600,
         width = 700,
-        showlegend=True
+        showlegend=True,
+        legend_tracegroupgap = 180
     )
     return fig
 
