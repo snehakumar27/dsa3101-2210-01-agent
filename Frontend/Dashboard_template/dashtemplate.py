@@ -9,10 +9,9 @@ import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import dash_daq as daq
-import plotly.express as px
 from PIL import Image
 
-data = pd.read_excel("permsnewdata.xlsx", header=0)
+data = pd.read_excel("newdata.xlsx", header=0)
 
 default = {"speed_limit": 60, "num_cars": 15, "patience":0.6, "num_pedestrians":15}
 
