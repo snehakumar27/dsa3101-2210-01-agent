@@ -13,7 +13,7 @@ from PIL import Image
 
 data = pd.read_excel("newdata.xlsx", header=0)
 
-default = {"speed_limit": 60, "num_cars": 15, "patience":0.6, "num_pedestrians":15}
+default = {"comp": 1, "speed_limit": 60, "num_cars": 15, "patience":0.6, "num_pedestrians":15}
 
 def get_data(speed_limit, num_cars, num_ped, patience):
     data1=data[data['speed_limit'] == speed_limit]
@@ -27,6 +27,7 @@ def get_data(speed_limit, num_cars, num_ped, patience):
 
 ### TAB 3 GRAPHS
 
+'''
 def create_plot_crowd_car1(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6):
     data = get_data(speed_limit, num_cars, num_ped, patience)
     crowds_line_df = data.groupby("light_interval").mean()[["avg_crowd_size"]]
@@ -124,7 +125,7 @@ def create_plot_crowd_car1(speed_limit=60, num_cars = 15, num_ped = 15, patience
 
 def create_plot_crowd_car2(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6):
     data = get_data(speed_limit, num_cars, num_ped, patience)
-    crowds_line_df = data.groupby("light_interval").mean()[["changed_lanes"]]
+    crowds_line_df = data.groupby("light_interval").mean()[["avg_crowd_size"]]
 
     line1 = data[data['num_lanes'] ==1]
     line2 = data[data['num_lanes'] ==2]
@@ -212,6 +213,190 @@ def create_plot_crowd_car2(speed_limit=60, num_cars = 15, num_ped = 15, patience
 
 
     return fig
+'''
+
+def create_plot_tab3(comp = 1, speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6):
+    if comp == 1:
+        data = get_data(speed_limit, num_cars, num_ped, patience)
+        crowds_line_df = data.groupby("light_interval").mean()[["avg_crowd_size"]]
+
+        line1 = data[data['num_lanes'] ==1]
+        line2 = data[data['num_lanes'] ==2]
+        line3 = data[data['num_lanes'] ==3] 
+        line4 = data[data['num_lanes'] ==4]
+
+        car_interval1 = line1[["light_interval", "avg_speed_cars"]]
+        car_interval2 = line2[["light_interval", "avg_speed_cars"]]
+        car_interval3 = line3[["light_interval", "avg_speed_cars"]]
+        car_interval4 = line4[["light_interval", "avg_speed_cars"]]
+
+        fig = go.Figure()
+        
+        fig = make_subplots(
+            rows=2, cols=1,
+            vertical_spacing=0.2,
+            subplot_titles=("Plot 1", 
+                "Plot 2"),
+            row_heights=[0.5,0.5])
+
+        #traces for subplot 1
+        trace1 =go.Scatter(
+                x = car_interval1["light_interval"],
+                y = car_interval1["avg_speed_cars"],
+                line=dict(width=3),
+                name = "number of lanes = 1",
+                legendgroup='1'
+            )
+            
+            
+
+        trace2 =go.Scatter(
+                x = car_interval2["light_interval"],
+                y = car_interval2["avg_speed_cars"],
+                line=dict(width=3),
+                name = "number of lanes = 2",
+                legendgroup='1'
+            )
+
+        trace3 =go.Scatter(
+                x = car_interval3["light_interval"],
+                y = car_interval3["avg_speed_cars"],
+                line=dict(width=3),
+                name = "number of lanes = 3",
+                legendgroup='1'
+            )
+
+        trace4 =go.Scatter(
+                x = car_interval4["light_interval"],
+                y = car_interval4["avg_speed_cars"],
+                line=dict(width=3),
+                name = "number of lanes = 4",
+                legendgroup='1'
+            )
+        
+        # creating subplot 1
+        fig.add_trace(trace1, row=1, col=1,),
+        fig.add_trace(trace2, row=1, col=1,),
+        fig.add_trace(trace3, row=1, col=1,),
+        fig.add_trace(trace4, row=1, col=1,)
+
+
+        tracesub2 = go.Scatter(
+                x = crowds_line_df.index,
+                y = crowds_line_df["avg_crowd_size"],
+                line=dict(color='firebrick', width=4),
+                name = "avg crowd size of pedestrians",
+                legendgroup='2'
+            )
+        
+        fig.add_trace(tracesub2,row=2, col=1,)
+
+
+
+        fig.update_xaxes(title_text="Green Light Duration (min)",row=1, col=1)
+        fig.update_yaxes(title_text="Average Speed of Cars",row=1, col=1)
+        fig.update_xaxes(title_text="Green Light Duration (min)",row=2, col=1)
+        fig.update_yaxes(title_text="Average Crowd Size",row=2, col=1)
+
+        
+        fig.update_layout(
+            height = 600,
+            width = 1000,
+            showlegend=True,
+            legend_tracegroupgap = 180,
+            title_text = "How the Green Light Duration of Cars affect Cars and Pedestrians",
+            title_x=0.5
+        )
+        return fig
+    else:
+        data = get_data(speed_limit, num_cars, num_ped, patience)
+        crowds_line_df = data.groupby("light_interval").mean()[["avg_crowd_size"]]
+
+        line1 = data[data['num_lanes'] ==1]
+        line2 = data[data['num_lanes'] ==2]
+        line3 = data[data['num_lanes'] ==3] 
+        line4 = data[data['num_lanes'] ==4]
+
+        car_interval1 = line1[["light_interval", "changed_lanes"]]
+        car_interval2 = line2[["light_interval", "changed_lanes"]]
+        car_interval3 = line3[["light_interval", "changed_lanes"]]
+        car_interval4 = line4[["light_interval", "changed_lanes"]]
+
+        fig = go.Figure()
+        
+        fig = make_subplots(
+            rows=2, cols=1,
+            vertical_spacing=0.2,
+            subplot_titles=("Plot 1", 
+                "Plot 2"),
+            row_heights=[0.5,0.5])
+
+        #traces for subplot 1
+        trace1 =go.Scatter(
+                x = car_interval1["light_interval"],
+                y = car_interval1["changed_lanes"],
+                line=dict(width=3),
+                name = "plot1: number of lanes = 1",
+                legendgroup='1'
+            )
+            
+            
+
+        trace2 =go.Scatter(
+                x = car_interval2["light_interval"],
+                y = car_interval2["changed_lanes"],
+                line=dict(width=3),
+                name = "plot1: number of lanes = 2"
+            )
+
+        trace3 =go.Scatter(
+                x = car_interval3["light_interval"],
+                y = car_interval3["changed_lanes"],
+                line=dict(width=3),
+                name = "plot1: number of lanes = 3"
+            )
+
+        trace4 =go.Scatter(
+                x = car_interval4["light_interval"],
+                y = car_interval4["changed_lanes"],
+                line=dict(width=3),
+                name = "plot1: number of lanes = 4"
+            )
+        
+        # creating subplot 1
+        fig.add_trace(trace1, row=1, col=1,),
+        fig.add_trace(trace2, row=1, col=1,),
+        fig.add_trace(trace3, row=1, col=1,),
+        fig.add_trace(trace4, row=1, col=1,)
+
+
+        tracesub2 = go.Scatter(
+                x = crowds_line_df.index,
+                y = crowds_line_df["avg_crowd_size"],
+                line=dict(color='firebrick', width=4),
+                name = "plot2: avg crowd size of pedestrians",
+                legendgroup='2'
+            )
+        
+        fig.add_trace(tracesub2,row=2, col=1,)
+
+
+
+        fig.update_xaxes(title_text="Green Light Duration (min)",row=1, col=1)
+        fig.update_yaxes(title_text="Lane Changes per min",row=1, col=1)
+        fig.update_xaxes(title_text="Green Light Duration (min)",row=2, col=1)
+        fig.update_yaxes(title_text="Average Crowd Size",row=2, col=1)
+
+        
+        fig.update_layout(
+            height = 600,
+            width = 1000,
+            showlegend=True,
+            title_text = "How the Green Light Duration of Cars affect Cars and Pedestrians",
+            title_x=0.5
+        )
+        return fig
+    
 
 ### TAB 2 GRAPHS
 
@@ -646,15 +831,15 @@ content3 = html.Div([
                 dcc.RadioItems(
                     id='radio',
                     options=[
-                             {'label': 'Average Speed of Cars', 'value': 'avg-speed'},
-                             {'label': 'Lane Changes per min', 'value': 'lane-changes'},
+                             {'label': 'Average Speed of Cars', 'value': 1},
+                             {'label': 'Lane Changes per min', 'value': 2},
                     ], 
-                    value="avg-speed", 
+                    value=1, 
                     inline=True
                 ),
         ]),
     html.Div(
-        dcc.Graph(id='comparing-graph'),
+        dcc.Graph(id='comparing-graph',figure=create_plot_tab3()),
     )
     
 
@@ -946,7 +1131,9 @@ def func(n_clicks):
     Input("number-of-pedestrians", "value"),
     Input("max-patience", "value")
 )
-def update_crowd(com, sp, nc, np, mp):
+def update_crowd(r, sp, nc, np, mp):
+    if r:
+        default["comp"]=r
     if sp:
         default["speed_limit"]=sp
     if nc:
@@ -955,13 +1142,8 @@ def update_crowd(com, sp, nc, np, mp):
         default["num_pedestrians"] = np
     if mp:
         default["patience"] = mp
-    crowd_car_fig1 = create_plot_crowd_car1(default["speed_limit"], default["num_cars"], default["num_pedestrians"], default["patience"])
-    crowd_car_fig2 = create_plot_crowd_car2(default["speed_limit"], default["num_cars"], default["num_pedestrians"], default["patience"])
-    if com == 'avg-speed':
-        return crowd_car_fig1
-
-    else:
-        return crowd_car_fig2
+    crowd_car_fig = create_plot_tab3(default["comp"], default["speed_limit"], default["num_cars"], default["num_pedestrians"], default["patience"])
+    return crowd_car_fig
 
 
 
