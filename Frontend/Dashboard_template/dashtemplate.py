@@ -165,7 +165,7 @@ def create_cars_plot2(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6)
     fig.update_layout(
         height = 600,
         width = 500,
-        title_text = "Speed VS No. of lanes & Green Light Duration",
+        title_text = "Speed <br>VS <br>No. of lanes & Green Light Duration",
         title_x=0.5,
         showlegend=True
     )
@@ -173,7 +173,7 @@ def create_cars_plot2(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6)
     return fig
 
 #### Graph 3: subplot of speed vs num lanes and speed vs light int
-def create_cars_plot3(speed_limit=60, num_cars = 10, num_ped = 10, patience=0.6):
+def create_cars_plot3(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6):
     data = get_data(speed_limit, num_cars, num_ped, patience)
 
     #for speed vs light int graph
@@ -310,7 +310,7 @@ def create_cars_plot4(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6)
         title_text = "Lane changing per min <br>VS <br>No. of lanes & Green Light Duration",
         title_x=0.5,
         showlegend=True,
-        legend_tracegroupgap = 180
+        #legend_tracegroupgap = 180
     )
     return fig
 
