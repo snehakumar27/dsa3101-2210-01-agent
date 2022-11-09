@@ -679,7 +679,7 @@ sidebar = html.Div([
         60: "60",
         70: "70",
         80: "80"
-    }, value=50, 
+    }, value=60, 
         tooltip={"placement": "bottom", "always_visible": True}),
 
     html.P(
