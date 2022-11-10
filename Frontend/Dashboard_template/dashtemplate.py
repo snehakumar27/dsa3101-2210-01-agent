@@ -13,7 +13,7 @@ from PIL import Image
 
 data = pd.read_excel("newdata.xlsx", header=0)
 
-default = {"comp": 1, "speed_limit": 60, "num_cars": 15, "patience":0.6, "num_pedestrians":15}
+default = {"speed_limit": 60, "num_cars": 15, "patience":0.6, "num_pedestrians":15}
 
 def get_data(speed_limit, num_cars, num_ped, patience):
     data1=data[data['speed_limit'] == speed_limit]
@@ -976,8 +976,6 @@ def func(n_clicks):
     Input("max-patience", "value")
 )
 def update_crowd(r, sp, nc, np, mp):
-    if r:
-        default["comp"]=r
     if sp:
         default["speed_limit"]=sp
     if nc:
@@ -986,7 +984,7 @@ def update_crowd(r, sp, nc, np, mp):
         default["num_pedestrians"] = np
     if mp:
         default["patience"] = mp
-    crowd_car_fig = create_plot_tab3(default["comp"], default["speed_limit"], default["num_cars"], default["num_pedestrians"], default["patience"])
+    crowd_car_fig = create_plot_tab3(r, default["speed_limit"], default["num_cars"], default["num_pedestrians"], default["patience"])
     return crowd_car_fig
 
 
