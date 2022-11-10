@@ -718,11 +718,22 @@ app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP, 'https://codepen.io/
 content1 = dbc.Row([
     dbc.Col([
         html.H6("Number of Lanes (1 - 4)"),
-        dbc.Button("Decrease Lane", id = "decrease_lane", color = "secondary", className = "me-1", n_clicks = 0),
+        html.Div(
+            [
+                dcc.Dropdown(['1', '2', '3', '4'], 
+                '2', 
+                id='demo-dropdown'),
+                html.Div(id='dd-output-container')
+            ]
+        ),
         html.Br(),
-        html.Span(id="number-of-lanes", style={"verticalAlign": "middle"}),
-        html.Br(),
-        dbc.Button("Increase Lane", id = "increase_lane", color = "secondary", className = "me-1", n_clicks = 2),
+
+        #dbc.Button("Decrease Lane", id = "decrease_lane", color = "secondary", className = "me-1", n_clicks = 0),
+        #html.Br(),
+        #html.Span(id="number-of-lanes", style={"verticalAlign": "middle"}),
+        #html.Br(),
+        #dbc.Button("Increase Lane", id = "increase_lane", color = "secondary", className = "me-1", n_clicks = 2),
+        
         html.H6("Green Light Duration of Cars (0.5 - 2 mins)"),
         html.Div(
             [
@@ -963,15 +974,25 @@ app.layout = html.Div(
 #####CALLBACKS
 
 # callback for lane buttons
+#@app.callback(
+#    Output("number-of-lanes", "children"), [Input("increase_lane", "n_clicks"), Input("decrease_lane", "n_clicks")]
+#)
+#def on_button_click(n, m):
+#    lanes = n - m
+#    lanes = max(min(lanes, 4), 1)
+#    if lanes == 1:
+#        return "1 lane"
+#    return f"{lanes} lanes"
+
+
+# call back for lane dropdown 
 @app.callback(
-    Output("number-of-lanes", "children"), [Input("increase_lane", "n_clicks"), Input("decrease_lane", "n_clicks")]
+    Output('dd-output-container', 'children'),
+    Input('demo-dropdown', 'value')
 )
-def on_button_click(n, m):
-    lanes = n - m
-    lanes = max(min(lanes, 4), 1)
-    if lanes == 1:
-        return "1 lane"
-    return f"{lanes} lanes"
+
+def update_output(value):
+    return f'You have selected {value} lanes'
 
 # callback for light interval buttons
 @app.callback(
