@@ -1015,8 +1015,8 @@ GRAPHICS-WINDOW
 16
 -16
 16
-0
-0
+1
+1
 1
 ticks
 30.0
@@ -1107,7 +1107,7 @@ max-patience
 max-patience
 0
 100
-20.0
+80.0
 1
 1
 NIL
@@ -1228,7 +1228,7 @@ PLOT
 598
 515
 748
-Average Speed of People
+Average Speed of Pedestrians
 Time
 Avg Speed
 0.0
@@ -1346,6 +1346,72 @@ false
 "" ""
 PENS
 "default" 1.0 0 -16777216 true "" "plot round(numWaiting)"
+
+MONITOR
+915
+10
+1080
+59
+Average Speed of Cars
+(mean [speed] of cars) * 250
+1
+1
+12
+
+MONITOR
+915
+61
+1127
+110
+Average Speed of Pedestrians
+mean [walk-time] of persons
+3
+1
+12
+
+MONITOR
+915
+112
+1101
+161
+Average Stoptime of Cars
+mean [stopTime] of cars
+1
+1
+12
+
+MONITOR
+915
+163
+1058
+212
+No.of Cars Stopped
+round(stoppedCars)
+0
+1
+12
+
+MONITOR
+915
+214
+1111
+263
+No. of Cars Changing Lanes
+round(changeLane / 200)
+0
+1
+12
+
+MONITOR
+915
+265
+1102
+314
+No. of Pedestrians Waiting
+round(numWaiting)
+0
+1
+12
 
 @#$#@#$#@
 ## WHAT IS IT?
