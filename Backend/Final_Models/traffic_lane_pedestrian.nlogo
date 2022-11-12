@@ -4,13 +4,11 @@ breed[persons person]
 breed[crossings crossing]
 breed[traffic_lights traffic_light]
 breed[towns town]
-;breed[datas data]
 
 globals [
   speedLimit
   accel
   decel
-  lanes
   c-lanes
   car-ticks
   pedestrian-ticks
@@ -99,9 +97,11 @@ to draw-roads
     set pcolor 63 + random-float 0.5
     set meaning "town"
   ]
-  ;roads based on number of lanes
-  set lanes n-values number-of-lanes [ n -> number-of-lanes - (n * 2) - 1 ]
+
+
   set c-lanes (range (- number-of-lanes) (number-of-lanes + 1))
+
+  ;roads based on number of lanes
   ; lanes on right side of the middle/divider
   ask patches with [ (0 <= pxcor) and  (pxcor <= number-of-lanes) ]
   [
@@ -1122,7 +1122,7 @@ number-of-lanes
 number-of-lanes
 0
 4
-1.0
+3.0
 1
 1
 NIL
