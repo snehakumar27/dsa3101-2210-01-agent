@@ -4,7 +4,7 @@ breed[persons person]
 breed[crossings crossing]
 breed[traffic_lights traffic_light]
 breed[towns town]
-breed[datas data]
+;breed[datas data]
 
 globals [
   speedLimit
@@ -29,9 +29,9 @@ globals [
 
 patches-own [
   meaning
-  used
-  traffic
-  limit
+  ;used
+  ;traffic
+  ;limit
 ]
 
 persons-own [
