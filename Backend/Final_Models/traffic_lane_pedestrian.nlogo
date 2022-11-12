@@ -597,7 +597,7 @@ to go
   ask cars [move-cars]
   if number-of-lanes > 1
   [
-    ask cars with [ patience <= 0 and speed > 0.23] [ choose-new-lane ]
+    ask cars with [ patience <= 0 and speed > 0.08] [ choose-new-lane ]
     ask cars with [ xcor != targetLane ] [ move-to-targetLane ]
   ]
   ask persons [move-pedestrians]
@@ -1047,7 +1047,7 @@ speed-limit
 speed-limit
 40
 80
-70.0
+60.0
 10
 1
 km/h
@@ -1077,7 +1077,7 @@ number-of-cars
 number-of-cars
 0
 124
-20.0
+31.0
 1
 1
 NIL
@@ -1092,7 +1092,7 @@ number-of-pedestrians
 number-of-pedestrians
 0
 44
-44.0
+5.0
 1
 1
 NIL
@@ -1107,7 +1107,7 @@ max-patience
 max-patience
 0
 100
-80.0
+20.0
 1
 1
 NIL
@@ -1122,7 +1122,7 @@ number-of-lanes
 number-of-lanes
 0
 4
-2.0
+1.0
 1
 1
 NIL
@@ -1169,7 +1169,7 @@ deceleration
 deceleration
 1
 5
-5.0
+3.0
 1
 1
 km/h^2
@@ -1184,7 +1184,7 @@ car-lights-interval
 car-lights-interval
 0
 2
-1.0
+1.5
 0.5
 1
 min
@@ -1199,7 +1199,7 @@ buffer-time
 buffer-time
 0
 5
-5.0
+3.0
 1
 1
 seconds
@@ -2364,26 +2364,24 @@ NetLogo 6.3.0
   <experiment name="Num_of_Lanes_output" repetitions="1" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="24000"/>
+    <timeLimit steps="2400"/>
     <metric>numWaiting</metric>
     <metric>(mean [speed] of cars) * 250</metric>
-    <metric>changeLane / 200 / (20 * 60)</metric>
+    <metric>(changeLane / 200) / (20 * 60)</metric>
+    <metric>pedestrian-ticks / 20</metric>
     <steppedValueSet variable="number-of-lanes" first="1" step="1" last="4"/>
     <enumeratedValueSet variable="buffer-time">
-      <value value="5"/>
+      <value value="3"/>
     </enumeratedValueSet>
-    <steppedValueSet variable="number-of-pedestrians" first="5" step="10" last="40"/>
+    <steppedValueSet variable="number-of-pedestrians" first="5" step="10" last="35"/>
     <enumeratedValueSet variable="acceleration">
       <value value="3"/>
     </enumeratedValueSet>
     <steppedValueSet variable="max-patience" first="20" step="20" last="100"/>
-    <enumeratedValueSet variable="pedestrian-lights-interval">
-      <value value="45"/>
-    </enumeratedValueSet>
-    <steppedValueSet variable="number-of-cars" first="20" step="10" last="120"/>
+    <steppedValueSet variable="number-of-cars" first="25" step="10" last="65"/>
     <steppedValueSet variable="speed-limit" first="40" step="10" last="80"/>
     <enumeratedValueSet variable="deceleration">
-      <value value="5"/>
+      <value value="3"/>
     </enumeratedValueSet>
     <steppedValueSet variable="car-lights-interval" first="0.5" step="0.5" last="2"/>
   </experiment>
