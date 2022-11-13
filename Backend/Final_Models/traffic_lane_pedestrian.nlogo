@@ -253,13 +253,13 @@ to make-people
     set number-of-pedestrians count sidewalk-patches
   ]
 
-  let max-lr-cap (2 * (max-pycor - (number-of-lanes + 2)))
-  let max-side-cap 34
+  let max-lr-cap count patches with [meaning = "sidewalk-left"]
+  let max-roadside-cap count patches with [meaning = "sidewalk-roadside" or meaning = "waitpoint"]
 
   let sidewalk-left-people min (list (random number-of-pedestrians) max-lr-cap)
-  let rem-people-one (number-of-pedestrians - sidewalk-left-people)
-  let sidewalk-right-people min (list (random rem-people-one) max-lr-cap)
-  let sidewalk-roadside-people (rem-people-one - sidewalk-right-people)
+  let rem-people (number-of-pedestrians - sidewalk-left-people)
+  let sidewalk-right-people min (list (random rem-people) max-lr-cap)
+  let sidewalk-roadside-people (random (min (list (rem-people - sidewalk-right-people) max-roadside-cap)))
 
 ask n-of (sidewalk-left-people) patches with [ meaning = "sidewalk-left" ]
   [
@@ -294,6 +294,8 @@ ask n-of (sidewalk-right-people) patches with [ meaning = "sidewalk-right" ]
       set want-change? false
     ]
   ]
+
+
 
   ask n-of (sidewalk-roadside-people) patches with [ meaning = "sidewalk-roadside" or meaning = "waitpoint"]
   [
