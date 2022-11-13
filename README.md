@@ -16,7 +16,7 @@ For the purpose of this project, we have decided to focus on a particular segmen
 ------------------------------------
 ## GitHub Large File Storage 
 
-If you face issues with pulling the changes or cloning the repository, install the git LFS extension
+If you face issues with pulling the changes or cloning the repository, install the git LFS extension <br />
 `brew install git-lfs`
 
 The git LFS extension has been used in this repository to keep track of the csv files containing the simulation model's outputs. 
