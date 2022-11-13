@@ -1,0 +1,62 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2639
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica-Bold;\f1\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11720\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\b\fs24 \cf0 Instructions to run experiments on behaviorSpace
+\f1\b0 \
+\
+
+\f0\b Step 1: Open the Netlogo application and open the model
+\f1\b0  \
+\
+
+\f0\b Step 2: Click on the tools tab then click on BehaviorSpace and then a window should open
+\f1\b0 \
+\
+
+\f0\b Step 3: To create a new experiement click on \'93New\'94 to edit the current preset experiement click on \'93Edit\'94
+\f1\b0 \
+\
+
+\f0\b Step 4: clicking \'93Edit\'94 , it will open a new window where you can see the embedded information for our preset experiment
+\f1\b0 \
+\
+In here the first box is the variables that we want to vary defined like ["number-of-lanes" [1 1 4]] where the experiment will first start with 1 lane and then incrementally increase by 1 lane to 4 lanes .\
+\
+The next box is on the number of repetitions you want to set\
+\
+There after we input the parameters we want to output like the mean speed of cars\
+\
+Then we have the setup and go commands\
+\
+Lastly we can set the time limit for each experiment run \
+\
+
+\f0\b Step 5: Then click ok and you will get back to the first window then you can click \'93Run\'94
+\f1\b0 \
+\
+
+\f0\b Step 6: After clicking \'93Run\'94 a \'93Run options\'94 window appears, click to select where the csv files will be saved in. Then choose the simulations to run in parallel this is based on your machine.
+\f1\b0 \
+\
+
+\f0\b Step 7: Then click \'93OK\'94 the experiment should run
+\f1\b0 \
+\
+If you wish to see the simulation running, then check on the \'93Update view\'94 and if you wish to view the graph plots too check the \'93Update plots and monitors\'94\
+\
+
+\f0\b Step 8: When you are done the csv file will be saved on your local computer, you may commit the files and then push to GitHub.
+\f1\b0  \
+\
+Although the files are big as we have set up the Git Large File storage, you will be able to seamlessly push in the big files.\
+\
+
+\f0\b Special Notes:
+\f1\b0 \
+Sometimes the experiment may be too large and the experiment slows down as Netlogo ihas its own limitations so in this case choose a parameter to break up the experiments runs. For example in our current csvs, we have conducted 2 experiments instead of 1 segregated on the \'93the-number-of-pedestrian\'94 parameter, where the first run is set to 5 and 15 while the second run is for 25 and 35. In this case, instead of having 8000 runs in one short we break it up to 2 x 4000 runs.\
+\
+}
