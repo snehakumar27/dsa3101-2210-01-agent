@@ -47,7 +47,7 @@ Replace `~/path/to/results/folder` with the path on your local computer starting
 `docker stop netlogo` <br />
 `docker stop x11-bridge`
 
-** Note: The backend model may also be viewed directly using the html file. **
+**Note: The backend model may also be viewed directly using the html file.**
 
 
 
