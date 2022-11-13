@@ -233,8 +233,6 @@ to make-cars
           set maxSpeed speedLimit + random-float 0.002
         ]
         set speed maxSpeed - random-float 0.04
-        set stopTime 0
-        set stopped? false
       ]
     ]
   ]
@@ -992,7 +990,8 @@ end
 
 to record-current-data
   set dataLength (length recordData)
-  set recordData (lput (list (mean [speed] of cars) (mean [stopTime] of cars) stoppedCars) recordData)
+  set recordData (lput (list (mean [speed] of cars * 252) (mean [walk-time] of persons * 70)
+    (mean [stopTime] of cars / 20) round(stoppedCars) round(changeLane / 200) round(numWaiting)) recordData)
 end
 
 to write-to-csv
@@ -1174,7 +1173,7 @@ deceleration
 deceleration
 1
 5
-3.0
+5.0
 1
 1
 km/h^2
@@ -1189,7 +1188,7 @@ car-lights-interval
 car-lights-interval
 0
 2
-2.0
+1.5
 0.5
 1
 min
@@ -1204,7 +1203,7 @@ buffer-time
 buffer-time
 0
 5
-0.0
+4.0
 1
 1
 seconds
