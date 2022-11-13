@@ -77,7 +77,6 @@ to setup
   set changeLane 0
   set numWaiting 0
   set recordData (list)
-  ;set totalTicks (car-lights-interval + pedestrian-lights-interval)
   draw-roads
   draw-sidewalk
   draw-crossing
