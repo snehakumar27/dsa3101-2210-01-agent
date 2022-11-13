@@ -1049,7 +1049,7 @@ speed-limit
 speed-limit
 40
 80
-60.0
+80.0
 10
 1
 km/h
@@ -1079,7 +1079,7 @@ number-of-cars
 number-of-cars
 0
 124
-31.0
+124.0
 1
 1
 NIL
@@ -1093,8 +1093,8 @@ SLIDER
 number-of-pedestrians
 number-of-pedestrians
 0
-176
-176.0
+172
+172.0
 1
 1
 NIL
@@ -1109,7 +1109,7 @@ max-patience
 max-patience
 0
 100
-20.0
+100.0
 1
 1
 NIL
@@ -1124,7 +1124,7 @@ number-of-lanes
 number-of-lanes
 0
 4
-3.0
+4.0
 1
 1
 NIL
@@ -2375,7 +2375,7 @@ NetLogo 6.3.0
     <enumeratedValueSet variable="buffer-time">
       <value value="3"/>
     </enumeratedValueSet>
-    <steppedValueSet variable="number-of-pedestrians" first="5" step="10" last="35"/>
+    <steppedValueSet variable="number-of-pedestrians" first="25" step="10" last="35"/>
     <enumeratedValueSet variable="acceleration">
       <value value="3"/>
     </enumeratedValueSet>
