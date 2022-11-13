@@ -603,7 +603,7 @@ to go
   if number-of-lanes > 1
   [
     ask cars with [ patience <= 0 and speed > 0.08] [ choose-new-lane ]
-    ask cars with [ xcor != targetLane ] [ move-to-targetLane ]
+    ask cars with [ xcor != targetLane and speed > 0.08 ] [ move-to-targetLane ]
   ]
   ask persons [move-pedestrians]
   ask traffic_lights with [ cars-light? ] [ check-car-switch-lights ]
@@ -1052,7 +1052,7 @@ speed-limit
 speed-limit
 40
 80
-80.0
+40.0
 10
 1
 km/h
@@ -1067,7 +1067,7 @@ pedestrian-lights-interval
 pedestrian-lights-interval
 0
 45
-15.0
+45.0
 15
 1
 seconds
@@ -1082,7 +1082,7 @@ number-of-cars
 number-of-cars
 0
 124
-124.0
+31.0
 1
 1
 NIL
@@ -1127,7 +1127,7 @@ number-of-lanes
 number-of-lanes
 0
 4
-4.0
+2.0
 1
 1
 NIL
@@ -1189,7 +1189,7 @@ car-lights-interval
 car-lights-interval
 0
 2
-2.0
+0.5
 0.5
 1
 min

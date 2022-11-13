@@ -75,7 +75,7 @@ to setup
   clear-all
   set speedLimit ((((speed-limit * 1000) / 3600) / 3.5) / 20)
   set accel ((((acceleration * 1000) / 3600) / 3.5) / 20)
-  set decel ((((decelaration * 1000) / 3600) / 3.5) / 20)
+  set decel ((((deceleration * 1000) / 3600) / 3.5) / 20)
   set stoppedCars 0
   set recordData (list)
   set dataLength 0
@@ -600,8 +600,8 @@ end
 to go
   ask cars [move-cars]
   if number-c-lanes > 1 [
-    ask cars with [ patience <= 0 and speed > 0.008 ] [ choose-new-lane ]
-    ask cars with [ xcor != targetLane ] [ move-to-targetLane]
+    ask cars with [ patience <= 0 and speed > 0.08] [ choose-new-lane ]
+    ask cars with [ xcor != targetLane and speed > 0.08 ] [ move-to-targetLane]
   ]
   ask persons [move-pedestrians]
   ask traffic_lights with [ cars-light? ] [ check-car-switch-lights ]
@@ -614,49 +614,103 @@ end
 
 to move-cars
 
-let cstop? false
-  ask traffic_lights with [cars-light?] [
-    ifelse greenLight? [set cstop? true] [set cstop? false]
-  ]
-
-  if not cstop?[
-    speed-up-car ]
-
-  let blocking-cars other cars in-cone (1 + ((speed / decelaration) * speed)) 120 with [ y-distance <= 2  ]
+  let blocking-cars other cars in-cone (1 + ((speed / decel) * speed)) 150   ;with [ y-distance <= 2  ]
   let blocking-car min-one-of blocking-cars [ distance myself ]
-  if blocking-car != nobody [
+  if blocking-car != nobody
+  [
     ; match the speed of the car ahead of you and then slow
     ; down so you are driving a bit slower than that car
     slow-down-car
     set speed [ speed ] of blocking-car
-
-  ]
-  forward speed
-
-  ;whether traffic lights show red or green
-  if [meaning] of patch-here = "crossing" [
-      speed-up-car
-      fd speed
   ]
 
-  ; if patch ahead is crossing & not red light, then speed up else
-  if ([meaning] of patch-ahead 1 = "crossing")[
-    ifelse (not cstop?) [
-      if speed = 0 [set stoppedCars stoppedCars - 1]
-      speed-up-car
-      fd speed
-    ][
-      ifelse ([meaning] of patch-here = "crossing")[  ; if cstop and crossing
-        if [meaning] of patch-ahead 1 = one-of ["road-up" "road-down"][
-          speed-up-car
-          fd speed
-      ]][
-        set speed 0
-        set stopTime stopTime + 1
-        set stoppedCars stoppedCars + 1]
+  let cstop? false
+  ask traffic_lights with [cars-light?]
+  [
+    ifelse redLight? [set cstop? true] [set cstop? false]
+  ]
+
+  ifelse [meaning] of patch-here = "crossing"
+  [
+
+    ifelse any? persons-on patch-ahead 1;in-cone 1 90
+    [
+      set speed 0
+      set stopTime stopTime + 1
+    ]
+    [
+      set blocking-cars other cars in-cone (1 + ((speed / deceleration) * speed)) 150   ;with [ y-distance <= 2  ]
+      set blocking-car min-one-of blocking-cars [ distance myself ]
+      ifelse blocking-car != nobody
+      [
+        slow-down-car
+        set speed [ speed ] of blocking-car
+      ]
+      [
+        speed-up-car
+        fd speed
+      ]
     ]
   ]
-  forward speed
+  [
+    ifelse [meaning] of patch-ahead 1 = "crossing"
+    [
+      ifelse cstop?
+      [
+        set speed 0
+        set stopTime stopTime + 1
+      ]
+      [
+        ifelse speed = 0
+        [
+          ifelse any? persons-on patch-ahead 1
+          [
+            set speed 0
+            set stopTime stopTime + 1
+          ]
+          [
+            set blocking-cars other cars in-cone (1 + ((speed / deceleration) * speed)) 150   ;with [ y-distance <= 2  ]
+             set blocking-car min-one-of blocking-cars [ distance myself ]
+             ifelse blocking-car != nobody
+            [
+             slow-down-car
+             set speed [ speed ] of blocking-car
+            ]
+            [
+              speed-up-car
+              fd speed
+            ]
+          ]
+        ]
+        [
+          set blocking-cars other cars in-cone (1 + ((speed / deceleration) * speed)) 150   ;with [ y-distance <= 2  ]
+          set blocking-car min-one-of blocking-cars [ distance myself ]
+          ifelse blocking-car != nobody
+          [
+            slow-down-car
+            set speed [ speed ] of blocking-car
+          ]
+          [
+            speed-up-car
+            fd speed
+          ]
+        ]
+      ]
+    ]
+    [
+      set blocking-cars other cars in-cone (1 + ((speed / deceleration) * speed)) 150   ;with [ y-distance <= 2  ]
+      set blocking-car min-one-of blocking-cars [ distance myself ]
+      ifelse blocking-car != nobody
+      [
+        slow-down-car
+        set speed [ speed ] of blocking-car
+      ]
+      [
+        speed-up-car
+        fd speed
+      ]
+    ]
+  ]
 
 end
 
@@ -1093,8 +1147,8 @@ SLIDER
 338
 186
 371
-decelaration
-decelaration
+deceleration
+deceleration
 1
 5
 1.0
