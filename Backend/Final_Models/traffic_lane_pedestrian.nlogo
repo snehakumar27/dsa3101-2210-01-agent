@@ -1067,7 +1067,7 @@ pedestrian-lights-interval
 pedestrian-lights-interval
 0
 45
-45.0
+15.0
 15
 1
 seconds
@@ -1159,7 +1159,7 @@ acceleration
 acceleration
 1
 5
-3.0
+5.0
 1
 1
 km/h^2
@@ -1189,7 +1189,7 @@ car-lights-interval
 car-lights-interval
 0
 2
-1.5
+2.0
 0.5
 1
 min
@@ -1204,7 +1204,7 @@ buffer-time
 buffer-time
 0
 5
-3.0
+0.0
 1
 1
 seconds
@@ -1215,7 +1215,7 @@ PLOT
 598
 205
 748
-Average Speed of Cars
+Average Speed of Cars (km/h)
 Time
 Avg Speed
 0.0
@@ -1226,25 +1226,25 @@ true
 false
 ";set-plot-y-range 0 speed-limit" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot (mean [speed] of cars) * 250"
+"default" 1.0 0 -16777216 true "" "plot (mean [speed] of cars) * 252"
 
 PLOT
 206
 598
 515
 748
-Average Speed of Pedestrians
+Average Speed of Pedestrians (m/s)
 Time
 Avg Speed
 0.0
 5.0
 0.0
-10.0
+2.0
 true
 false
-"set-plot-y-range (mean [walk-time] of persons) ((mean [walk-time] of persons) + 0.00001)" ""
+";set-plot-y-range 0 2.5" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot mean [walk-time] of persons"
+"default" 1.0 0 -16777216 true "" "plot mean [walk-time] of persons * 70"
 
 BUTTON
 11
@@ -1285,18 +1285,18 @@ PLOT
 598
 716
 748
-Average Stoptime of Cars
+Average Stoptime of Cars (s)
 Time
 Stoptime
 0.0
 10.0
 0.0
-10.0
+7.0
 true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot mean [stopTime] of cars"
+"default" 1.0 0 -16777216 true "" "plot mean [stopTime] of cars / 20"
 
 PLOT
 717
@@ -1355,9 +1355,9 @@ PENS
 MONITOR
 915
 10
-1080
+1130
 59
-Average Speed of Cars
+Average Speed of Cars (km/h)
 (mean [speed] of cars) * 250
 1
 1
@@ -1366,10 +1366,10 @@ Average Speed of Cars
 MONITOR
 915
 61
-1127
+1167
 110
-Average Speed of Pedestrians
-mean [walk-time] of persons
+Average Speed of Pedestrians (m/s)
+mean [walk-time] of persons * 70
 3
 1
 12
@@ -1377,10 +1377,10 @@ mean [walk-time] of persons
 MONITOR
 915
 112
-1101
+1117
 161
-Average Stoptime of Cars
-mean [stopTime] of cars
+Average Stoptime of Cars (s)
+mean [stopTime] of cars / 20
 1
 1
 12
