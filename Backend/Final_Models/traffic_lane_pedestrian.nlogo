@@ -1242,7 +1242,7 @@ Avg Speed
 2.0
 true
 false
-";set-plot-y-range 0 2.5" ""
+"set-plot-y-range 0 precision (mean [walk-time] of persons * 70) 2" ""
 PENS
 "default" 1.0 0 -16777216 true "" "plot mean [walk-time] of persons * 70"
 
