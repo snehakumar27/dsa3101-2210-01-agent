@@ -11,9 +11,9 @@ from plotly.subplots import make_subplots
 import dash_daq as daq
 from PIL import Image
 
-data = pd.read_excel("newdata.xlsx", header=0)
+data = pd.read_excel("real_data/full_data.xlsm", header=0)
 
-default = {"speed_limit": 60, "num_cars": 15, "patience":0.6, "num_pedestrians":15}
+default = {"speed_limit": 60, "num_cars": 25, "patience":60, "num_pedestrians":15}
 
 def get_data(speed_limit, num_cars, num_ped, patience):
     data1=data[data['speed_limit'] == speed_limit]
@@ -28,7 +28,7 @@ def get_data(speed_limit, num_cars, num_ped, patience):
 ### TAB 3 GRAPHS
 
 
-def create_plot_crowd_car1(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6):
+def create_plot_crowd_car1(speed_limit=60, num_cars = 25, num_ped = 15, patience=60):
     data = get_data(speed_limit, num_cars, num_ped, patience)
     crowds_line_df = data.groupby("light_interval").mean()[["avg_crowd_size"]]
 
@@ -123,7 +123,7 @@ def create_plot_crowd_car1(speed_limit=60, num_cars = 15, num_ped = 15, patience
 
     return fig
 
-def create_plot_crowd_car2(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6):
+def create_plot_crowd_car2(speed_limit=60, num_cars = 25, num_ped = 15, patience=60):
     data = get_data(speed_limit, num_cars, num_ped, patience)
     crowds_line_df = data.groupby("light_interval").mean()[["avg_crowd_size"]]
 
@@ -215,7 +215,7 @@ def create_plot_crowd_car2(speed_limit=60, num_cars = 15, num_ped = 15, patience
     return fig
 
 
-def create_plot_tab3(comp = 1, speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6):
+def create_plot_tab3(comp = 1, speed_limit=60, num_cars = 25, num_ped = 15, patience=60):
     if comp == 1:
         fig = create_plot_crowd_car1(speed_limit, num_cars, num_ped, patience)
     else:
@@ -224,7 +224,7 @@ def create_plot_tab3(comp = 1, speed_limit=60, num_cars = 15, num_ped = 15, pati
 ### TAB 2 GRAPHS
 
 #### Graph 1: plot with 2 output 2 inputs, x = num.lanes, y=light interval, color = speed, size = changed lanes
-def create_cars_plot1(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6):
+def create_cars_plot1(speed_limit=60, num_cars = 25, num_ped = 15, patience=60):
     data = get_data(speed_limit, num_cars, num_ped, patience)
     car_marker_df = data[["num_lanes", "light_interval", "avg_speed_cars", "changed_lanes"]]
     #car_marker_df = car_marker_df.groupby(["num_lanes", "light_interval"])["avg_speed_cars", "changed_lanes"].mean().reset_index()
@@ -241,7 +241,7 @@ def create_cars_plot1(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6)
 
 #### Graph 2: heat map of speed vs num lanes and light int
 
-def create_cars_plot2(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6):
+def create_cars_plot2(speed_limit=60, num_cars = 25, num_ped = 15, patience=60):
     data = get_data(speed_limit, num_cars, num_ped, patience)
     car_heat_df1 = data[["num_lanes", "light_interval", "avg_speed_cars"]]
     
@@ -271,7 +271,7 @@ def create_cars_plot2(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6)
     return fig
 
 #### Graph 3: subplot of speed vs num lanes and speed vs light int
-def create_cars_plot3(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6):
+def create_cars_plot3(speed_limit=60, num_cars = 25, num_ped = 15, patience=60):
     data = get_data(speed_limit, num_cars, num_ped, patience)
 
     #for speed vs light int graph
@@ -386,7 +386,7 @@ def create_cars_plot3(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6)
     return fig
 
 #### Graph 4: heat map of change lanes vs num lanes and light int
-def create_cars_plot4(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6):
+def create_cars_plot4(speed_limit=60, num_cars = 25, num_ped = 15, patience=60):
     data = get_data(speed_limit, num_cars, num_ped, patience)
     car_heat_df2 = data[["num_lanes", "light_interval", "changed_lanes"]]
     fig = make_subplots(
@@ -413,7 +413,7 @@ def create_cars_plot4(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6)
     return fig
 
 #### Graph 5: subplot of change lanes vs num lanes and change lanes vs light int
-def create_cars_plot5(speed_limit=60, num_cars = 15, num_ped = 15, patience=0.6):
+def create_cars_plot5(speed_limit=60, num_cars = 25, num_ped = 15, patience=60):
     data = get_data(speed_limit, num_cars, num_ped, patience)
 
     #for speed vs light int graph
@@ -691,7 +691,7 @@ sidebar = html.Div([
                 "color": "#4aa9d4"})
     ]),
     html.H6("Speed Limit"),
-    dcc.Slider(id = "speed-limit", min = 40, max = 90, step = 10,
+    dcc.Slider(id = "speed-limit", min = 40, max = 80, step = 10,
     marks={
         40: "40",
         50: "50",
@@ -708,14 +708,14 @@ sidebar = html.Div([
     html.Br(),
 
     html.H6("Number of Cars"),
-    dcc.Slider(id = "number-of-cars", min = 5, max = 45, step = 10,
+    dcc.Slider(id = "number-of-cars", min = 25, max = 65, step = 10,
     marks={
-        5: "5",
-        15: "15",
         25: "25",
         35: "35",
-        45: "45"
-    }, value=15, 
+        45: "45",
+        55: "55",
+        65: "65"
+    }, value=25, 
         tooltip={"placement": "bottom", "always_visible": True}),
 
     html.P(
@@ -725,13 +725,12 @@ sidebar = html.Div([
     html.Br(),
 
     html.H6("Number of Pedestrians"),
-    dcc.Slider(id = "number-of-pedestrians", min = 5, max = 45, step = 10,
+    dcc.Slider(id = "number-of-pedestrians", min = 5, max = 35, step = 10,
     marks={
         5: "5",
         15: "15",
         25: "25",
-        35: "35",
-        45: "45"
+        35: "35"
     }, 
     value=15, 
         tooltip={"placement": "bottom", "always_visible": True}),
@@ -743,7 +742,7 @@ sidebar = html.Div([
     html.Br(),
 
     html.H6("Driver patience"),
-    dcc.Slider(id = "max-patience", min = 0.2, max = 1, step = 0.2, value=0.6, 
+    dcc.Slider(id = "max-patience", min = 20, max = 100, step = 20, value=60, 
         tooltip={"placement": "bottom", "always_visible": True}),
 
     html.P(
