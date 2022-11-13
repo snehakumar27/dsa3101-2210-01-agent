@@ -247,7 +247,7 @@ to-report car-color
 end
 
 to make-people
-  let sidewalk-patches patches with [ meaning = "sidewalk-left" or meaning = "sidewalk-right" ]
+  let sidewalk-patches patches with [ meaning = "sidewalk-left" or meaning = "sidewalk-right" or meaning = "sidewalk-roadside" or meaning = "waitpoint" ]
   if number-of-pedestrians > count sidewalk-patches
   [
     set number-of-pedestrians count sidewalk-patches
@@ -295,7 +295,7 @@ ask n-of (sidewalk-right-people) patches with [ meaning = "sidewalk-right" ]
     ]
   ]
 
-  ask n-of (sidewalk-roadside-people) patches with [ meaning = "sidewalk-roadside" ]
+  ask n-of (sidewalk-roadside-people) patches with [ meaning = "sidewalk-roadside" or meaning = "waitpoint"]
   [
      sprout-persons 1
     [
@@ -312,7 +312,9 @@ ask n-of (sidewalk-right-people) patches with [ meaning = "sidewalk-right" ]
     ]
   ]
 
-  ask n-of (50) patches with [ meaning = "path" ]
+
+  let path_patches count patches with [meaning = "path"]
+  ask n-of (random path_patches) patches with [ meaning = "path" ]
   [
     sprout-persons 1
     [
@@ -1091,8 +1093,8 @@ SLIDER
 number-of-pedestrians
 number-of-pedestrians
 0
-44
-5.0
+176
+176.0
 1
 1
 NIL
