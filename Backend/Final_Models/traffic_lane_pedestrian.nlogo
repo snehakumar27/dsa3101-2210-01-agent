@@ -616,7 +616,7 @@ end
 
 to move-cars
 
-  let blocking-cars other cars in-cone (1 + ((speed / decel) * speed)) 120 with [ y-distance <= 2  ]
+  let blocking-cars other cars in-cone (1 + ((speed / decel) * speed)) 150   ;with [ y-distance <= 2  ]
   let blocking-car min-one-of blocking-cars [ distance myself ]
   if blocking-car != nobody
   [
@@ -641,7 +641,7 @@ to move-cars
       set stopTime stopTime + 1
     ]
     [
-      set blocking-cars other cars in-cone (1 + ((speed / deceleration) * speed)) 120 with [ y-distance <= 2  ]
+      set blocking-cars other cars in-cone (1 + ((speed / deceleration) * speed)) 150   ;with [ y-distance <= 2  ]
       set blocking-car min-one-of blocking-cars [ distance myself ]
       ifelse blocking-car != nobody
       [
@@ -671,7 +671,7 @@ to move-cars
             set stopTime stopTime + 1
           ]
           [
-             set blocking-cars other cars in-cone (1 + ((speed / deceleration) * speed)) 120 with [ y-distance <= 2  ]
+            set blocking-cars other cars in-cone (1 + ((speed / deceleration) * speed)) 150   ;with [ y-distance <= 2  ]
              set blocking-car min-one-of blocking-cars [ distance myself ]
              ifelse blocking-car != nobody
             [
@@ -685,7 +685,7 @@ to move-cars
           ]
         ]
         [
-          set blocking-cars other cars in-cone (1 + ((speed / deceleration) * speed)) 120 with [ y-distance <= 2  ]
+          set blocking-cars other cars in-cone (1 + ((speed / deceleration) * speed)) 150   ;with [ y-distance <= 2  ]
           set blocking-car min-one-of blocking-cars [ distance myself ]
           ifelse blocking-car != nobody
           [
@@ -700,7 +700,7 @@ to move-cars
       ]
     ]
     [
-      set blocking-cars other cars in-cone (1 + ((speed / deceleration) * speed)) 120 with [ y-distance <= 2  ]
+      set blocking-cars other cars in-cone (1 + ((speed / deceleration) * speed)) 150   ;with [ y-distance <= 2  ]
       set blocking-car min-one-of blocking-cars [ distance myself ]
       ifelse blocking-car != nobody
       [
@@ -742,7 +742,7 @@ to move-to-targetLane ; car procedure
     if (meaning != "crossing" and speed != 0)
     [
       set heading ifelse-value targetLane < xcor [ 270 ] [ 90 ]
-      let blocking-cars other cars in-cone (abs(xcor - targetLane)) 150 with [ y-distance <= 1 and x-distance <= 1 ]
+      let blocking-cars other cars in-cone (abs(xcor - targetLane)) 120 with [ y-distance <= 1 and x-distance <= 1 ]
       let blocking-car min-one-of blocking-cars [ distance myself ]
       ifelse blocking-car = nobody
       [
