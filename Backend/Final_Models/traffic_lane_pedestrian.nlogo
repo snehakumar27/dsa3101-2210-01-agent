@@ -233,6 +233,8 @@ to make-cars
           set maxSpeed speedLimit + random-float 0.002
         ]
         set speed maxSpeed - random-float 0.04
+        set stopTime 0
+        set stopped? false
       ]
     ]
   ]
