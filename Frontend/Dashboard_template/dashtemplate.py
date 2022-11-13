@@ -886,25 +886,25 @@ def get_description(o1, o2, o3):
     bad = (o1 < cutoff[0], o2 > cutoff[1], o3 > cutoff[2])
     output = ""
     if bad == (False, False, False):
-        output += f"The average car speed is {o1} kilometers per hour, \
+        output += f"The average car speed is {round(o1,1)} kilometers per hour, \
             meaning that traffic flows considerably freely near the junction. \n\
             The average crowd size is {o2} people, indicating that the pedestrians are able to walk around effortlessly. \n\
             The number of lane changes per min is {o3}, suggesting that accidents are less likely to happen. \n"
     
     elif bad == (False, False, True):
-        output += f"The average car speed is {o1} kilometers per hour, \
+        output += f"The average car speed is {round(o1,1)} kilometers per hour, \
             meaning that traffic flows considerably freely near the junction. \
             The average crowd size is {o2} people, indicating that the pedestrians are able to walk around effortlessly. \
             However, the number of lane changes per min is {o3}, suggesting that there is a high risk of accidents. "
 
     elif bad == (False, True, False):
-        output += f"The average car speed is {o1} kilometers per hour, \
+        output += f"The average car speed is {round(o1,1)} kilometers per hour, \
             meaning that traffic flows considerably freely near the junction. \
             The number of lane changes per min is {o3}, suggesting that accidents are less likely to happen. \
             However, the average crowd size is {o2} people, indicating that the pedestrians may face difficulties walking around. "
 
     elif bad == (False, True, True):
-        output += f"The average car speed is {o1} kilometers per hour, \
+        output += f"The average car speed is {round(o1,1)} kilometers per hour, \
             meaning that traffic flows considerably freely near the junction. \
             However, the average crowd size is {o2} people, indicating that the pedestrians may face difficulties walking around. \
             Moreover, the number of lane changes per min is {o3}, suggesting that there is a high risk of accidents. " 
@@ -912,23 +912,23 @@ def get_description(o1, o2, o3):
     elif bad == (True, False, False):
         output += f"The average crowd size is {o2} people, indicating that the pedestrians are able to walk around effortlessly. \
             The number of lane changes per min is {o3}, suggesting that accidents are less likely to happen. \
-            However, the average car speed is only {o1} kilometers per hour, \
+            However, the average car speed is only {round(o1,1)} kilometers per hour, \
             meaning that congestion happens frequently near the junction. "
 
     elif bad == (True, False, True):
         output += f"The average crowd size is {o2} people, indicating that the pedestrians are able to walk around effortlessly. \
-            However, the average car speed is only {o1} kilometers per hour, \
+            However, the average car speed is only {round(o1,1)} kilometers per hour, \
             meaning that congestion happens frequently near the junction. \
             Moreover, the number of lane changes per min is {o3}, suggesting that there is a high risk of accidents. "
 
     elif bad == (True, True, False):
         output += f"The number of lane changes per min is {o3}, suggesting that accidents are less likely to happen. \
-            However, the average car speed is only {o1} kilometers per hour, \
+            However, the average car speed is only {round(o1,1)} kilometers per hour, \
             meaning that congestion happens frequently near the junction. \
             Moreover, the average crowd size is {o2} people, indicating that the pedestrians may face difficulties walking around. "
 
     else:
-        output += f"The average car speed is only {o1} kilometers per hour, \
+        output += f"The average car speed is only {round(o1,1)} kilometers per hour, \
             meaning that congestion happens frequently near the junction. \
             Moreover, the average crowd size is {o2} people, indicating that the pedestrians may face difficulties walking around. \
             On top of that, the number of lane changes per min is {o3}, suggesting that there is a high risk of accidents. "
