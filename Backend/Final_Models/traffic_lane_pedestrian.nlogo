@@ -823,7 +823,7 @@ to move-pedestrians
       [set walk-time 0]
     ]
     [
-      set walk-time 0.01 + random-float (0.06 - 0.01)
+      set walk-time 0.023 + random-float (0.004)
       forward walk-time
     ]
   ]
