@@ -14,6 +14,14 @@ Inspired by the new Tengah town as well as the up and coming Jurong Innovation D
 For the purpose of this project, we have decided to focus on a particular segment of the Tengah town which incorporates the Plantation and Garden district as well as the main road, Tengah Boulevard, leading from PIE. We have chosen this region as this new district runs parallel to Jurong West Avenue 1 which is a popular road that receives a lot of traffic flow, hence when JID is built, we could potentially see the same traffic flow in the roads of the new district. Thus, we hope that with these simulations, we could identify and assist URA to build better road features that could help reduce traffic build up and provide a smooth traffic flow for road users.
 
 ------------------------------------
+## GitHub Large File Storage 
+
+If you face issues with pulling the changes or cloning the repository, install the git LFS extension <br />
+`brew install git-lfs`
+
+The git LFS extension has been used in this repository to keep track of the csv files containing the simulation model's outputs. 
+
+------------------------------------
 ## Instructions for running the dashboard (frontend) using Docker
 
 1. Navigate to /Frontend/Dashboard_template
@@ -41,7 +49,7 @@ Replace `~/path/to/results/folder` with the path on your local computer starting
 5. View the simulation <br />
 `http://localhost:10000/index.html?encoding=rgb32&password=111`
 
-** If you would like to run both models simultaneously, name the images in steps 3 & 4 sepaarately and map it to separate port in step 3 
+** If you would like to run both models simultaneously, name the images in steps 3 & 4 separately and map it to different port in step 3 
 
 6. To stop the container <br />
 `docker stop netlogo` <br />
