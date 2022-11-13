@@ -256,12 +256,8 @@ to make-bike
         set patience random max-patience     ;max-patience in beginning
         set heading 0
         ;randomly set car speed
-        set speed 0.01
-        let s random-float 14
-        if s < 7 [set maxSpeed speed-limit - 0.002 + random-float 0.005]
-        if s = 7 [set maxSpeed speed-limit - 0.005 + random-float 0.03]
-        if s > 7 [set maxSpeed speed-limit + random-float 0.002]
-        set speed maxSpeed - random-float 0.002
+        set speed 0.08 + random-float 0.04
+
       ]
     ]
   ]
@@ -283,12 +279,7 @@ to make-bike
         set patience random max-patience      ;max-patience in beginning
         set heading 180
         ;randomly set car speed
-        set speed 0.01
-        let s random-float 14
-        if s < 7 [set maxSpeed speed-limit - 0.002 + random-float 0.005]
-        if s = 7 [set maxSpeed speed-limit - 0.005 + random-float 0.03]
-        if s > 7 [set maxSpeed speed-limit + random-float 0.002]
-        set speed maxSpeed - random-float 0.002
+        set speed 0.08 + random-float 0.04
       ]
     ]
   ]
