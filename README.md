@@ -33,7 +33,7 @@ The git LFS extension has been used in this repository to keep track of the csv 
 ## Instructions for running the Netlogo simulation (backend) using Docker
 1. Set your working directory to `Backend/Final_Models` 
 
-2. Choose which simulation model you would like to run and choose one of the following commands accordingly: <br />
+2. Choose which simulation model you would like to run: <br />
 For running the base traffic model: <br />
 `docker build --build-arg MODEL_NAME=traffic_lane_pedestrian.nlogo -t traffic_model .` <br/>
 For running the bike lane: <br />
@@ -43,19 +43,19 @@ For running the bike lane: <br />
 `docker run -d --name x11-bridge -e MODE="tcp" -e XPRA_HTML="yes" -e DISPLAY=:14 -e XPRA_PASSWORD=111 -p 10000:10000 jare/x11-bridge`
 
 4. Run the netlogo model <br />
-`docker run -d --name netlogo --volumes-from x11-bridge -v ~/path/to/results/folder:/home/results traffic_model`
+`docker run -d --name netlogo --volumes-from x11-bridge -v ~/path/to/results/folder:/home/results traffic_model`  <br />
 Replace `~/path/to/results/folder` with the path on your local computer starting from `~/`
 
 5. View the simulation <br />
 `http://localhost:10000/index.html?encoding=rgb32&password=111`
 
-** If you would like to run both models simultaneously, name the images in steps 3 & 4 separately and map it to different port in step 3 
+** If you would like to run both models simultaneously, the container names in steps 2-4 must be named differently. Each model must also be mapped to different ports in step 3 
 
 6. To stop the container <br />
 `docker stop netlogo` <br />
 `docker stop x11-bridge`
 
-**Note: The backend model may also be viewed directly with the html file.**
+**Note: The backend model may also be viewed directly with the html file**
 
 
 
