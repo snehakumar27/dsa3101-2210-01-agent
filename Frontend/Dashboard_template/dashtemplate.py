@@ -545,8 +545,8 @@ content1 = dbc.Row([
             [
                 dcc.Dropdown(['1', '2', '3', '4'], 
                 '2', 
-                id='demo-dropdown'),
-                html.Div(id='dd-output-container')
+                id='lane-dropdown'),
+                html.Div(id='number-of-lanes')
             ]
         ),
         html.Br(),
@@ -810,12 +810,12 @@ app.layout = html.Div(
 
 # call back for lane dropdown 
 @app.callback(
-    Output('dd-output-container', 'children'),
-    Input('demo-dropdown', 'value')
+    Output('number-of-lanes', 'children'),
+    Input('lane-dropdown', 'value')
 )
 
 def update_output(value):
-    return f'You have selected {value} lanes'
+    return f"{value} lanes"
 
 # callback for light interval buttons
 @app.callback(
