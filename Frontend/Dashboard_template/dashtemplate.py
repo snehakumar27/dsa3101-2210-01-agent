@@ -589,31 +589,31 @@ content1 = dbc.Row([
             dbc.Col([daq.Gauge(
                     showCurrentValue=True,
                     color={"gradient":True, 
-                            "ranges":{"green": [45, 120], "yellow": [30, 45], "red":[15, 30], "purple": [0, 15]}},
-                    scale={'start': 0, 'interval': 10, 'labelInterval': 3},
+                            "ranges":{"green": [45, 80], "yellow": [30, 45], "red":[15, 30], "purple": [0, 15]}},
+                    scale={'start': 0, 'interval': 5, 'labelInterval': 2},
                     units="km/h",
                     id='test01',
                     label="Average Car Speed", 
-                    max= 120,
+                    max= 80,
                     min= 0,
                     size = 200
                 )], width = 5),
             dbc.Col([daq.Tank(
                     showCurrentValue=True,
-                    scale={'interval': 5, 'labelInterval': 2},
+                    scale={'interval': 5, 'labelInterval': 1},
                     units="People",
                     id = "test02",
                     label='Average Crowd Size',
-                    max=50,
+                    max=30,
                     min=0,
                 )], width = 3),
             dbc.Col([daq.Thermometer(
                     showCurrentValue=True,
-                    scale={'interval': 5, 'labelInterval': 2},
+                    scale={'interval': 0.05, 'labelInterval': 2},
                     units="Changes",
                     id = "test03",
                     label='Lane changes per min',
-                    max=30,
+                    max=0.5,
                     min=0,
                     height = 120,
                 )], width = 3),
@@ -872,7 +872,7 @@ def get_value(sl, nc, np, mp, nl, li):
     data3 = datause[datause['num_lanes'] == int(nl[0])]
     data4 = data3[data3['light_interval'] == float(li)]
     return_value = data4['changed_lanes'].iloc[0]
-    return round(return_value)
+    return round(return_value, 2)
 
 @app.callback(
     Output("paragraph", "children"), 
@@ -881,7 +881,7 @@ def get_value(sl, nc, np, mp, nl, li):
     Input("test03", "value"),]
 )
 def get_description(o1, o2, o3):
-    cutoff = (30, 20, 20)
+    cutoff = (35, 10, 0.1)
     bad = (o1 < cutoff[0], o2 > cutoff[1], o3 > cutoff[2])
     output = ""
     if bad == (False, False, False):
