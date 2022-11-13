@@ -14,7 +14,7 @@ Inspired by the new Tengah town as well as the up and coming Jurong Innovation D
 For the purpose of this project, we have decided to focus on a particular segment of the Tengah town which incorporates the Plantation and Garden district as well as the main road, Tengah Boulevard, leading from PIE. We have chosen this region as this new district runs parallel to Jurong West Avenue 1 which is a popular road that receives a lot of traffic flow, hence when JID is built, we could potentially see the same traffic flow in the roads of the new district. Thus, we hope that with these simulations, we could identify and assist URA to build better road features that could help reduce traffic build up and provide a smooth traffic flow for road users.
 
 ------------------------------------
-## Instructions for running the dashboard (frontend)
+## Instructions for running the dashboard (frontend) using Docker
 
 1. Navigate to /Frontend/Dashboard_template
 2. `docker build -t dashboard .`
@@ -22,7 +22,7 @@ For the purpose of this project, we have decided to focus on a particular segmen
 4. dashboard should be up on `http://127.0.0.1:8055/`
 
 
-## Instructions for running the Netlogo simulation (backend) 
+## Instructions for running the Netlogo simulation (backend) using Docker
 1. Set your working directory to `Backend/Final_Models` 
 
 2. Choose which simulation model you would like to run and choose one of the following commands accordingly: <br />
@@ -46,6 +46,8 @@ Replace `~/path/to/results/folder` with the path on your local computer starting
 6. To stop the container <br />
 `docker stop netlogo` <br />
 `docker stop x11-bridge`
+
+**Note: The backend model may also be viewed directly with the html file.**
 
 
 
