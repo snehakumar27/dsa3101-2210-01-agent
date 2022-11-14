@@ -405,7 +405,7 @@ def create_cars_plot4(speed_limit=60, num_cars = 25, num_ped = 15, patience=60):
     fig.update_layout(
         height = 600,
         width = 500,
-        title_text = "Lane changing per min <br>VS <br>No. of lanes & Green Light Duration",
+        title_text = "Lane changes per min <br>VS <br>No. of lanes & Green Light Duration",
         title_x=0.5,
         showlegend=True,
         #legend_tracegroupgap = 180
