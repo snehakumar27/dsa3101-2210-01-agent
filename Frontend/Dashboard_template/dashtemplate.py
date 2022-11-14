@@ -27,7 +27,6 @@ def get_data(speed_limit, num_cars, num_ped, patience):
 
 ### TAB 3 GRAPHS
 
-
 def create_plot_crowd_car1(speed_limit=60, num_cars = 25, num_ped = 15, patience=60):
     data = get_data(speed_limit, num_cars, num_ped, patience)
     crowds_line_df = data.groupby("light_interval").mean()[["avg_crowd_size"]]
@@ -161,21 +160,24 @@ def create_plot_crowd_car2(speed_limit=60, num_cars = 25, num_ped = 15, patience
             x = car_interval2["light_interval"],
             y = car_interval2["changed_lanes"],
             line=dict(width=3),
-            name = "plot1: number of lanes = 2"
+            name = "plot1: number of lanes = 2",
+            legendgroup='1'
         )
 
     trace3 =go.Scatter(
             x = car_interval3["light_interval"],
             y = car_interval3["changed_lanes"],
             line=dict(width=3),
-            name = "plot1: number of lanes = 3"
+            name = "plot1: number of lanes = 3",
+            legendgroup='1'
         )
 
     trace4 =go.Scatter(
             x = car_interval4["light_interval"],
             y = car_interval4["changed_lanes"],
             line=dict(width=3),
-            name = "plot1: number of lanes = 4"
+            name = "plot1: number of lanes = 4",
+            legendgroup='1'
         )
     
     # creating subplot 1
@@ -207,6 +209,7 @@ def create_plot_crowd_car2(speed_limit=60, num_cars = 25, num_ped = 15, patience
         height = 600,
         width = 1000,
         showlegend=True,
+        legend_tracegroupgap = 180,
         title_text = "How the Green Light Duration of Cars affect Cars and Pedestrians",
         title_x=0.5
     )
@@ -336,7 +339,7 @@ def create_cars_plot3(speed_limit=60, num_cars = 25, num_ped = 15, patience=60):
     fig.add_trace(trace3, row=1, col=1,),
     fig.add_trace(trace4, row=1, col=1,)
 
-    #traces for subplot 1 (speed vs num of lanes)
+    #traces for subplot 2 (speed vs num of lanes)
     trace_1 = go.Line(x = car_lanes1["num_lanes"],
                       y = car_lanes1["avg_speed_cars"],
                       name = "green light duration (min) = 0.5",
