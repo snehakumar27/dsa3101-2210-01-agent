@@ -14,7 +14,7 @@ RUN python3 -m venv /app
 
 COPY dashtemplate.py dashtemplate.py
 
-COPY permsnewdata.xlsx permsnewdata.xlsx
+COPY real_data/full_data.xlsm real_data/full_data.xlsm
 
 COPY assets/background.jpg assets/background.jpg
 
